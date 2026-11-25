@@ -2,784 +2,274 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Stitch — Ohana Pocket</title>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
 <style>
-:root {
-  --shell: #269eea;
-  --light: #a5e4ff;
-  --dark: #135aa6;
-  --border: #141720;
+:root{
+  --blue:#269eea;
+  --light:#a5e4ff;
+  --dark:#135aa6;
+  --outline:#141720;
 }
-
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;min-height:100vh;padding:24px 12px;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:22px;
+  background:radial-gradient(circle at top,#253747,#121520);
+  color:#edf7ff;font-family:monospace;
 }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 24px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  background:
-    radial-gradient(circle at 20% 20%, #23283d, transparent 45%),
-    radial-gradient(circle at 80% 80%, #1c323a, transparent 45%),
-    #121520;
-  color: #eef5ff;
-  font-family: monospace;
+.console{
+  width:340px;max-width:94vw;padding:24px;
+  border:6px solid var(--outline);border-radius:36px 36px 22px 22px;
+  background:var(--blue);
+  box-shadow:inset 8px 8px var(--light),
+    inset -8px -10px var(--dark),0 16px #090d15,
+    0 24px 35px #0008;
 }
-
-.console {
-  width: 340px;
-  max-width: 94vw;
-  padding: 24px;
-  background: var(--shell);
-  border: 6px solid var(--border);
-  border-radius: 36px 36px 22px 22px;
-  box-shadow:
-    inset 8px 8px 0 var(--light),
-    inset -8px -10px 0 var(--dark),
-    0 18px 0 #0b0d14,
-    0 26px 40px #0008;
+.brand{
+  margin-bottom:16px;text-align:center;color:var(--outline);
+  font-weight:bold;letter-spacing:2px;font-size:12px;
 }
-
-.brand {
-  margin-bottom: 18px;
-  text-align: center;
-  color: var(--border);
-  font: bold 12px monospace;
-  letter-spacing: 2px;
+.bezel{
+  padding:12px;border:6px solid var(--outline);background:#7d83a8;
+  box-shadow:inset 4px 4px #9aa0c4,inset -4px -4px #585d7e;
 }
-
-.bezel {
-  padding: 12px;
-  background: #7d83a8;
-  border: 6px solid var(--border);
-  box-shadow:
-    inset 4px 4px 0 #a5adc9,
-    inset -4px -4px 0 #585d7e;
+.screen{
+  position:relative;aspect-ratio:128/160;
+  border:5px solid var(--outline);background:#084358;overflow:hidden;
 }
-
-.screen {
-  position: relative;
-  aspect-ratio: 128 / 160;
-  overflow: hidden;
-  background: #084358;
-  border: 5px solid var(--border);
+canvas{
+  display:block;width:100%;height:100%;image-rendering:pixelated;
 }
-
-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
+.hud{
+  position:absolute;top:5px;left:5px;right:5px;
+  z-index:2;display:flex;justify-content:space-between;
+  gap:4px;pointer-events:none;
 }
-
-.screen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    #ffffff06 0 2px,
-    transparent 2px 4px
-  );
+#clock{font-size:12px;font-weight:bold;color:#ffd166;text-shadow:1px 1px #000}
+.bars{width:55%;display:grid;gap:4px}
+.bar-row{display:flex;gap:4px;align-items:center}
+.bar-row svg{width:12px;height:12px;flex-shrink:0;shape-rendering:crispEdges}
+.track{flex:1;height:8px;border:1px solid #b8d6e3;background:#102437}
+.track i{display:block;height:100%;width:0}
+#happyFill{background:#ff789e}
+#hungerFill{background:#ffc56b}
+#menu{
+  position:absolute;inset:0;z-index:5;padding:10px;overflow:auto;
+  background:#18243bf5;font-size:14px;
 }
-
-/* Giờ và hai thanh chỉ dùng biểu tượng. */
-.hud {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 5px;
-  padding: 6px 5px;
-  background: #084358;
-  pointer-events: none;
+#menu[hidden]{display:none}
+#menu h3{margin:0 0 8px;font-size:16px;color:#ffd166}
+.menu-row{padding:8px 4px}
+.menu-row.active{color:var(--outline);background:var(--light)}
+.controls{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:28px;gap:10px;
 }
-
-.clock {
-  padding-top: 3px;
-  color: #ffd166;
-  font: bold 12px monospace;
-  white-space: nowrap;
+.dpad{position:relative;width:108px;height:108px;flex-shrink:0}
+button{cursor:pointer;touch-action:manipulation;user-select:none}
+button:focus-visible{outline:3px solid #ffd166;outline-offset:3px}
+.direction{
+  position:absolute;width:36px;height:36px;padding:0;
+  border:5px solid var(--outline);background:#868eb2;
+  box-shadow:inset 3px 3px #a5adc9,inset -3px -3px #616887;
+  color:#192038;font-weight:bold;
 }
-
-.status-bars {
-  display: grid;
-  gap: 4px;
-  width: 58%;
+.direction:active{background:#616887}
+.up{top:0;left:36px;border-bottom:0}
+.down{bottom:0;left:36px;border-top:0}
+.left{left:0;top:36px;border-right:0}
+.right{right:0;top:36px;border-left:0}
+.center{position:absolute;left:36px;top:36px;width:36px;height:36px;background:#868eb2}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:18px 10px;width:120px}
+.action{
+  display:flex;flex-direction:column;align-items:center;
+  gap:6px;color:#141720;font-size:10px;font-weight:bold;
 }
-
-.status-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 12px;
+.round{
+  width:32px;height:32px;border-radius:50%;
+  border:5px solid var(--outline);background:#d45567;
+  box-shadow:inset 3px 3px #ec7888,inset -3px -3px #9c3445;
 }
-
-.status-row svg {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-  shape-rendering: crispEdges;
+.round:active{background:#9c3445}
+.speaker{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.speaker i{
+  width:14px;height:40px;border:4px solid var(--outline);
+  border-radius:6px;background:#2a2f45;
 }
-
-.track {
-  flex: 1;
-  height: 8px;
-  border: 1px solid #bddce8;
-  background: #102437;
-  overflow: hidden;
-}
-
-.fill {
-  display: block;
-  height: 100%;
-  width: 0;
-}
-
-#spiritFill { background: #ff789e; }
-#hungerFill { background: #ffc56b; }
-
-.menu {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  padding: 10px;
-  overflow: auto;
-  background: #18243bf5;
-  font: 14px monospace;
-}
-
-.menu[hidden] {
-  display: none;
-}
-
-.menu h3 {
-  margin: 0 0 10px;
-  color: #ffd166;
-  font-size: 15px;
-}
-
-.menu-row {
-  padding: 7px 3px;
-  line-height: 1.3;
-}
-
-.menu-row.active {
-  background: var(--light);
-  color: var(--border);
-}
-
-.controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: 28px;
-}
-
-.dpad {
-  position: relative;
-  width: 108px;
-  height: 108px;
-  flex-shrink: 0;
-}
-
-.dpad button {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  color: var(--border);
-  background: #868eb2;
-  border: 5px solid var(--border);
-  box-shadow:
-    inset 3px 3px 0 #a5adc9,
-    inset -3px -3px 0 #616887;
-}
-
-.up {
-  top: 0;
-  left: 36px;
-  border-bottom: none !important;
-}
-
-.down {
-  bottom: 0;
-  left: 36px;
-  border-top: none !important;
-}
-
-.left {
-  top: 36px;
-  left: 0;
-  border-right: none !important;
-}
-
-.right {
-  top: 36px;
-  right: 0;
-  border-left: none !important;
-}
-
-.center {
-  position: absolute;
-  top: 36px;
-  left: 36px;
-  width: 36px;
-  height: 36px;
-  background: #868eb2;
-}
-
-.actions {
-  display: grid;
-  grid-template-columns: repeat(2, 58px);
-  gap: 20px 2px;
-  text-align: center;
-}
-
-.actions button {
-  display: block;
-  width: 30px;
-  height: 30px;
-  margin: auto;
-  padding: 0;
-  border-radius: 50%;
-  background: #d45567;
-  border: 5px solid var(--border);
-  box-shadow:
-    inset 3px 3px 0 #ec7888,
-    inset -3px -3px 0 #9c3445;
-}
-
-.actions span {
-  display: block;
-  margin-top: 8px;
-  color: var(--border);
-  font: bold 9px monospace;
-}
-
-button {
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-button:active {
-  filter: brightness(.8);
-  transform: translateY(2px);
-}
-
-button:focus-visible {
-  outline: 3px solid #ffd166;
-  outline-offset: 2px;
-}
-
-.speaker {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 22px;
-}
-
-.speaker i {
-  width: 14px;
-  height: 44px;
-  border: 4px solid var(--border);
-  border-radius: 6px;
-  background: #2a2f45;
-}
-
-footer {
-  max-width: 360px;
-  text-align: center;
-  color: #adbbd4;
-  font-size: 12px;
-  line-height: 1.8;
-}
-
-#message {
-  margin-bottom: 8px;
-  color: #ffd166;
-}
+#message{max-width:500px;margin:0;text-align:center;font-size:14px;line-height:1.6}
+.help{max-width:500px;margin:0;text-align:center;color:#94a6c4;font-size:12px;line-height:1.7}
 </style>
 </head>
 
 <body>
 <main class="console">
   <div class="brand">OHANA POCKET PET</div>
-
   <div class="bezel">
     <div class="screen">
-      <canvas
-        id="petCanvas"
-        width="128"
-        height="160"
-        aria-label="Stitch pixel"
-      ></canvas>
-
+      <canvas id="gameCanvas" width="128" height="160"
+        aria-label="Stitch"></canvas>
       <div class="hud">
-        <time class="clock" id="petClock">00:00</time>
-
-        <div class="status-bars">
-          <div class="status-row">
+        <span id="clock">00:00</span>
+        <div class="bars">
+          <div class="bar-row">
             <svg viewBox="0 0 12 12" aria-hidden="true">
-              <path
-                fill="#ff789e"
-                d="M1 2h4v1h2V2h4v5H9v2H7v2H5V9H3V7H1z"
-              />
-              <path fill="#ffd1e0" d="M2 3h2v1H2z"/>
+              <path fill="#ff789e"
+                d="M1 2h4v1h2V2h4v5H9v2H7v2H5V9H3V7H1z"/>
             </svg>
-
-            <div
-              class="track"
-              id="spiritTrack"
-              role="progressbar"
-              aria-label="Tinh thần"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              <i class="fill" id="spiritFill"></i>
+            <div class="track" id="happyTrack" role="progressbar"
+              aria-label="Vui vẻ" aria-valuemin="0" aria-valuemax="100">
+              <i id="happyFill"></i>
             </div>
           </div>
-
-          <div class="status-row">
+          <div class="bar-row">
             <svg viewBox="0 0 12 12" aria-hidden="true">
-              <path
-                fill="#ffc56b"
-                d="M3 1h6v1h2v7H9v2H3V9H1V2h2z"
-              />
-              <path
-                fill="#995c2d"
-                d="M4 3h2v2H4zM8 5h1v2H8zM3 7h2v2H3z"
-              />
+              <path fill="#ffc56b" d="M3 1h6v1h2v7H9v2H3V9H1V2h2z"/>
+              <path fill="#af7038"
+                d="M4 4h1v1H4zm3 2h1v1H7zM3 8h1v1H3z"/>
             </svg>
-
-            <div
-              class="track"
-              id="hungerTrack"
-              role="progressbar"
-              aria-label="Độ đói"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              <i class="fill" id="hungerFill"></i>
+            <div class="track" id="hungerTrack" role="progressbar"
+              aria-label="Độ đói" aria-valuemin="0" aria-valuemax="100">
+              <i id="hungerFill"></i>
             </div>
           </div>
         </div>
       </div>
-
-      <section id="menu" class="menu" hidden></section>
+      <section id="menu" hidden></section>
     </div>
   </div>
 
   <div class="controls">
-    <div class="dpad" role="group" aria-label="Chọn mục menu">
-      <button class="up" data-step="-1" aria-label="Lên">▲</button>
-      <button class="left" data-step="-1" aria-label="Trái">◀</button>
+    <div class="dpad">
+      <button class="direction up" data-step="-1" aria-label="Lên">▲</button>
+      <button class="direction down" data-step="1" aria-label="Xuống">▼</button>
+      <button class="direction left" data-step="-1" aria-label="Trái">◀</button>
+      <button class="direction right" data-step="1" aria-label="Phải">▶</button>
       <div class="center"></div>
-      <button class="right" data-step="1" aria-label="Phải">▶</button>
-      <button class="down" data-step="1" aria-label="Xuống">▼</button>
     </div>
-
     <div class="actions">
-      <div>
-        <button id="home" aria-label="Home"></button>
+      <div class="action">
+        <button id="homeBtn" class="round" aria-label="HOME"></button>
         <span>HOME</span>
       </div>
-      <div>
-        <button id="back" aria-label="Back"></button>
+      <div class="action">
+        <button id="exitBtn" class="round" aria-label="EXIT"></button>
+        <span>EXIT</span>
+      </div>
+      <div class="action">
+        <button id="backBtn" class="round" aria-label="BACK"></button>
         <span>BACK</span>
       </div>
-      <div>
-        <button id="select" aria-label="Select"></button>
+      <div class="action">
+        <button id="selectBtn" class="round" aria-label="SELECT"></button>
         <span>SELECT</span>
-      </div>
-      <div>
-        <button id="exit" aria-label="Exit"></button>
-        <span>EXIT</span>
       </div>
     </div>
   </div>
-
-  <div class="speaker" aria-hidden="true">
-    <i></i><i></i><i></i>
-  </div>
+  <div class="speaker" aria-hidden="true"><i></i><i></i><i></i></div>
 </main>
 
-<footer>
-  <div id="message" aria-live="polite"></div>
-  Thú nuôi trên trình duyệt • Chưa đồng bộ ESP32 / Adafruit<br>
-  Phím hướng: chọn · Enter: xác nhận · Esc: quay lại<br>
-  H: HOME · X: EXIT
-</footer>
+<p id="message" aria-live="polite">Đang tải Stitch…</p>
+<p class="help">
+  Phím hướng: chọn · Enter: SELECT · Esc: BACK<br>
+  H: HOME · X: EXIT<br>
+  Lưu cục bộ trong trình duyệt · Chưa đồng bộ ESP32<br>
+  Chưa có thời tiết, giọng nói, báo thức hoặc nhắc nhở.
+</p>
 
 <script>
 "use strict";
 
-/* Sprite Stitch pixel, bảng màu RGB565. */
-const palette = [
-  0, 8452, 15218, 36411,
-  38037, 2152, 65535, 63887
-];
-
-const pixels = `
-000000000000000000000000000000000000000000000
-000000000000000000000000000000000001110000000
-000000000000000000000000000000000001111000000
-000000000000000000000000000000000001441100000
-000000000000000000000000000000000001444110000
-001111111000000000000000000000000001444411000
-001111111000000000000000000000000001444441100
-001444441000000000000000000000000001444444110
-001444441000000000000000000000000001444444110
-001444441000000000001110000000000001444444110
-001444441000000000111111111100000001444444110
-001444441000000011112222211111000001444444410
-001444441000000112222222222221110001444444410
-001444441000001122222222222222211001444444410
-001444441000011222222222222222221101444444410
-001444441000012332222222222233332101444444410
-001444441000123333222222222233333111444444410
-001444441001333333222222222233333311444444410
-001444441112311333222222222233111311444444110
-001444444113111133222222222231661131444410000
-001144444111166113222222222231661111444410000
-000144444131166113555555555231111111444410000
-000114441111111113555555555531111111444410000
-000014444111111113555555555531116111444110000
-000011444111111113555555555533111111141110000
-000011144111111133555555555533111131111100000
-000000111111333333555555555533333310011000000
-000000001111233333225555555233333100000000000
-000000000001111222222555552222211000000000000
-000000000000111111111111111111110000000000000
-000000000000000022333333333321000000000000000
-000000000000000112233333333321000000000000000
-000000000000000212233333333322100000000000000
-000000000000000212233333333322100000000000000
-000000000000000212233333333322200000000000000
-000000000000000212233333333322210000000000000
-000000000000002212233333333322110000000000000
-000000000000002212233333333322110000000000000
-000000000000002212233333333322121000000000000
-000000000000012221223333333322221100000000000
-000000111111112221223333333222221100000000000
-000000222211112221223333333221211111111000000
-000001222221112222123333333221211122211110000
-000012222222112222123333333221211122222111000
-000012555522112222123333333212211122222211000
-000012555522111222123333333212211122555521000
-000012555522122122123333333212211122555521000
-000011222222112111111111111211111122555521000
-000011111111111111000000011111111111222211000
-000000000000000000000000000000000011111110000
-000000000000000000000000000000000000000000000
-`.trim().split(/\s+/).map(row => Array.from(row, Number));
-
-const canvas = document.getElementById("petCanvas");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
-const panel = document.getElementById("menu");
+const HOUR = 3600000;
+const KEY = "ohana-pet-v2";
+const clamp = n => Math.max(0, Math.min(100, n));
+const menu = document.getElementById("menu");
 const message = document.getElementById("message");
 
-const clockElement = document.getElementById("petClock");
-const spiritFill = document.getElementById("spiritFill");
-const hungerFill = document.getElementById("hungerFill");
-const spiritTrack = document.getElementById("spiritTrack");
-const hungerTrack = document.getElementById("hungerTrack");
+let modelReady = false;
+let modelError = "";
+let drawPet = null;
 
-const state = {
-  pose: 0,
-  meal: 0,
-  waste: 0
+function say(s) {
+  message.textContent = s;
+}
+
+const initial = {
+  version: 2,
+  last: Date.now(),
+  fed: Date.now(),
+  happy: 80,
+  energy: 85,
+  clean: 100,
+  health: 100,
+  discipline: 70,
+  waste: 0,
+  digestion: [],
+  sick: false,
+  sleep: false,
+  nextIll: Date.now() + (12 + Math.random() * 12) * HOUR
 };
 
-function color(value) {
-  const r = Math.round(((value >> 11) & 31) * 255 / 31);
-  const g = Math.round(((value >> 5) & 63) * 255 / 63);
-  const b = Math.round((value & 31) * 255 / 31);
-  return `rgb(${r},${g},${b})`;
-}
-
-function rect(x, y, w, h, c) {
-  ctx.fillStyle = color(c);
-  ctx.fillRect(Math.round(x), Math.round(y), w, h);
-}
-
-function text(x, y, value, c = 0xffff, size = 8) {
-  ctx.fillStyle = color(c);
-  ctx.font = size + "px monospace";
-  ctx.fillText(value, x, y);
-}
-
-function ink(x, y, pose, frame) {
-  let c = pixels[y][x];
-
-  const eyes =
-    (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
-    (x >= 29 && x <= 34 && y >= 18 && y <= 25);
-
-  if (eyes && [2, 3, 4, 7].includes(pose)) {
-    const center = x < 20 ? 13 : 31;
-
-    c = pose === 2
-      ? (y === 21 + (Math.abs(x - center) > 1 ? 1 : 0) ? 1 : 3)
-      : (y === 23 ? 1 : 3);
-  }
-
-  if (x >= 19 && x <= 27 && y >= 28 && y <= 29) {
-    if (pose === 1) c = frame ? 7 : 1;
-    if (pose === 2) c = y === 28 && x > 20 && x < 26 ? 7 : 1;
-    if (pose === 7) c = y === 28 && x > 20 && x < 26 ? 1 : 2;
-  }
-
-  if (
-    pose === 2 && y === 26 &&
-    ((x >= 12 && x <= 14) || (x >= 31 && x <= 33))
-  ) {
-    c = 7;
-  }
-
-  return c;
-}
-
-function heart(x, y) {
-  rect(x, y, 3, 3, 0xf98f);
-  rect(x + 5, y, 3, 3, 0xf98f);
-  rect(x, y + 3, 8, 3, 0xf98f);
-  rect(x + 2, y + 6, 4, 2, 0xf98f);
-}
-
-/*
-  0 bình thường; 1 ăn; 2 vui; 3 chớp mắt; 4 ngủ;
-  7 ốm; 8 dọn; 9 thuốc; 10 kỷ luật;
-  11 Hawaii; 12 dừa; 13 buồn ngủ.
-*/
-function render(pose, frame) {
-  const t = frame / 12 * Math.PI * 2;
-
-  rect(0, 0, 128, 160, pose === 4 ? 0 : 0x0843);
-  rect(0, 137, 128, 1, 0x2152);
-
-  let x = 25;
-  let y = 46;
-  const w = 78;
-  let h = 88;
-  let flip = false;
-
-  if (pose === 0) y += Math.round(Math.sin(t));
-
-  if (pose === 1) {
-    y -= Math.round(3 * Math.abs(Math.sin(t)));
-  }
-
-  if (pose === 2) {
-    y -= Math.round(12 * Math.abs(Math.sin(t)));
-    x += Math.round(3 * Math.sin(t));
-  }
-
-  // Giữ nguyên tỷ lệ khi ngủ.
-  if (pose === 4) y = 46 + Math.round(Math.sin(t));
-
-  if (pose === 7) {
-    x += frame % 2;
-    y += 4;
-    h = 84;
-  }
-
-  if (pose === 8) {
-    x += Math.round(14 * Math.sin(t));
-    flip = Math.cos(t) < 0;
-  }
-
-  if (pose === 9) {
-    y -= Math.round(2 * Math.abs(Math.sin(t)));
-  }
-
-  if (pose === 10) {
-    y -= Math.round(4 * Math.abs(Math.sin(t)));
-  }
-
-  rect(x + 14, 135, w - 28, 2, 0x2104);
-
-  for (let sy = 0; sy < h; sy++) {
-    for (let sx = 0; sx < w; sx++) {
-      let ax = Math.floor(sx * 45 / w);
-      let ay = Math.floor(sy * 51 / h);
-
-      if (flip) ax = 44 - ax;
-
-      if (ay < 18 && pose !== 4) {
-        ay = Math.max(0, Math.min(
-          50,
-          ay + Math.round(Math.sin(t) * (ax < 10 ? 1 : -1))
-        ));
-      }
-
-      const expression =
-        [0, 11, 12].includes(pose) && frame === 0 ? 3 : pose;
-
-      const c = ink(ax, ay, expression, frame < 6 ? 0 : 1);
-
-      if (c && !(pose === 11 && ay >= 30)) {
-        rect(x + sx, y + sy, 1, 1, palette[c]);
-      }
-    }
-  }
-
-  const wave = Math.round(3 * Math.sin(t));
-
-  if (pose === 1) {
-    const foodY = 100 - Math.round(13 * (1 + Math.sin(t)) / 2);
-    rect(x + 32, foodY, 12, 7, [0xffff, 0x07e0, 0xfd20][state.meal]);
-    rect(x + 34, foodY + 7, 8, 2, 0x2104);
-
-    if (frame > 7) {
-      rect(x + 30, foodY + 4, 2, 2, 0xffe0);
-      rect(x + 47, foodY + 6, 2, 2, 0xffe0);
-    }
-  }
-
-  if (pose === 2) {
-    for (let i = 0; i < 2; i++) {
-      heart(10 + i * 97, 75 - ((frame + i * 5) % 12) * 3);
-    }
-  }
-
-  if (pose === 4) {
-    rect(38, 107, 56, 24, 0x3b72);
-    rect(38, 107, 56, 3, 0x65ff);
-    text(85, 82 - frame * 2, "ZZZ");
-  }
-
-  if (pose === 11) {
-    const sway = Math.round(Math.sin(t) * 3);
-
-    // Thân đứng, chân nhấc luân phiên.
-    rect(49 + sway, 98, 30, 23, 0x3b72);
-    rect(56 + sway, 98, 16, 17, 0x8e3b);
-    rect(47 + sway, 119, 12, 13, 0x3b72);
-    rect(68 + sway, 119, 12, 13, 0x3b72);
-
-    rect(43 + sway, 130 - (frame < 6 ? 2 : 0), 17, 4, 0x2104);
-    rect(67 + sway, 130 - (frame >= 6 ? 2 : 0), 17, 4, 0x2104);
-
-    // Váy lá.
-    for (let i = 0; i < 7; i++) {
-      rect(46 + sway + i * 5, 113, 4, 10 + i % 3, 0x5ca6);
-    }
-
-    // Tay múa, vòng lá trên đầu và cổ tay.
-    rect(35, 102 + wave, 18, 5, 0x3b72);
-    rect(77, 98 - wave, 18, 5, 0x3b72);
-
-    for (let i = 0; i < 5; i++) {
-      rect(47 + i * 7, 60 - i % 2 * 3, 5, 5, 0x5ca6);
-    }
-
-    rect(34, 100 + wave, 5, 7, 0x5ca6);
-    rect(92, 96 - wave, 5, 7, 0x5ca6);
-  }
-
-  if (pose === 12) {
-    rect(55, 91 - wave, 20, 17, 0x8200);
-    rect(58, 89 - wave, 14, 3, 0xc618);
-    rect(60, 94 - wave, 2, 2, 0x2104);
-
-    if (frame > 6) rect(72, 91 - wave, 3, 4, 0x0843);
-  }
-
-  if (pose === 13) text(81, 52, "ZZ?", 0xffe0);
-
-  if (pose === 7) {
-    rect(x + 58, 83 + frame % 4, 2, 4, 0x65ff);
-  }
-
-  if (pose === 8) {
-    rect(x + 62 + wave, 104, 2, 23, 0xfd20);
-    rect(x + 57 + wave, 125, 12, 4, 0xffff);
-    rect(108, 130, 10, 4, 0x8200);
-    rect(110, 127, 6, 3, 0x8200);
-  }
-
-  if (pose === 9) {
-    rect(105, 96, 13, 17, 0xffff);
-    rect(110, 98, 3, 13, 0xf800);
-    rect(107, 103, 9, 3, 0xf800);
-    rect(
-      x + 34,
-      105 - Math.round(17 * (1 + Math.sin(t)) / 2),
-      5, 3, 0xffff
-    );
-  }
-
-  if (pose === 10) {
-    text(106, 65 - wave, "!", 0xffe0, 12);
-  }
-
-  if (state.waste && pose !== 8) {
-    rect(107, 130, 10, 4, 0x8200);
-    rect(109, 127, 6, 3, 0x8200);
-  }
-}
-
-/* Luật nuôi và lưu trạng thái. */
-const KEY = "ohana-pet-v2";
-const HOUR = 3600000;
-
-let pet;
-
+let saved = null;
 try {
-  pet = JSON.parse(localStorage.getItem(KEY));
-} catch (error) {}
-
-if (!pet || pet.version !== 2) {
-  pet = {
-    version: 2,
-    last: Date.now(),
-    fed: Date.now(),
-    happy: 80,
-    energy: 85,
-    clean: 100,
-    health: 100,
-    discipline: 70,
-    waste: 0,
-    digestion: [],
-    sick: false,
-    sleep: false,
-    nextIll: Date.now() + 12 * HOUR + Math.random() * 12 * HOUR
-  };
+  saved = JSON.parse(localStorage.getItem(KEY));
+} catch (e) {
+  console.warn("Không đọc được trạng thái:", e);
 }
+
+let pet = saved && saved.version === 2
+  ? {...initial, ...saved}
+  : {...initial};
+
+for (const k of [
+  "last", "fed", "happy", "energy", "clean",
+  "health", "discipline", "waste", "nextIll"
+]) {
+  if (!Number.isFinite(pet[k])) pet[k] = initial[k];
+}
+
+pet.digestion = Array.isArray(pet.digestion)
+  ? pet.digestion.filter(Number.isFinite)
+  : [];
+
+pet.waste = Math.max(0, Math.floor(pet.waste));
+pet.sleep = Boolean(pet.sleep);
+pet.sick = Boolean(pet.sick);
 
 let lastInput = Date.now();
 let idleDance = false;
 let idleCoconut = false;
 let temporary = 0;
-let end = 0;
+let animationEnd = 0;
+let eventId = 0;
+let meal = 0;
+let storageWarned = false;
 
 function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(pet));
-  } catch (error) {}
-}
-
-function say(value) {
-  message.textContent = value;
+  } catch (e) {
+    if (!storageWarned) {
+      console.warn("Không lưu được trạng thái:", e);
+      storageWarned = true;
+      say("Trình duyệt không cho lưu. Trạng thái có thể mất khi đóng trang.");
+    }
+  }
 }
 
 function touch() {
@@ -788,16 +278,18 @@ function touch() {
   idleCoconut = false;
 }
 
-function animate(pose, seconds = 5) {
-  temporary = pose;
-  end = Date.now() + seconds * 1000;
+function hunger() {
+  return clamp((Date.now() - pet.fed) / (9 * HOUR) * 100);
 }
 
-function hunger() {
-  return Math.min(
-    100,
-    Math.max(0, (Date.now() - pet.fed) / (9 * HOUR) * 100)
-  );
+function busy() {
+  return Boolean(pet.medicineDue || pet.cleaningDue);
+}
+
+function animate(pose, seconds = 5) {
+  eventId++;
+  temporary = pose;
+  animationEnd = Date.now() + seconds * 1000;
 }
 
 let previousHud = "";
@@ -808,70 +300,74 @@ function updateHud() {
     String(now.getHours()).padStart(2, "0") + ":" +
     String(now.getMinutes()).padStart(2, "0");
 
-  const spirit = Math.round(Math.max(0, Math.min(100, pet.happy)));
+  const happy = Math.round(clamp(pet.happy));
   const hungry = Math.round(hunger());
-  const key = clock + ":" + spirit + ":" + hungry;
+  const key = clock + ":" + happy + ":" + hungry;
 
   if (key === previousHud) return;
   previousHud = key;
 
-  clockElement.textContent = clock;
-  spiritFill.style.width = spirit + "%";
-  hungerFill.style.width = hungry + "%";
-  hungerFill.style.background = hungry >= 80 ? "#ff6565" : "#ffc56b";
+  document.getElementById("clock").textContent = clock;
+  document.getElementById("happyFill").style.width = happy + "%";
+  document.getElementById("hungerFill").style.width = hungry + "%";
+  document.getElementById("hungerFill").style.background =
+    hungry >= 80 ? "#ff6565" : "#ffc56b";
 
-  spiritTrack.setAttribute("aria-valuenow", spirit);
-  hungerTrack.setAttribute("aria-valuenow", hungry);
+  document.getElementById("happyTrack")
+    .setAttribute("aria-valuenow", happy);
+  document.getElementById("hungerTrack")
+    .setAttribute("aria-valuenow", hungry);
 }
 
 function update() {
   const now = Date.now();
   const hours = Math.max(0, (now - pet.last) / HOUR);
-
   pet.last = now;
-  pet.happy = Math.max(0, pet.happy - hours * 3);
 
-  pet.energy = Math.max(0, Math.min(
-    100,
-    pet.energy + hours * (pet.sleep ? 15 : -4)
-  ));
-
-  pet.clean = Math.max(
-    0,
-    pet.clean - hours * (pet.waste ? 6 : 1)
-  );
+  pet.happy = clamp(pet.happy - hours * 3);
+  pet.energy = clamp(pet.energy + hours * (pet.sleep ? 15 : -4));
+  pet.clean = clamp(pet.clean - hours * (pet.waste ? 6 : 1));
 
   pet.digestion = pet.digestion.filter(deadline => {
-    if (deadline <= now) {
-      pet.waste++;
-      return false;
-    }
-    return true;
+    if (deadline > now) return true;
+    pet.waste++;
+    return false;
   });
 
   const neglected =
     pet.clean < 40 || hunger() > 85 || pet.energy < 20;
 
   if (now >= pet.nextIll) {
-    if (neglected && Math.random() < 0.45) {
+    if (!pet.sick && neglected && Math.random() < 0.45) {
       pet.sick = true;
-      say("Stitch thấy không khỏe, cần chăm sóc.");
+      say("Stitch thấy không khỏe. Cần chăm sóc và uống thuốc.");
     }
-
-    pet.nextIll = now + 6 * HOUR + Math.random() * 6 * HOUR;
+    pet.nextIll = now + (6 + Math.random() * 6) * HOUR;
   }
 
-  pet.health = Math.max(0, Math.min(
-    100,
+  pet.health = clamp(
     pet.health + hours * (pet.sick ? -3 : pet.sleep ? 2 : 0)
-  ));
+  );
 
-  state.waste = pet.waste;
+  if (pet.cleaningDue && now >= pet.cleaningDue) {
+    pet.waste = Math.max(0, pet.waste - (pet.cleaningCount || 0));
+    pet.cleaningDue = 0;
+    pet.cleaningCount = 0;
+    pet.clean = clamp(pet.clean + 25);
+    say("Stitch đã quét dọn xong.");
+  }
+
+  if (pet.medicineDue && now >= pet.medicineDue) {
+    pet.medicineDue = 0;
+    pet.sick = false;
+    pet.health = clamp(pet.health + 25);
+    say("Uống thuốc xong rồi! Vẫn cần nghỉ ngơi nhé.");
+  }
+
   updateHud();
   save();
 }
 
-/* Cần gạt chỉ chọn mục. SELECT xác nhận. */
 const tree = {
   home: [
     "Cho ăn", "Sức khỏe", "Vệ sinh", "Ngủ",
@@ -887,52 +383,50 @@ const tree = {
 };
 
 let page = "home";
-let index = 0;
+let selected = 0;
 let stack = [];
 let opened = false;
 
-function refresh() {
-  panel.hidden = !opened;
+function refreshMenu() {
+  menu.hidden = !opened;
   if (!opened) return;
 
-  panel.replaceChildren();
-
+  menu.replaceChildren();
   const heading = document.createElement("h3");
   heading.textContent = page === "home" ? "MENU OHANA" : page;
-  panel.append(heading);
+  menu.append(heading);
 
-  tree[page].forEach((name, i) => {
+  tree[page].forEach((label, i) => {
     const row = document.createElement("div");
-    row.className = "menu-row" + (i === index ? " active" : "");
-    row.textContent = (i === index ? "▶ " : "  ") + name;
-    panel.append(row);
+    row.className = "menu-row" + (i === selected ? " active" : "");
+    row.textContent = (i === selected ? "▶ " : "  ") + label;
+    menu.append(row);
   });
 
-  panel.children[index + 1].scrollIntoView({ block: "nearest" });
+  menu.children[selected + 1].scrollIntoView({block: "nearest"});
 }
 
 function home() {
   touch();
   page = "home";
-  index = 0;
+  selected = 0;
   stack = [];
   opened = true;
-  refresh();
+  refreshMenu();
 }
 
 function exit() {
   touch();
   opened = false;
-  refresh();
+  refreshMenu();
 }
 
 function back() {
   touch();
   if (!opened) return;
-
   if (stack.length) {
-    [page, index] = stack.pop();
-    refresh();
+    [page, selected] = stack.pop();
+    refreshMenu();
   } else {
     exit();
   }
@@ -940,217 +434,646 @@ function back() {
 
 function move(step) {
   touch();
-
-  if (!opened) {
-    home();
-  } else {
-    index = (index + step + tree[page].length) % tree[page].length;
-    refresh();
-  }
+  if (!opened) return home();
+  selected = (selected + step + tree[page].length) % tree[page].length;
+  refreshMenu();
 }
 
-function duration(milliseconds) {
-  const minutes = Math.ceil(Math.max(0, milliseconds) / 60000);
-  return Math.floor(minutes / 60) + "h " + minutes % 60 + "p";
+function duration(ms) {
+  const m = Math.ceil(Math.max(0, ms) / 60000);
+  return Math.floor(m / 60) + "h " + m % 60 + "p";
+}
+
+function showStats() {
+  say(
+    "Đói " + Math.round(hunger()) +
+    " · Vui " + Math.round(pet.happy) +
+    " · Sức khỏe " + Math.round(pet.health) +
+    " · Năng lượng " + Math.round(pet.energy) +
+    " · Vệ sinh " + Math.round(pet.clean) +
+    " · Kỷ luật " + Math.round(pet.discipline) +
+    " · Chất thải " + pet.waste +
+    (pet.sick ? " · Đang ốm" : " · Không ốm")
+  );
 }
 
 function select() {
   touch();
   update();
+  if (!opened) return home();
 
-  if (!opened) {
-    home();
+  const action = tree[page][selected];
+
+  if (tree[action]) {
+    stack.push([page, selected]);
+    page = action;
+    selected = 0;
+    refreshMenu();
     return;
   }
 
-  const name = tree[page][index];
+  const information =
+    page === "Thông tin" || action === "Tình trạng";
 
-  if (tree[name]) {
-    stack.push([page, index]);
-    page = name;
-    index = 0;
-    refresh();
+  if (!information && !modelReady) {
+    say(modelError
+      ? "Model đang lỗi. Chưa thực hiện hoạt động."
+      : "Chờ Stitch tải xong nhé.");
     return;
   }
 
-  if (["Cơm", "Trái cây", "Snack"].includes(name)) {
+  if (!information && busy()) {
+    say("Chờ Stitch uống thuốc hoặc dọn xong nhé.");
+    return;
+  }
+
+  if (["Cơm", "Trái cây", "Snack"].includes(action)) {
     if (pet.sleep) {
-      say("Để Stitch ngủ nhé.");
+      say("Đánh thức Stitch trước nhé.");
     } else if (hunger() < 15) {
-      say("Stitch còn no, đừng cho ăn thêm nhé.");
+      say("Stitch còn no, chưa ăn thêm được.");
     } else {
+      meal = ["Cơm", "Trái cây", "Snack"].indexOf(action);
       pet.fed = Date.now();
       pet.digestion.push(
         Date.now() + (45 + Math.random() * 45) * 60000
       );
-      state.meal = ["Cơm", "Trái cây", "Snack"].indexOf(name);
       animate(1);
-      say("Măm măm! Độ đói sẽ tăng dần trong 9 giờ.");
+      say("Măm " + action.toLowerCase() + "! Độ đói tăng dần trong 9 giờ.");
     }
 
-  } else if (name === "Dọn chất thải") {
+  } else if (action === "Dọn chất thải") {
     if (!pet.waste) {
       say("Chưa có chất thải để dọn.");
+    } else if (pet.sleep) {
+      say("Đánh thức Stitch trước nhé.");
     } else {
-      pet.waste = 0;
-      state.waste = 0;
-      pet.clean = Math.min(100, pet.clean + 25);
+      pet.cleaningCount = pet.waste;
+      pet.cleaningDue = Date.now() + 5000;
       animate(8);
-      say("Đã dọn sạch chất thải.");
+      say("Stitch đang quét dọn.");
     }
 
-  } else if (name === "Uống thuốc") {
+  } else if (action === "Uống thuốc") {
     if (!pet.sick) {
-      say("Stitch khỏe, không cần uống thuốc.");
+      say("Stitch không ốm, không cần uống thuốc.");
+    } else if (pet.sleep) {
+      say("Đánh thức Stitch trước khi uống thuốc.");
     } else {
-      pet.sick = false;
-      pet.health = Math.min(100, pet.health + 25);
+      pet.medicineDue = Date.now() + 5000;
       animate(9);
-      say("Đỡ rồi, vẫn cần nghỉ ngơi nhé.");
+      say("Stitch đang uống thuốc rồi uống nước.");
     }
 
-  } else if (name === "Đi ngủ" || name === "Nghỉ ngơi") {
+  } else if (action === "Đi ngủ" || action === "Nghỉ ngơi") {
     pet.sleep = true;
-    say("Ngủ hồi năng lượng. Chọn Thức dậy khi muốn.");
+    animationEnd = 0;
+    temporary = 0;
+    eventId++;
+    say("Stitch đang ngủ hồi năng lượng.");
 
-  } else if (name === "Thức dậy") {
+  } else if (action === "Thức dậy") {
     pet.sleep = false;
+    eventId++;
     say("Chào Ohana!");
 
-  } else if (["Nựng", "Chơi cùng", "Khen"].includes(name)) {
+  } else if (["Nựng", "Chơi cùng", "Khen"].includes(action)) {
     if (pet.sleep) {
-      say("Stitch đang ngủ.");
+      say("Để Stitch ngủ nhé.");
+    } else if (pet.sick && action === "Chơi cùng") {
+      say("Stitch đang ốm, cần nghỉ.");
+    } else if (pet.energy < 15 && action === "Chơi cùng") {
+      say("Stitch quá mệt để chạy. Cho ngủ trước nhé.");
     } else {
-      pet.happy = Math.min(100, pet.happy + 15);
-      animate(2);
+      pet.happy = clamp(pet.happy + 15);
+      if (action === "Chơi cùng") {
+        pet.energy = clamp(pet.energy - 3);
+        animate(14, 8);
+      } else {
+        animate(2);
+      }
       say("Ohana! Vui quá!");
     }
 
-  } else if (name === "Nhắc nhở") {
-    pet.discipline = Math.min(100, pet.discipline + 5);
-    animate(10);
-    say("Nhắc nhẹ thôi nhé!");
+  } else if (action === "Nhắc nhở") {
+    if (pet.sleep) {
+      say("Để Stitch ngủ nhé.");
+    } else {
+      pet.discipline = clamp(pet.discipline + 5);
+      animate(10);
+      say("Nhắc nhẹ thôi nhé!");
+    }
 
-  } else if (name === "Bộ đếm") {
+  } else if (action === "Chỉ số" || action === "Tình trạng") {
+    showStats();
+
+  } else if (action === "Bộ đếm") {
     say(
-      "Đói hoàn toàn sau " +
+      "Rất đói sau " +
+      duration(pet.fed + 7.2 * HOUR - Date.now()) +
+      " · Đói hoàn toàn sau " +
       duration(pet.fed + 9 * HOUR - Date.now()) +
-      " • Tiêu hóa: " +
+      " · Tiêu hóa: " +
       (pet.digestion.length
         ? duration(Math.min(...pet.digestion) - Date.now())
-        : "chưa có")
+        : "không có bữa đang tiêu hóa")
     );
 
-  } else if (name === "Chỉ số" || name === "Tình trạng") {
-    say(
-      "Đói " + Math.round(hunger()) +
-      " • Vui " + Math.round(pet.happy) +
-      " • Sức khỏe " + Math.round(pet.health) +
-      " • Năng lượng " + Math.round(pet.energy) +
-      " • Sạch " + Math.round(pet.clean) +
-      " • Kỷ luật " + pet.discipline +
-      " • Chất thải " + pet.waste +
-      (pet.sick ? " • Đang ốm" : "")
-    );
-
-  } else if (name === "Đồng hồ") {
+  } else if (action === "Đồng hồ") {
     say(new Date().toLocaleString("vi-VN"));
 
   } else {
-    say("Chưa kết nối Adafruit / ESP32.");
+    say("Đang chạy cục bộ. Chưa kết nối ESP32 hoặc nguồn đồng bộ.");
   }
 
   updateHud();
   save();
   opened = false;
-  refresh();
+  refreshMenu();
 }
 
 document.querySelectorAll("[data-step]").forEach(button => {
   button.onclick = () => move(Number(button.dataset.step));
 });
 
-document.getElementById("home").onclick = home;
-document.getElementById("back").onclick = back;
-document.getElementById("select").onclick = select;
-document.getElementById("exit").onclick = exit;
+document.getElementById("homeBtn").onclick = home;
+document.getElementById("exitBtn").onclick = exit;
+document.getElementById("backBtn").onclick = back;
+document.getElementById("selectBtn").onclick = select;
 
-document.addEventListener("keydown", event => {
-  const key = event.key.toLowerCase();
-  const supported = [
-    "arrowup", "arrowleft", "arrowdown", "arrowright",
-    "enter", "escape", "h", "x"
-  ];
+document.addEventListener("keydown", e => {
+  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (![
+    "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+    "Enter", "Escape", "h", "x"
+  ].includes(key)) return;
 
-  if (!supported.includes(key)) return;
-  event.preventDefault();
+  e.preventDefault();
 
-  // Giữ SELECT không được xác nhận liên tiếp nhiều mục.
-  if (event.repeat && ["enter", "h", "x", "escape"].includes(key)) {
-    return;
-  }
+  if (e.repeat && ["Enter", "Escape", "h", "x"].includes(key)) return;
 
-  if (key === "enter") select();
-  else if (key === "escape") back();
+  if (key === "Enter") select();
+  else if (key === "Escape") back();
   else if (key === "h") home();
   else if (key === "x") exit();
-  else move(["arrowup", "arrowleft"].includes(key) ? -1 : 1);
+  else move(["ArrowUp", "ArrowLeft"].includes(key) ? -1 : 1);
 });
 
-/* Thời lượng hoạt động dùng đồng hồ thật. */
-let lastFrame = "";
+function currentPose() {
+  if (pet.medicineDue) return 9;
+  if (pet.cleaningDue) return 8;
+  if (pet.sleep) return 4;
+  if (pet.sick) return 7;
+  if (animationEnd) return temporary;
+
+  const hour = new Date().getHours();
+  return hour >= 22 || hour < 6 || pet.energy < 25 ? 13 : 0;
+}
+
+function loadingScreen() {
+  ctx.fillStyle = "#084358";
+  ctx.fillRect(0, 0, 128, 160);
+  ctx.fillStyle = "#ffd166";
+  ctx.font = "8px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(modelError ? "Lỗi tải Stitch" : "Đang tải Stitch...", 64, 78);
+  if (modelError) ctx.fillText("Xem thông báo bên dưới", 64, 92);
+  ctx.textAlign = "left";
+}
+
 let lastUpdate = 0;
+let lastDraw = 0;
 
 function loop(now) {
-  if (now - lastUpdate > 1000) {
+  if (now - lastUpdate >= 1000) {
     update();
     lastUpdate = now;
   }
 
   const time = Date.now();
+  if (animationEnd && time >= animationEnd) {
+    temporary = 0;
+    animationEnd = 0;
+  }
+
   const idle = time - lastInput;
   const hour = new Date().getHours();
 
-  if (!opened && !pet.sleep && !pet.sick && pet.energy > 25) {
+  if (
+    modelReady && !opened && !animationEnd && !busy() &&
+    !pet.sleep && !pet.sick && pet.energy > 25 &&
+    hour >= 6 && hour < 22
+  ) {
     if (idle >= 90000 && !idleDance) {
       idleDance = true;
       animate(11, 12);
-      say("Stitch mặc váy lá nhảy Hawaii!");
-    }
-
-    if (idle >= 120000 && !idleCoconut) {
+      say("Stitch nhảy Hawaii!");
+    } else if (idle >= 120000 && !idleCoconut) {
       idleCoconut = true;
       animate(12, 10);
-      say("Gặm vỏ dừa cho vui — không tính là bữa ăn.");
+      say("Nghịch vỏ dừa thôi — không tính là ăn.");
     }
   }
 
-  if (end && time > end) {
-    temporary = 0;
-    end = 0;
-  }
-
-  state.pose =
-    pet.sleep ? 4 :
-    pet.sick ? 7 :
-    end ? temporary :
-    (hour >= 22 || hour < 6 || pet.energy < 25) ? 13 :
-    0;
-
-  const frame = Math.floor(now / 120) % 12;
-  const key = state.pose + ":" + frame + ":" + state.waste;
-
-  if (key !== lastFrame) {
-    render(state.pose, frame);
-    lastFrame = key;
+  if (now - lastDraw >= 33) {
+    lastDraw = now;
+    if (modelReady && drawPet) {
+      try {
+        drawPet(ctx, currentPose(), pet.waste, meal, eventId, pet.sick);
+      } catch (e) {
+        modelReady = false;
+        modelError = e.message || String(e);
+        say("Lỗi dựng Stitch: " + modelError);
+        loadingScreen();
+      }
+    } else {
+      loadingScreen();
+    }
   }
 
   requestAnimationFrame(loop);
 }
 
-say("Ohana! HOME mở menu.");
 update();
 requestAnimationFrame(loop);
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+
+try {
+  const renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: false,
+    preserveDrawingBuffer: true
+  });
+
+  renderer.setPixelRatio(1);
+  renderer.setSize(128, 160);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x537080, 2.2));
+
+  const light = new THREE.DirectionalLight(0xffffff, 2);
+  light.position.set(3, 4, 5);
+  scene.add(light);
+
+  const camera = new THREE.OrthographicCamera(
+    -1.15, 1.15, 1.65, -1.225, 0.01, 30
+  );
+  camera.position.set(0, 0.5, 8);
+  camera.lookAt(0, 0.5, 0);
+
+  const payload = await Promise.all(
+    Array.from({length: 8}, async (_, i) => {
+      const name = "model-part-" + i + ".txt";
+      const response = await fetch("./" + name);
+      if (!response.ok) throw new Error("Thiếu hoặc không đọc được " + name);
+      return (await response.text()).replace(/\s+/g, "");
+    })
+  );
+
+  let binary;
+  try {
+    binary = atob(payload.join(""));
+  } catch (e) {
+    throw new Error("Dữ liệu model không hợp lệ hoặc bị dán thiếu.");
+  }
+
+  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+  const gltf = await new GLTFLoader().parseAsync(bytes.buffer, "");
+
+  const root = gltf.scene;
+  const pivot = new THREE.Group();
+  scene.add(pivot);
+  pivot.add(root);
+
+  const bones = {};
+  const rest = new Map();
+
+  root.traverse(object => {
+    if (object.isBone) {
+      bones[object.name] = object;
+      rest.set(object, {
+        q: object.quaternion.clone(),
+        p: object.position.clone(),
+        s: object.scale.clone()
+      });
+    }
+  });
+
+  const bounds = new THREE.Box3().setFromObject(root);
+  const size = bounds.getSize(new THREE.Vector3());
+  const center = bounds.getCenter(new THREE.Vector3());
+
+  if (!Number.isFinite(size.y) || size.y <= 0) {
+    throw new Error("Model không có kích thước hợp lệ.");
+  }
+
+  const scale = 1.65 / size.y;
+  root.scale.multiplyScalar(scale);
+  root.position.set(
+    -center.x * scale,
+    -bounds.min.y * scale - 0.8,
+    -center.z * scale
+  );
+
+  const mixer = new THREE.AnimationMixer(root);
+  const clips = gltf.animations;
+
+  const idleClip = clips.find(c => c.name === "stch_bm_idle_dynamic");
+  const runClip = clips.find(c => c.name === "stch_bm_runf");
+
+  if (!idleClip || !runClip) {
+    throw new Error("Model thiếu animation đứng nghỉ hoặc chạy cần dùng.");
+  }
+
+  function attach(name) {
+    if (!bones[name]) throw new Error("Thiếu xương " + name);
+    const group = new THREE.Group();
+    bones[name].add(group);
+    return group;
+  }
+
+  function box(parent, x, y, z, w, h, d, color) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshLambertMaterial({color})
+    );
+    mesh.position.set(x, y, z);
+    parent.add(mesh);
+    return mesh;
+  }
+
+  const mask = attach("Head_26");
+  box(mask, 0, 0, 0.3, 0.52, 0.14, 0.03, 0x805fab);
+
+  const patch = attach("Head_26");
+  box(patch, 0, 0.2, 0.29, 0.3, 0.07, 0.02, 0xc7f4ff);
+
+  const thermometer = attach("Jaw_33");
+  box(thermometer, 0.2, 0, 0.22, 0.3, 0.025, 0.025, 0xffffff);
+  box(thermometer, 0.34, 0, 0.22, 0.04, 0.04, 0.04, 0xee4545);
+
+  const broom = attach("Hand_Right_20");
+  box(broom, 0, -0.18, 0, 0.025, 0.6, 0.025, 0xb88648);
+  box(broom, 0, -0.49, 0, 0.19, 0.1, 0.08, 0xe3c05a);
+
+  const pill = attach("Hand_Right_20");
+  box(pill, 0, 0, 0, 0.07, 0.03, 0.03, 0xffffff);
+
+  const cup = attach("Hand_Right_20");
+  box(cup, 0, 0, 0, 0.1, 0.16, 0.1, 0x78d5f2);
+
+  const skirt = attach("Hips_41");
+  for (let i = 0; i < 12; i++) {
+    const a = i * Math.PI / 6;
+    const leaf = box(
+      skirt, Math.sin(a) * 0.24, -0.08, Math.cos(a) * 0.2,
+      0.07, 0.24, 0.035, 0x479e58
+    );
+    leaf.rotation.y = a;
+  }
+
+  const crown = attach("Head_26");
+  for (let i = 0; i < 10; i++) {
+    const a = i * Math.PI / 5;
+    box(
+      crown, Math.sin(a) * 0.28, 0.25, Math.cos(a) * 0.23,
+      0.08, 0.06, 0.04, 0x479e58
+    );
+  }
+
+  const food = attach("Hand_Left_11");
+  const foodMesh = box(food, 0, 0, 0, 0.12, 0.07, 0.09, 0xffd18a);
+
+  const shell = attach("Hand_Left_11");
+  box(shell, 0, 0, 0, 0.14, 0.1, 0.1, 0x81512e);
+
+  function rotate(name, x = 0, y = 0, z = 0) {
+    const bone = bones[name];
+    if (!bone) throw new Error("Thiếu xương chuyển động " + name);
+    bone.quaternion.multiply(
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z))
+    );
+  }
+
+  let active = -1;
+  let previousEvent = -1;
+  let start = 0;
+  let activeAction = null;
+
+  drawPet = function(context, pose, waste, mealId, actionId, sick) {
+    const now = performance.now() / 1000;
+
+    if (pose !== active || actionId !== previousEvent) {
+      active = pose;
+      previousEvent = actionId;
+      start = now;
+      mixer.stopAllAction();
+      activeAction = null;
+    }
+
+    const t = now - start;
+
+    context.fillStyle = pose === 4 ? "#030818" : "#084358";
+    context.fillRect(0, 0, 128, 160);
+    context.fillStyle = "#294755";
+    context.fillRect(0, 137, 128, 1);
+
+    for (const [bone, original] of rest) {
+      bone.quaternion.copy(original.q);
+      bone.position.copy(original.p);
+      bone.scale.copy(original.s);
+    }
+
+    const running =
+      pose === 14 &&
+      ((t >= 1 && t < 3.7) || (t >= 4.3 && t < 7.5));
+
+    const clip = running ? runClip : pose === 0 ? idleClip : null;
+
+    if (clip) {
+      const action = mixer.clipAction(clip);
+      if (activeAction !== action) {
+        mixer.stopAllAction();
+        action.reset().play();
+        activeAction = action;
+      }
+      mixer.setTime(running ? t * 1.2 : t * 0.7);
+    } else if (activeAction) {
+      mixer.stopAllAction();
+      activeAction = null;
+    }
+
+    for (const name of ["Anchor_0", "Anchor_CM_Node_1"]) {
+      const bone = bones[name];
+      const original = rest.get(bone);
+      if (bone && original) bone.position.copy(original.p);
+    }
+
+    pivot.position.set(0, 0, 0);
+    pivot.rotation.set(0, 0, 0);
+
+    if (pose === 14) {
+      let x = 64;
+      if (t >= 1 && t < 3.7) {
+        x = 64 + (t - 1) / 2.7 * 118;
+      } else if (t >= 3.7 && t < 4.3) {
+        x = 185;
+      } else if (t >= 4.3) {
+        x = -48 + 112 * Math.min(1, (t - 4.3) / 3.2);
+      }
+
+      pivot.position.x = (x - 64) * 2.3 / 128;
+      pivot.rotation.y = running
+        ? (t < 4.3 ? Math.PI / 2 : -Math.PI / 2)
+        : 0;
+
+      if (t < 1) {
+        rotate("Shoulder_Right_18", -0.6 * Math.sin(t * Math.PI));
+        rotate("Elbow_Right_19", -0.4 * Math.sin(t * Math.PI));
+      }
+    }
+
+    if (pose === 4) {
+      rotate("Thigh_Left_43", -0.35);
+      rotate("Thigh_Right_49", -0.35);
+      rotate("Knee_Left_44", 0.6);
+      rotate("Knee_Right_50", 0.6);
+      rotate("Shoulder_Left_9", 0, 0, 0.45);
+      rotate("Shoulder_Right_18", 0, 0, -0.45);
+      pivot.rotation.z = Math.PI / 2;
+      pivot.position.set(0.15, -0.45 + Math.sin(t * 1.4) * 0.008, 0);
+    }
+
+    if (pose === 1 || pose === 12) {
+      const a = (1 - Math.cos(t * 3)) * 0.5;
+      rotate("Shoulder_Left_9", -0.5 - a * 0.25);
+      rotate("Elbow_Left_10", -0.8 - a * 0.45);
+      rotate("Jaw_33", Math.max(0, Math.sin(t * 6)) * 0.18);
+      foodMesh.material.color.setHex(
+        [0xfff1d1, 0x7acb64, 0xd39b55][mealId] || 0xfff1d1
+      );
+    }
+
+    if (pose === 2) {
+      rotate("Spine2_5", 0, Math.sin(t * 2) * 0.1);
+      rotate("Shoulder_Left_9", 0, 0, -0.5 - Math.sin(t * 3) * 0.15);
+      rotate("Shoulder_Right_18", 0, 0, 0.5 + Math.sin(t * 3) * 0.15);
+      pivot.position.y = Math.abs(Math.sin(t * 3)) * 0.035;
+    }
+
+    if (pose === 10) {
+      rotate("Neck_25", Math.sin(t * 3) * 0.1);
+      rotate("Shoulder_Right_18", -0.3);
+    }
+
+    if (pose === 11) {
+      const a = Math.sin(t * 3);
+      rotate("Spine2_5", 0, a * 0.15, a * 0.08);
+      rotate("Shoulder_Left_9", 0, 0, -0.8 + a * 0.3);
+      rotate("Shoulder_Right_18", 0, 0, 0.8 + a * 0.3);
+      rotate("Thigh_Left_43", a * 0.22);
+      rotate("Thigh_Right_49", -a * 0.22);
+    }
+
+    if (pose === 7) {
+      rotate("Spine2_5", 0.15);
+      rotate("Neck_25", 0.2);
+    }
+
+    if (pose === 13) {
+      const a = Math.max(0, Math.sin(t * 0.9));
+      rotate("Jaw_33", a * 0.35);
+      rotate("Neck_25", -0.1 * a);
+    }
+
+    if (pose === 8) {
+      rotate("Shoulder_Right_18", 0.4, 0, Math.sin(t * 4) * 0.3);
+      rotate("Elbow_Right_19", 0.4);
+      rotate("Spine2_5", 0, Math.sin(t * 4) * 0.05);
+    }
+
+    if (pose === 9) {
+      const a = t < 2
+        ? Math.min(1, t / 1.6)
+        : Math.min(1, (t - 2) / 1.1);
+      rotate("Shoulder_Right_18", -a * 0.8);
+      rotate("Elbow_Right_19", -a * 1.1);
+    }
+
+    food.visible = pose === 1;
+    shell.visible = pose === 12;
+    mask.visible = pose === 4;
+    patch.visible = pose === 7 || pose === 9 || (sick && pose === 4);
+    thermometer.visible = pose === 7;
+    broom.visible = pose === 8;
+    pill.visible = pose === 9 && t < 2;
+    cup.visible = pose === 9 && t >= 2;
+    skirt.visible = crown.visible = pose === 11;
+
+    renderer.render(scene, camera);
+    context.imageSmoothingEnabled = false;
+    context.drawImage(renderer.domElement, 0, 0);
+
+    if (pose === 4) {
+      context.fillStyle = "#def6ff";
+      context.fillRect(8, 115, 24, 16);
+      context.fillStyle = "#418bbc";
+      context.fillRect(49, 112, 63, 23);
+      context.fillStyle = "#9adfff";
+      context.fillRect(49, 112, 63, 3);
+      context.fillStyle = "#c7e8ff";
+      context.font = "8px monospace";
+      context.fillText("Zz", 98, 80 - Math.sin(t) * 2);
+    }
+
+    if (pose === 14) {
+      const x = 88 + t * 27;
+      if (x < 140) {
+        context.save();
+        context.translate(x, 131);
+        context.rotate(t * 5);
+        context.fillStyle = "#81512e";
+        context.fillRect(-5, -5, 10, 10);
+        context.fillStyle = "#c39b66";
+        context.fillRect(-3, -4, 3, 2);
+        context.restore();
+      }
+    }
+
+    if (pose === 2) {
+      context.fillStyle = "#ff789e";
+      for (let i = 0; i < 2; i++) {
+        const x = 12 + i * 96;
+        const y = 90 - (t * 18 + i * 12) % 35;
+        context.fillRect(x, y, 3, 3);
+        context.fillRect(x + 5, y, 3, 3);
+        context.fillRect(x, y + 3, 8, 3);
+        context.fillRect(x + 2, y + 6, 4, 2);
+      }
+    }
+
+    if (waste) {
+      context.fillStyle = "#81512e";
+      context.fillRect(109, 130, 9, 4);
+      context.fillRect(111, 127, 5, 3);
+    }
+  };
+
+  modelReady = true;
+  modelError = "";
+  say("Ohana! HOME mở menu.");
+
+} catch (e) {
+  modelReady = false;
+  modelError = e.message || String(e);
+  say("Không tải được Stitch: " + modelError);
+  console.error(e);
+}
 </script>
 </body>
 </html>
