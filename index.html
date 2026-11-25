@@ -7,38 +7,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root {
-  --shell: #269eea;
-  --light: #a5e4ff;
-  --dark: #135aa6;
-  --border: #141720;
+  --shell:#269eea;
+  --light:#a5e4ff;
+  --dark:#135aa6;
+  --border:#141720;
 }
 * {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 24px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
+  margin:0;
+  min-height:100vh;
+  padding:24px 12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:24px;
   background:
-    radial-gradient(circle at 20% 20%, #23283d, transparent 45%),
-    radial-gradient(circle at 80% 80%, #1c323a, transparent 45%),
+    radial-gradient(circle at 20% 20%,#23283d,transparent 45%),
+    radial-gradient(circle at 80% 80%,#1c323a,transparent 45%),
     #121520;
-  color: #eef5ff;
-  font-family: monospace;
+  color:#eef5ff;
+  font-family:monospace;
 }
 .console {
-  width: 340px;
-  max-width: 94vw;
-  padding: 24px;
-  background: var(--shell);
-  border: 6px solid var(--border);
-  border-radius: 36px 36px 22px 22px;
+  width:340px;
+  max-width:94vw;
+  padding:24px;
+  background:var(--shell);
+  border:6px solid var(--border);
+  border-radius:36px 36px 22px 22px;
   box-shadow:
     inset 8px 8px 0 var(--light),
     inset -8px -10px 0 var(--dark),
@@ -46,188 +46,165 @@ body {
     0 26px 40px #0008;
 }
 .brand {
-  margin-bottom: 18px;
-  text-align: center;
-  color: var(--border);
-  font: 10px "Press Start 2P", monospace;
-  line-height: 1.7;
+  margin-bottom:18px;
+  text-align:center;
+  color:var(--border);
+  font:10px "Press Start 2P",monospace;
+  line-height:1.7;
 }
 .bezel {
-  padding: 12px;
-  background: #7d83a8;
-  border: 6px solid var(--border);
-  box-shadow:
-    inset 4px 4px 0 #a5adc9,
-    inset -4px -4px 0 #585d7e;
+  padding:12px;
+  background:#7d83a8;
+  border:6px solid var(--border);
+  box-shadow:inset 4px 4px 0 #a5adc9,inset -4px -4px 0 #585d7e;
 }
 .screen {
-  position: relative;
-  aspect-ratio: 128 / 160;
-  overflow: hidden;
-  background: #084358;
-  border: 5px solid var(--border);
+  position:relative;
+  aspect-ratio:128 / 160;
+  overflow:hidden;
+  background:#084358;
+  border:5px solid var(--border);
 }
 canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
+  display:block;
+  width:100%;
+  height:100%;
+  image-rendering:pixelated;
 }
 .screen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom, #ffffff06 0 2px, transparent 2px 4px
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom,#ffffff06 0 2px,transparent 2px 4px
   );
 }
 .menu {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  background: #18243bf5;
+  position:absolute;
+  inset:0;
+  z-index:3;
+  padding:10px;
+  overflow:auto;
+  background:#18243bf5;
+  font:14px monospace;
 }
-.menu[hidden] { display: none; }
-.menu h2 {
-  margin: 0 0 8px;
-  color: #ffd166;
-  font-size: 15px;
+.menu[hidden] {display:none}
+.menu h3 {
+  margin:0 0 10px;
+  color:#ffd166;
+  font-size:15px;
 }
-.items { flex: 1; overflow-y: auto; }
-.item {
-  padding: 7px 4px;
-  border: 2px solid transparent;
-  font-size: 14px;
-  line-height: 1.3;
+.menu-row {
+  padding:7px 3px;
+  line-height:1.3;
 }
-.item.active {
-  border-color: var(--shell);
-  background: var(--light);
-  color: var(--border);
-}
-.menu-hint {
-  padding-top: 7px;
-  color: #bdcbe3;
-  font-size: 10px;
-  line-height: 1.5;
+.menu-row.active {
+  background:var(--light);
+  color:var(--border);
 }
 .controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: 28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-top:28px;
 }
 .dpad {
-  position: relative;
-  width: 108px;
-  height: 108px;
-  flex-shrink: 0;
+  position:relative;
+  width:108px;
+  height:108px;
+  flex-shrink:0;
 }
 .dpad button {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  color: var(--border);
-  background: #868eb2;
-  border: 5px solid var(--border);
-  box-shadow:
-    inset 3px 3px 0 #a5adc9,
-    inset -3px -3px 0 #616887;
+  position:absolute;
+  width:36px;
+  height:36px;
+  padding:0;
+  color:var(--border);
+  background:#868eb2;
+  border:5px solid var(--border);
+  box-shadow:inset 3px 3px 0 #a5adc9,inset -3px -3px 0 #616887;
 }
-.up { top: 0; left: 36px; border-bottom: none !important; }
-.down { bottom: 0; left: 36px; border-top: none !important; }
-.left { top: 36px; left: 0; border-right: none !important; }
-.right { top: 36px; right: 0; border-left: none !important; }
+.up {top:0;left:36px;border-bottom:none!important}
+.down {bottom:0;left:36px;border-top:none!important}
+.left {top:36px;left:0;border-right:none!important}
+.right {top:36px;right:0;border-left:none!important}
 .center {
-  position: absolute;
-  top: 36px;
-  left: 36px;
-  width: 36px;
-  height: 36px;
-  background: #868eb2;
+  position:absolute;
+  top:36px;
+  left:36px;
+  width:36px;
+  height:36px;
+  background:#868eb2;
 }
 .actions {
-  display: grid;
-  grid-template-columns: repeat(2, 58px);
-  gap: 20px 2px;
-  text-align: center;
+  display:grid;
+  grid-template-columns:repeat(2,58px);
+  gap:20px 2px;
+  text-align:center;
 }
 .actions button {
-  display: block;
-  width: 30px;
-  height: 30px;
-  margin: auto;
-  padding: 0;
-  border-radius: 50%;
-  background: #d45567;
-  border: 5px solid var(--border);
-  box-shadow:
-    inset 3px 3px 0 #ec7888,
-    inset -3px -3px 0 #9c3445;
+  display:block;
+  width:30px;
+  height:30px;
+  margin:auto;
+  padding:0;
+  border-radius:50%;
+  background:#d45567;
+  border:5px solid var(--border);
+  box-shadow:inset 3px 3px 0 #ec7888,inset -3px -3px 0 #9c3445;
 }
 .actions span {
-  display: block;
-  margin-top: 8px;
-  color: var(--border);
-  font: 7px "Press Start 2P", monospace;
+  display:block;
+  margin-top:8px;
+  color:var(--border);
+  font:7px "Press Start 2P",monospace;
 }
 button {
-  cursor: pointer;
-  touch-action: manipulation;
+  cursor:pointer;
+  touch-action:manipulation;
 }
 button:active {
-  filter: brightness(.8);
-  transform: translateY(2px);
+  filter:brightness(.8);
+  transform:translateY(2px);
 }
 button:focus-visible {
-  outline: 3px solid #ffd166;
-  outline-offset: 2px;
+  outline:3px solid #ffd166;
+  outline-offset:2px;
 }
 .speaker {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 22px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:22px;
 }
 .speaker i {
-  width: 14px;
-  height: 44px;
-  border: 4px solid var(--border);
-  border-radius: 6px;
-  background: #2a2f45;
+  width:14px;
+  height:44px;
+  border:4px solid var(--border);
+  border-radius:6px;
+  background:#2a2f45;
 }
 footer {
-  max-width: 340px;
-  text-align: center;
-  color: #adbbd4;
-  font-size: 12px;
-  line-height: 1.8;
+  max-width:360px;
+  text-align:center;
+  color:#adbbd4;
+  font-size:12px;
+  line-height:1.8;
 }
-#message { color: #ffd166; }
+#message {color:#ffd166}
 </style>
 </head>
-
 <body>
 <main class="console">
   <div class="brand">OHANA POCKET PET</div>
+
   <div class="bezel">
     <div class="screen">
       <canvas id="pet" width="128" height="160"
         aria-label="Stitch pixel"></canvas>
-      <section class="menu" id="menu" hidden>
-        <h2 id="menuTitle">MENU OHANA</h2>
-        <div class="items" id="items"></div>
-        <div class="menu-hint">
-          ↑ ↓ ← → chọn mục<br>
-          SELECT xác nhận · BACK quay lại
-        </div>
-      </section>
+      <section id="menu" class="menu" hidden></section>
     </div>
   </div>
 
@@ -239,7 +216,8 @@ footer {
       <button class="right" data-step="1" aria-label="Phải">▶</button>
       <button class="down" data-step="1" aria-label="Xuống">▼</button>
     </div>
-    <div class="actions" role="group" aria-label="Điều khiển menu">
+
+    <div class="actions">
       <div>
         <button id="home" aria-label="Home"></button>
         <span>HOME</span>
@@ -265,17 +243,17 @@ footer {
 </main>
 
 <footer>
-  <div id="message" aria-live="polite">
-    Ohana! Nhấn HOME để mở menu.
-  </div>
-  DEMO • Chưa kết nối ESP32 / Adafruit<br>
-  Máy tính: phím hướng, Enter, Esc, H, X
+  <div id="message" aria-live="polite"></div>
+  Thú nuôi trên trình duyệt • Chưa đồng bộ ESP32 / Adafruit<br>
+  Phím hướng: chọn · Enter: xác nhận · Esc: quay lại<br>
+  H: HOME · X: EXIT
 </footer>
 
 <script>
 "use strict";
 
-const palette = [0, 8452, 15218, 36411, 38037, 2152, 65535, 63887];
+/* Sprite đã duyệt. Màu RGB565. */
+const palette = [0,8452,15218,36411,38037,2152,65535,63887];
 
 const pixels = `
 000000000000000000000000000000000000000000000
@@ -319,7 +297,7 @@ const pixels = `
 000000000000002212233333333322121000000000000
 000000000000012221223333333322221100000000000
 000000111111112221223333333222221100000000000
-000000222211112221223333333221211111111000000
+000000222211112221223333333221211111111111000
 000001222221112222123333333221211122211110000
 000012222222112222123333333221211122222111000
 000012555522112222123333333212211122222211000
@@ -329,501 +307,636 @@ const pixels = `
 000011111111111111000000011111111111222211000
 000000000000000000000000000000000011111110000
 000000000000000000000000000000000000000000000
-`.trim().split(/\s+/).map(row => Array.from(row, Number));
+`.trim().split(/\s+/).map(row => Array.from(row,Number));
 
 const canvas = document.getElementById("pet");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
 const panel = document.getElementById("menu");
-const title = document.getElementById("menuTitle");
-const list = document.getElementById("items");
 const message = document.getElementById("message");
 
-/* Menu nhiều cấp. */
-const menus = {
-  root: {
-    title: "MENU OHANA",
-    items: [
-      ["Cho ăn", "food"],
-      ["Ốm / Sức khỏe", "health"],
-      ["Vệ sinh", "clean"],
-      ["Ngủ / Năng lượng", "sleep"],
-      ["Nựng / Vui chơi", "play"],
-      ["Kỷ luật", "discipline"],
-      ["AI (xem thử)", "ai"],
-      ["Thông tin", "info"]
-    ]
-  },
-  food: {
-    title: "CHO ĂN",
-    items: [
-      ["Bữa chính", "mainFood"],
-      ["Trái cây", "fruit"],
-      ["Snack", "snack"]
-    ]
-  },
-  mainFood: {
-    title: "BỮA CHÍNH",
-    items: [["Cơm", "@rice"], ["Cá", "@fish"]]
-  },
-  fruit: {
-    title: "TRÁI CÂY",
-    items: [["Táo", "@apple"], ["Chuối", "@banana"]]
-  },
-  snack: {
-    title: "SNACK",
-    items: [["Bánh quy", "@cookie"], ["Bánh ngọt", "@cake"]]
-  },
-  health: {
-    title: "SỨC KHỎE",
-    items: [
-      ["Nghỉ ngơi", "@rest"],
-      ["Uống thuốc", "@medicine"],
-      ["Xem tình trạng", "@check"],
-      ["Dáng ốm (demo)", "@sick"]
-    ]
-  },
-  clean: {
-    title: "VỆ SINH",
-    items: [["Dọn chất thải", "@clean"]]
-  },
-  sleep: {
-    title: "NĂNG LƯỢNG",
-    items: [["Đi ngủ", "@sleep"], ["Thức dậy", "@wake"]]
-  },
-  play: {
-    title: "VUI CHƠI",
-    items: [["Nựng Stitch", "@pet"], ["Chơi cùng Stitch", "@play"]]
-  },
-  discipline: {
-    title: "KỶ LUẬT",
-    items: [["Nhắc nhở nhẹ", "@train"], ["Khen Stitch", "@praise"]]
-  },
-  ai: {
-    title: "ANIMATION AI",
-    items: [
-      ["Đang nghe (demo)", "@listen"],
-      ["Suy nghĩ (demo)", "@think"]
-    ]
-  },
-  info: {
-    title: "THÔNG TIN",
-    items: [
-      ["Chỉ số nuôi", "@stats"],
-      ["Đồng hồ", "@clock"],
-      ["Kết nối", "@connection"]
-    ]
+const state = {pose:0,meal:0,waste:0};
+
+function color(value) {
+  return `rgb(${
+    Math.round(((value >> 11) & 31) * 255 / 31)
+  },${
+    Math.round(((value >> 5) & 63) * 255 / 63)
+  },${
+    Math.round((value & 31) * 255 / 31)
+  })`;
+}
+
+function rect(x,y,w,h,c) {
+  ctx.fillStyle = color(c);
+  ctx.fillRect(Math.round(x),Math.round(y),w,h);
+}
+
+function text(x,y,s,c=0xffff,size=8) {
+  ctx.fillStyle = color(c);
+  ctx.font = size + "px monospace";
+  ctx.fillText(s,x,y);
+}
+
+function ink(x,y,p,f) {
+  let c = pixels[y][x];
+
+  const eyes =
+    (x>=10 && x<=16 && y>=18 && y<=25) ||
+    (x>=29 && x<=34 && y>=18 && y<=25);
+
+  if (eyes && [2,3,4,7].includes(p)) {
+    const center = x<20 ? 13 : 31;
+    c = p===2
+      ? (y===21+(Math.abs(x-center)>1?1:0) ? 1 : 3)
+      : (y===23 ? 1 : 3);
   }
-};
 
-/* Chỉ xem thử: không gửi lệnh chăm sóc hoặc thay đổi chỉ số. */
-const actions = {
-  rice:     [1, "Măm cơm nào!", 0],
-  fish:     [1, "Măm cá nào!", 0],
-  apple:    [1, "Táo giòn ngon quá!", 1],
-  banana:   [1, "Chuối ngon quá!", 1],
-  cookie:   [1, "Một chiếc bánh nhé!", 2],
-  cake:     [1, "Bánh thơm quá!", 2],
-  rest:     [4, "Stitch đang nghỉ ngơi."],
-  medicine: [9, "Demo: Stitch uống thuốc."],
-  sick:     [7, "Demo: Stitch đang ốm."],
-  clean:    [8, "Demo: Stitch quét dọn."],
-  sleep:    [4, "Chúc Stitch ngủ ngon!"],
-  wake:     [0, "Stitch thức dậy rồi!"],
-  pet:      [2, "Ohana! Thích được nựng!"],
-  play:     [2, "Chơi cùng Ohana nào!"],
-  train:    [10, "Stitch sẽ ngoan mà!"],
-  praise:   [2, "Ohana khen Stitch nè!"],
-  listen:   [5, "Demo đang nghe — không thu âm."],
-  think:    [6, "Demo: Stitch đang suy nghĩ."]
-};
+  if (x>=19 && x<=27 && y>=28 && y<=29) {
+    if (p===1) c=f ? 7 : 1;
+    if (p===2) c=y===28 && x>20 && x<26 ? 7 : 1;
+    if (p===7) c=y===28 && x>20 && x<26 ? 1 : 2;
+  }
 
-let current = "root";
-let selected = 0;
-let stack = [];
-let opened = false;
+  if (p===2 && y===26 &&
+      ((x>=12 && x<=14)||(x>=31 && x<=33))) c=7;
 
-let pose = 0;
-let meal = 0;
-let actionEnds = 0;
-let lastFrame = "";
+  if (p===5 && y===19 &&
+      ((x>=13 && x<=14)||(x>=30 && x<=31))) c=6;
 
-function refreshMenu() {
-  panel.hidden = !opened;
-  if (!opened) return;
+  return c;
+}
 
-  title.textContent = menus[current].title;
-  list.replaceChildren();
+function heart(x,y) {
+  rect(x,y,3,3,0xf98f);
+  rect(x+5,y,3,3,0xf98f);
+  rect(x,y+3,8,3,0xf98f);
+  rect(x+2,y+6,4,2,0xf98f);
+}
 
-  menus[current].items.forEach(([label], index) => {
-    const row = document.createElement("div");
-    row.className = "item" + (index === selected ? " active" : "");
-    row.textContent = (index === selected ? "▶ " : "  ") + label;
-    list.appendChild(row);
+/*
+  0 bình thường; 1 ăn; 2 vui; 3 chớp mắt; 4 ngủ;
+  5 nghe; 6 nghĩ; 7 ốm; 8 dọn; 9 thuốc; 10 kỷ luật;
+  11 Hawaii; 12 dừa; 13 buồn ngủ.
+*/
+function render(p,f) {
+  const t=f/12*Math.PI*2;
+  rect(0,0,128,160,p===4?0:0x0843);
+  text(5,13,"STITCH / OHANA",0x65ff);
+  rect(0,137,128,1,0x2152);
+  text(5,151,"BROWSER PET",0xffe0);
+
+  let x=25,y=46,w=78,h=88,flip=false;
+
+  // Không trượt ngang liên tục khi bình thường.
+  if (p===0) y+=Math.round(Math.sin(t));
+  if (p===1) y-=Math.round(3*Math.abs(Math.sin(t)));
+  if (p===2) {
+    y-=Math.round(12*Math.abs(Math.sin(t)));
+    x+=Math.round(3*Math.sin(t));
+  }
+
+  // Ngủ giữ nguyên tỷ lệ, không ép chiều cao.
+  if (p===4) y=46+Math.round(Math.sin(t));
+
+  if (p===5) x+=Math.round(3*Math.sin(t));
+  if (p===6) x+=Math.round(4*Math.sin(t));
+  if (p===7) {
+    x+=f%2;
+    y+=4;
+    h=84;
+  }
+  if (p===8) {
+    x+=Math.round(14*Math.sin(t));
+    flip=Math.cos(t)<0;
+  }
+  if (p===9) y-=Math.round(2*Math.abs(Math.sin(t)));
+  if (p===10) y-=Math.round(4*Math.abs(Math.sin(t)));
+
+  rect(x+14,135,w-28,2,0x2104);
+
+  for (let sy=0;sy<h;sy++) {
+    for (let sx=0;sx<w;sx++) {
+      let ax=Math.floor(sx*45/w);
+      let ay=Math.floor(sy*51/h);
+
+      if (flip) ax=44-ax;
+
+      if (ay<18 && p!==4) {
+        ay=Math.max(0,Math.min(
+          50,
+          ay+Math.round(Math.sin(t)*(ax<10?1:-1))
+        ));
+      }
+
+      const expression =
+        (p===0||p===11||p===12)&&f===0 ? 3 : p;
+      const c=ink(ax,ay,expression,f<6?0:1);
+
+      // Hawaii thay phần thân ngồi bằng phần thân đứng.
+      if (c && !(p===11 && ay>=30)) {
+        rect(x+sx,y+sy,1,1,palette[c]);
+      }
+    }
+  }
+
+  const wave=Math.round(3*Math.sin(t));
+
+  if (p===1) {
+    const fy=100-Math.round(13*(1+Math.sin(t))/2);
+    rect(x+32,fy,12,7,[0xffff,0x07e0,0xfd20][state.meal]);
+    rect(x+34,fy+7,8,2,0x2104);
+    if (f>7) {
+      rect(x+30,fy+4,2,2,0xffe0);
+      rect(x+47,fy+6,2,2,0xffe0);
+    }
+  }
+
+  if (p===2) {
+    for (let i=0;i<2;i++) {
+      heart(10+i*97,75-((f+i*5)%12)*3);
+    }
+  }
+
+  if (p===4) {
+    // Chăn và chữ Z.
+    rect(38,107,56,24,0x3b72);
+    rect(38,107,56,3,0x65ff);
+    text(85,82-f*2,"ZZZ");
+  }
+
+  if (p===11) {
+    const sway=Math.round(Math.sin(t)*3);
+
+    // Thân đứng.
+    rect(49+sway,98,30,23,0x3b72);
+    rect(56+sway,98,16,17,0x8e3b);
+
+    // Chân nhấc luân phiên.
+    rect(47+sway,119,12,13,0x3b72);
+    rect(68+sway,119,12,13,0x3b72);
+    rect(43+sway,130-(f<6?2:0),17,4,0x2104);
+    rect(67+sway,130-(f>=6?2:0),17,4,0x2104);
+
+    // Váy lá.
+    for (let i=0;i<7;i++) {
+      rect(46+sway+i*5,113,4,10+i%3,0x5ca6);
+    }
+
+    // Tay múa và vòng lá.
+    rect(35,102+wave,18,5,0x3b72);
+    rect(77,98-wave,18,5,0x3b72);
+    for (let i=0;i<5;i++) {
+      rect(47+i*7,60-i%2*3,5,5,0x5ca6);
+    }
+    rect(34,100+wave,5,7,0x5ca6);
+    rect(92,96-wave,5,7,0x5ca6);
+  }
+
+  if (p===12) {
+    // Dừa khô đưa lên miệng.
+    rect(55,91-wave,20,17,0x8200);
+    rect(58,89-wave,14,3,0xc618);
+    rect(60,94-wave,2,2,0x2104);
+    if (f>6) rect(72,91-wave,3,4,0x0843);
+  }
+
+  if (p===13) text(81,52,"ZZ?",0xffe0);
+
+  if (p===5) {
+    for (let i=0;i<3;i++) {
+      rect(
+        109+i*4,78-wave*(i+1),2,
+        6+Math.abs(wave)*(i+1),0x65ff
+      );
+    }
+  }
+
+  if (p===6) {
+    text(98,42,"?",0xffe0,12);
+    for (let i=0;i<3;i++) {
+      rect(102+i*7,66,3,3,
+        i===Math.floor(f/4)?0xffff:0x2152);
+    }
+  }
+
+  if (p===7) {
+    text(3,113,"OM",0xf800);
+    rect(x+58,83+f%4,2,4,0x65ff);
+  }
+
+  if (p===8) {
+    rect(x+62+wave,104,2,23,0xfd20);
+    rect(x+57+wave,125,12,4,0xffff);
+    rect(108,130,10,4,0x8200);
+    rect(110,127,6,3,0x8200);
+    if (f>7) {
+      rect(106,120,2,2,0xffff);
+      rect(119,124,2,2,0xffff);
+    }
+  }
+
+  if (p===9) {
+    rect(105,96,13,17,0xffff);
+    rect(110,98,3,13,0xf800);
+    rect(107,103,9,3,0xf800);
+    rect(
+      x+34,
+      105-Math.round(17*(1+Math.sin(t))/2),
+      5,3,0xffff
+    );
+  }
+
+  if (p===10) {
+    text(106,65-wave,"!",0xffe0,12);
+    rect(x+9,104-wave,6,3,0x3b72);
+  }
+
+  if (state.waste && p!==8) {
+    rect(107,130,10,4,0x8200);
+    rect(109,127,6,3,0x8200);
+  }
+}
+
+/* Luật nuôi độc lập trên trình duyệt. */
+const KEY="ohana-pet-v2";
+const HOUR=3600000;
+
+let pet;
+try {
+  pet=JSON.parse(localStorage.getItem(KEY));
+} catch(e) {}
+
+if (!pet || pet.version!==2) {
+  pet={
+    version:2,
+    last:Date.now(),
+    fed:Date.now(),
+    happy:80,
+    energy:85,
+    clean:100,
+    health:100,
+    discipline:70,
+    waste:0,
+    digestion:[],
+    sick:false,
+    sleep:false,
+    nextIll:Date.now()+12*HOUR+Math.random()*12*HOUR
+  };
+}
+
+let lastInput=Date.now();
+let idleDance=false;
+let idleCoconut=false;
+let temporary=0;
+let end=0;
+
+function save() {
+  try {
+    localStorage.setItem(KEY,JSON.stringify(pet));
+  } catch(e) {}
+}
+
+function say(s) {
+  message.textContent=s;
+}
+
+function touch() {
+  lastInput=Date.now();
+  idleDance=false;
+  idleCoconut=false;
+}
+
+function animate(p,seconds=5) {
+  temporary=p;
+  end=Date.now()+seconds*1000;
+}
+
+function hunger() {
+  return Math.min(
+    100,
+    Math.max(0,(Date.now()-pet.fed)/(9*HOUR)*100)
+  );
+}
+
+function update() {
+  const now=Date.now();
+  const hours=Math.max(0,(now-pet.last)/HOUR);
+  pet.last=now;
+
+  pet.happy=Math.max(0,pet.happy-hours*3);
+
+  pet.energy=Math.max(0,Math.min(
+    100,
+    pet.energy+hours*(pet.sleep?15:-4)
+  ));
+
+  pet.clean=Math.max(
+    0,
+    pet.clean-hours*(pet.waste?6:1)
+  );
+
+  pet.digestion=pet.digestion.filter(d=>{
+    if (d<=now) {
+      pet.waste++;
+      return false;
+    }
+    return true;
   });
 
-  list.children[selected].scrollIntoView({ block: "nearest" });
+  const neglected =
+    pet.clean<40 || hunger()>85 || pet.energy<20;
+
+  if (now>=pet.nextIll) {
+    if (neglected && Math.random()<0.45) {
+      pet.sick=true;
+      say("Stitch thấy không khỏe, cần chăm sóc.");
+    }
+    pet.nextIll=now+6*HOUR+Math.random()*6*HOUR;
+  }
+
+  pet.health=Math.max(0,Math.min(
+    100,
+    pet.health+hours*(pet.sick?-3:pet.sleep?2:0)
+  ));
+
+  state.waste=pet.waste;
+  save();
+}
+
+/* Menu: cần gạt chỉ chọn mục, SELECT mới thực hiện. */
+const tree={
+  home:[
+    "Cho ăn","Sức khỏe","Vệ sinh","Ngủ",
+    "Nựng / Chơi","Kỷ luật","Thông tin"
+  ],
+  "Cho ăn":["Cơm","Trái cây","Snack"],
+  "Sức khỏe":["Nghỉ ngơi","Uống thuốc","Tình trạng"],
+  "Vệ sinh":["Dọn chất thải"],
+  "Ngủ":["Đi ngủ","Thức dậy"],
+  "Nựng / Chơi":["Nựng","Chơi cùng"],
+  "Kỷ luật":["Nhắc nhở","Khen"],
+  "Thông tin":["Chỉ số","Bộ đếm","Đồng hồ","Kết nối"]
+};
+
+let page="home";
+let index=0;
+let stack=[];
+let opened=false;
+
+function refresh() {
+  panel.hidden=!opened;
+  if (!opened) return;
+
+  panel.replaceChildren();
+
+  const heading=document.createElement("h3");
+  heading.textContent=page==="home"?"MENU OHANA":page;
+  panel.append(heading);
+
+  tree[page].forEach((name,i)=>{
+    const row=document.createElement("div");
+    row.className="menu-row"+(i===index?" active":"");
+    row.textContent=(i===index?"▶ ":"  ")+name;
+    panel.append(row);
+  });
+
+  panel.children[index+1].scrollIntoView({block:"nearest"});
 }
 
 function home() {
-  stack = [];
-  current = "root";
-  selected = 0;
-  opened = true;
-  refreshMenu();
+  touch();
+  page="home";
+  index=0;
+  stack=[];
+  opened=true;
+  refresh();
 }
 
 function exit() {
-  opened = false;
-  refreshMenu();
+  touch();
+  opened=false;
+  refresh();
 }
 
 function back() {
+  touch();
   if (!opened) return;
+
   if (stack.length) {
-    const previous = stack.pop();
-    current = previous.current;
-    selected = previous.selected;
-    refreshMenu();
+    [page,index]=stack.pop();
+    refresh();
   } else {
     exit();
   }
 }
 
 function move(step) {
+  touch();
+
   if (!opened) {
     home();
-    return;
+  } else {
+    index=(index+step+tree[page].length)%tree[page].length;
+    refresh();
   }
-  const count = menus[current].items.length;
-  selected = (selected + step + count) % count;
-  refreshMenu();
+}
+
+function duration(ms) {
+  const minutes=Math.ceil(Math.max(0,ms)/60000);
+  return Math.floor(minutes/60)+"h "+minutes%60+"p";
 }
 
 function select() {
+  touch();
+  update();
+
   if (!opened) {
     home();
     return;
   }
 
-  const target = menus[current].items[selected][1];
+  const name=tree[page][index];
 
-  if (!target.startsWith("@")) {
-    stack.push({ current, selected });
-    current = target;
-    selected = 0;
-    refreshMenu();
+  if (tree[name]) {
+    stack.push([page,index]);
+    page=name;
+    index=0;
+    refresh();
     return;
   }
 
-  const id = target.slice(1);
+  if (["Cơm","Trái cây","Snack"].includes(name)) {
+    if (pet.sleep) {
+      say("Để Stitch ngủ nhé.");
+    } else if (hunger()<15) {
+      say("Stitch còn no, đừng cho ăn thêm nhé.");
+    } else {
+      pet.fed=Date.now();
+      pet.digestion.push(
+        Date.now()+(45+Math.random()*45)*60000
+      );
+      state.meal=["Cơm","Trái cây","Snack"].indexOf(name);
+      animate(1);
+      say("Măm măm! Độ đói sẽ tăng dần trong 9 giờ.");
+    }
 
-  if (id === "clock") {
-    message.textContent =
-      "Giờ trên trình duyệt: " + new Date().toLocaleString("vi-VN");
-    exit();
-    return;
+  } else if (name==="Dọn chất thải") {
+    if (!pet.waste) {
+      say("Chưa có chất thải để dọn.");
+    } else {
+      pet.waste=0;
+      pet.clean=Math.min(100,pet.clean+25);
+      animate(8);
+      say("Đã dọn sạch chất thải.");
+    }
+
+  } else if (name==="Uống thuốc") {
+    if (!pet.sick) {
+      say("Stitch khỏe, không cần uống thuốc.");
+    } else {
+      pet.sick=false;
+      pet.health=Math.min(100,pet.health+25);
+      animate(9);
+      say("Đỡ rồi, vẫn cần nghỉ ngơi nhé.");
+    }
+
+  } else if (name==="Đi ngủ" || name==="Nghỉ ngơi") {
+    pet.sleep=true;
+    say("Ngủ hồi năng lượng. Chọn Thức dậy khi muốn.");
+
+  } else if (name==="Thức dậy") {
+    pet.sleep=false;
+    say("Chào Ohana!");
+
+  } else if (["Nựng","Chơi cùng","Khen"].includes(name)) {
+    if (pet.sleep) {
+      say("Stitch đang ngủ.");
+    } else {
+      pet.happy=Math.min(100,pet.happy+15);
+      animate(2);
+      say("Ohana! Vui quá!");
+    }
+
+  } else if (name==="Nhắc nhở") {
+    pet.discipline=Math.min(100,pet.discipline+5);
+    animate(10);
+    say("Nhắc nhẹ thôi nhé!");
+
+  } else if (name==="Bộ đếm") {
+    say(
+      "Đói hoàn toàn sau "+
+      duration(pet.fed+9*HOUR-Date.now())+
+      " • Tiêu hóa: "+
+      (pet.digestion.length
+        ? duration(Math.min(...pet.digestion)-Date.now())
+        : "chưa có")
+    );
+
+  } else if (name==="Chỉ số" || name==="Tình trạng") {
+    say(
+      "Đói "+Math.round(hunger())+
+      " • Vui "+Math.round(pet.happy)+
+      " • Sức khỏe "+Math.round(pet.health)+
+      " • Năng lượng "+Math.round(pet.energy)+
+      " • Sạch "+Math.round(pet.clean)+
+      " • Kỷ luật "+pet.discipline+
+      " • Chất thải "+pet.waste+
+      (pet.sick?" • Đang ốm":"")
+    );
+
+  } else if (name==="Đồng hồ") {
+    say(new Date().toLocaleString("vi-VN"));
+
+  } else {
+    say("Chưa kết nối Adafruit / ESP32.");
   }
 
-  const notices = {
-    check: "Chưa có dữ liệu sức khỏe từ ESP32.",
-    stats: "Chưa đồng bộ chỉ số từ ESP32.",
-    connection: "Offline demo — chưa kết nối Adafruit."
-  };
-
-  if (notices[id]) {
-    message.textContent = notices[id];
-    exit();
-    return;
-  }
-
-  const action = actions[id];
-  if (!action) return;
-
-  pose = action[0];
-  meal = action[2] || 0;
-  message.textContent = action[1];
-
-  actionEnds = ["rest", "sleep"].includes(id)
-    ? Infinity
-    : performance.now() + 6000;
-
-  lastFrame = "";
-  exit();
+  save();
+  opened=false;
+  refresh();
 }
 
-document.getElementById("home").onclick = home;
-document.getElementById("back").onclick = back;
-document.getElementById("select").onclick = select;
-document.getElementById("exit").onclick = exit;
-
-document.querySelectorAll("[data-step]").forEach(button => {
-  button.onclick = () => move(Number(button.dataset.step));
+document.querySelectorAll("[data-step]").forEach(button=>{
+  button.onclick=()=>move(Number(button.dataset.step));
 });
 
-document.addEventListener("keydown", event => {
-  const key = event.key.toLowerCase();
-  const supported = [
-    "arrowup", "arrowdown", "arrowleft", "arrowright",
-    "enter", "escape", "h", "x"
+document.getElementById("home").onclick=home;
+document.getElementById("back").onclick=back;
+document.getElementById("select").onclick=select;
+document.getElementById("exit").onclick=exit;
+
+document.addEventListener("keydown",event=>{
+  const key=event.key.toLowerCase();
+  const supported=[
+    "arrowup","arrowleft","arrowdown","arrowright",
+    "enter","escape","h","x"
   ];
+
   if (!supported.includes(key)) return;
   event.preventDefault();
 
-  if (key === "enter") select();
-  else if (key === "escape") back();
-  else if (key === "h") home();
-  else if (key === "x") exit();
-  else move(["arrowup", "arrowleft"].includes(key) ? -1 : 1);
+  if (key==="enter") select();
+  else if (key==="escape") back();
+  else if (key==="h") home();
+  else if (key==="x") exit();
+  else move(["arrowup","arrowleft"].includes(key)?-1:1);
 });
 
-/* Các màu sprite gốc dùng định dạng RGB565. */
-function color(value) {
-  const r = Math.round(((value >> 11) & 31) * 255 / 31);
-  const g = Math.round(((value >> 5) & 63) * 255 / 63);
-  const b = Math.round((value & 31) * 255 / 31);
-  return `rgb(${r},${g},${b})`;
-}
+/* Bộ đếm chạy bằng thời gian thật, không bằng số frame. */
+let lastFrame="";
+let lastUpdate=0;
 
-function rect(x, y, width, height, value) {
-  ctx.fillStyle = color(value);
-  ctx.fillRect(Math.round(x), Math.round(y), width, height);
-}
-
-function text(x, y, value, fill = "#ffffff") {
-  ctx.fillStyle = fill;
-  ctx.font = "8px monospace";
-  ctx.fillText(value, Math.round(x), Math.round(y));
-}
-
-/* Thay biểu cảm mắt, miệng và má theo trạng thái. */
-function ink(x, y, p, frame) {
-  let value = pixels[y][x];
-
-  const eyes =
-    (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
-    (x >= 29 && x <= 34 && y >= 18 && y <= 25);
-
-  if (eyes && [2, 3, 4, 7].includes(p)) {
-    const center = x < 20 ? 13 : 31;
-    value = p === 2
-      ? (y === 21 + (Math.abs(x - center) > 1 ? 1 : 0) ? 1 : 3)
-      : (y === 23 ? 1 : 3);
-  }
-
-  if (x >= 19 && x <= 27 && y >= 28 && y <= 29) {
-    if (p === 1) value = frame ? 7 : 1;
-    if (p === 2) value = y === 28 && x > 20 && x < 26 ? 7 : 1;
-    if (p === 7) value = y === 28 && x > 20 && x < 26 ? 1 : 2;
-  }
-
-  if (
-    p === 2 && y === 26 &&
-    ((x >= 12 && x <= 14) || (x >= 31 && x <= 33))
-  ) value = 7;
-
-  if (
-    p === 5 && y === 19 &&
-    ((x >= 13 && x <= 14) || (x >= 30 && x <= 31))
-  ) value = 6;
-
-  return value;
-}
-
-function heart(x, y) {
-  rect(x, y, 3, 3, 0xf98f);
-  rect(x + 5, y, 3, 3, 0xf98f);
-  rect(x, y + 3, 8, 3, 0xf98f);
-  rect(x + 2, y + 6, 4, 2, 0xf98f);
-}
-
-function render(p, frame) {
-  const t = frame / 12 * Math.PI * 2;
-
-  rect(0, 0, 128, 160, p === 4 ? 0 : 0x0843);
-  text(5, 12, "STITCH / OHANA", "#a5e4ff");
-  rect(0, 137, 128, 1, 0x2152);
-  text(5, 151, "OFFLINE DEMO", "#ffd166");
-
-  let x = 25;
-  let y = 46;
-  let width = 78;
-  let height = 88;
-  let flip = false;
-
-  // Bình thường: đi qua lại, đổi hướng và nhún nhẹ.
-  if (p === 0) {
-    x += Math.round(17 * Math.sin(t));
-    y += Math.round(2 * Math.abs(Math.sin(t * 2)));
-    flip = Math.cos(t) < 0;
-  }
-
-  // Ăn: nhún người.
-  if (p === 1) y -= Math.round(3 * Math.abs(Math.sin(t)));
-
-  // Nựng / chơi: nhảy.
-  if (p === 2) {
-    y -= Math.round(12 * Math.abs(Math.sin(t)));
-    x += Math.round(3 * Math.sin(t));
-  }
-
-  // Ngủ: dáng thấp, nằm và thở nhẹ.
-  if (p === 4) {
-    x = 20;
-    y = 99;
-    width = 88;
-    height = 36 + Math.round(Math.sin(t));
-  }
-
-  // Nghe và suy nghĩ: nghiêng qua lại.
-  if (p === 5) x += Math.round(3 * Math.sin(t));
-  if (p === 6) x += Math.round(4 * Math.sin(t));
-
-  // Ốm: run nhẹ, hạ người.
-  if (p === 7) {
-    x += frame % 2;
-    y += 4;
-    height = 84;
-  }
-
-  // Dọn: di chuyển qua lại.
-  if (p === 8) {
-    x += Math.round(14 * Math.sin(t));
-    flip = Math.cos(t) < 0;
-  }
-
-  if (p === 9) y -= Math.round(2 * Math.abs(Math.sin(t)));
-  if (p === 10) y -= Math.round(4 * Math.abs(Math.sin(t)));
-
-  // Bóng dưới chân.
-  rect(x + 14, 135, width - 28, 2, 0x2104);
-
-  // Vẽ sprite, giữ cạnh pixel sắc nét.
-  for (let sy = 0; sy < height; sy++) {
-    for (let sx = 0; sx < width; sx++) {
-      let ax = Math.floor(sx * 45 / width);
-      let ay = Math.floor(sy * 51 / height);
-
-      if (flip) ax = 44 - ax;
-
-      // Rung tai.
-      if (ay < 18 && p !== 4) {
-        ay = Math.max(0, Math.min(
-          50,
-          ay + Math.round(Math.sin(t) * (ax < 10 ? 1 : -1))
-        ));
-      }
-
-      const expression = p === 0 && frame === 0 ? 3 : p;
-      const value = ink(ax, ay, expression, frame < 6 ? 0 : 1);
-
-      if (value) rect(x + sx, y + sy, 1, 1, palette[value]);
-    }
-  }
-
-  const wave = Math.round(3 * Math.sin(t));
-
-  // Thức ăn đi lên miệng và vụn thức ăn.
-  if (p === 1) {
-    const foodY = 100 - Math.round(13 * (1 + Math.sin(t)) / 2);
-    rect(x + 32, foodY, 12, 7, [0xffff, 0x07e0, 0xfd20][meal]);
-    rect(x + 34, foodY + 7, 8, 2, 0x2104);
-    if (frame > 7) {
-      rect(x + 30, foodY + 4, 2, 2, 0xffe0);
-      rect(x + 47, foodY + 6, 2, 2, 0xffe0);
-    }
-  }
-
-  // Tim bay lên.
-  if (p === 2) {
-    for (let i = 0; i < 2; i++) {
-      heart(10 + i * 97, 75 - ((frame + i * 5) % 12) * 3);
-    }
-  }
-
-  // Chữ Z bay lên khi ngủ.
-  if (p === 4) text(85, 82 - frame * 2, "ZZZ");
-
-  // Vạch âm thanh minh họa, không thu mic.
-  if (p === 5) {
-    for (let i = 0; i < 3; i++) {
-      rect(
-        109 + i * 4,
-        78 - wave * (i + 1),
-        2,
-        6 + Math.abs(wave) * (i + 1),
-        0x65ff
-      );
-    }
-  }
-
-  // Dấu hỏi và chấm chờ.
-  if (p === 6) {
-    text(99, 48, "?", "#ffd166");
-    for (let i = 0; i < 3; i++) {
-      rect(
-        102 + i * 7, 66, 3, 3,
-        i === Math.floor(frame / 4) ? 0xffff : 0x2152
-      );
-    }
-  }
-
-  // Mồ hôi khi ốm.
-  if (p === 7) {
-    text(3, 118, "OM...", "#ff7888");
-    rect(x + 58, 83 + frame % 4, 2, 4, 0x65ff);
-  }
-
-  // Chổi quét và bụi.
-  if (p === 8) {
-    rect(x + 62 + wave, 104, 2, 23, 0xfd20);
-    rect(x + 57 + wave, 125, 12, 4, 0xffff);
-    rect(108, 130, 10, 4, 0x8200);
-    rect(110, 127, 6, 3, 0x8200);
-    if (frame > 7) {
-      rect(106, 120, 2, 2, 0xffff);
-      rect(119, 124, 2, 2, 0xffff);
-    }
-  }
-
-  // Lọ thuốc và viên thuốc đưa lên miệng.
-  if (p === 9) {
-    rect(105, 96, 13, 17, 0xffff);
-    rect(110, 98, 3, 13, 0xf800);
-    rect(107, 103, 9, 3, 0xf800);
-    rect(
-      x + 34,
-      105 - Math.round(17 * (1 + Math.sin(t)) / 2),
-      5, 3, 0xffff
-    );
-  }
-
-  // Kỷ luật: nhún, cử động tay và dấu chấm than.
-  if (p === 10) {
-    text(106, 70 - wave, "!", "#ffd166");
-    rect(x + 9, 104 - wave, 6, 3, 0x3b72);
-  }
-}
-
-/* Chỉ vẽ khi khung animation hoặc trạng thái thay đổi. */
 function loop(now) {
-  if (actionEnds && now > actionEnds) {
-    pose = 0;
-    actionEnds = 0;
+  if (now-lastUpdate>1000) {
+    update();
+    lastUpdate=now;
   }
 
-  const frame = Math.floor(now / 100) % 12;
-  const key = pose + ":" + meal + ":" + frame;
+  const time=Date.now();
+  const idle=time-lastInput;
+  const hour=new Date().getHours();
 
-  if (key !== lastFrame) {
-    render(pose, frame);
-    lastFrame = key;
+  if (!opened && !pet.sleep && !pet.sick && pet.energy>25) {
+    if (idle>=90000 && !idleDance) {
+      idleDance=true;
+      animate(11,12);
+      say("Stitch mặc váy lá nhảy Hawaii!");
+    }
+
+    if (idle>=120000 && !idleCoconut) {
+      idleCoconut=true;
+      animate(12,10);
+      say("Gặm vỏ dừa cho vui — không tính là bữa ăn.");
+    }
+  }
+
+  if (end && time>end) {
+    temporary=0;
+    end=0;
+  }
+
+  state.pose =
+    pet.sleep ? 4 :
+    pet.sick ? 7 :
+    end ? temporary :
+    (hour>=22 || hour<6 || pet.energy<25) ? 13 :
+    0;
+
+  const frame=Math.floor(now/120)%12;
+  const key=state.pose+":"+frame+":"+state.waste;
+
+  if (key!==lastFrame) {
+    render(state.pose,frame);
+    lastFrame=key;
   }
 
   requestAnimationFrame(loop);
 }
 
+say("Ohana! HOME mở menu.");
+update();
 requestAnimationFrame(loop);
 </script>
 </body>
