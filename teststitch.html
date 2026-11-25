@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stitch — Ohana Pocket</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <div class="console" aria-label="Máy chăm Stitch màu xanh biển">
+      <header>
+        <span>OHANA</span>
+        <span>POCKET PET</span>
+      </header>
+
+      <section class="bezel">
+        <div class="screen">
+          <canvas
+            width="128"
+            height="160"
+            aria-label="Màn hình Stitch pixel"
+          ></canvas>
+        </div>
+        <div class="screen-label">STITCH · PIXEL COMPANION</div>
+      </section>
+
+      <div class="connection">
+        <i></i> DEMO • CHƯA KẾT NỐI
+      </div>
+
+      <div class="inputs">
+        <div class="dpad" aria-label="Phím điều hướng">
+          <button class="up" data-dir="up" aria-label="Lên">▲</button>
+          <button class="left" data-dir="left" aria-label="Trái">◀</button>
+          <button class="center" data-dir="center" aria-label="Xác nhận">●</button>
+          <button class="right" data-dir="right" aria-label="Phải">▶</button>
+          <button class="down" data-dir="down" aria-label="Xuống">▼</button>
+        </div>
+
+        <div class="action-pad">
+          <button id="confirm" aria-label="Xem animation đã chọn">A</button>
+          <button id="pet" aria-label="Xem animation nựng">B</button>
+        </div>
+      </div>
+
+      <div class="selection" id="selected" aria-live="polite">
+        Bình thường
+      </div>
+
+      <footer>
+        <button id="reset">HOME</button>
+        <span class="speaker" aria-hidden="true">▌▌▌</span>
+      </footer>
+    </div>
+
+    <section class="preview">
+      <h1>Stitch ở nhà, Ohana ở mọi nơi</h1>
+      <p>
+        Chọn animation bằng phím hướng, nhấn A để xem.
+        B xem nựng. Đây là bản xem thử, chưa điều khiển ESP32.
+      </p>
+
+      <details>
+        <summary>Tất cả animation</summary>
+        <div id="controls"></div>
+      </details>
+
+      <p class="hint">
+        Máy tính: phím mũi tên để chọn · Enter để xem
+      </p>
+    </section>
+  </main>
+
+  <script type="module" src="animation.js"></script>
+</body>
+</html>
