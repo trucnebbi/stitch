@@ -422,7 +422,7 @@ footer {
 
 <footer>
   <div id="message" aria-live="polite"></div>
-  Pixel 2D, không dùng model 3D • Chưa đồng bộ ESP32 / Adafruit<br>
+  Thú nuôi trên trình duyệt • Chưa đồng bộ ESP32 / Adafruit<br>
   Phím hướng: chọn · Enter: xác nhận · Esc: quay lại<br>
   H: HOME · X: EXIT
 </footer>
@@ -570,86 +570,172 @@ function heart(x, y) {
   7 ốm; 8 dọn; 9 thuốc; 10 kỷ luật;
   11 Hawaii; 12 dừa; 13 buồn ngủ.
 */
-// Pixel geometry is drawn on the same integer grid as the face.
-let poseStart=Date.now(), drawnPose=-1;
-function poly(points,c){ctx.fillStyle=color(c);ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(Math.round(x),Math.round(y)):ctx.moveTo(Math.round(x),Math.round(y)));ctx.closePath();ctx.fill();}
-function limb(a,b,c,width=7){
- const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1;
- const nx=-dy/len*width/2,ny=dx/len*width/2;
- poly([[a[0]+nx,a[1]+ny],[b[0]+nx,b[1]+ny],[b[0]-nx,b[1]-ny],[a[0]-nx,a[1]-ny]],0x2104);
- poly([[a[0]+nx*.65,a[1]+ny*.65],[b[0]+nx*.65,b[1]+ny*.65],[b[0]-nx*.65,b[1]-ny*.65],[a[0]-nx*.65,a[1]-ny*.65]],c);
-}
-function head(cx,top,expression,blink=false){
- // Keep the approved face, but never stretch or rotate its seated body.
- for(let ay=0;ay<30;ay++)for(let ax=0;ax<45;ax++){
-  let c=ink(ax,ay,expression,blink?0:1);
-  if(expression===13 && ay>=18&&ay<=21&&((ax>=10&&ax<=16)||(ax>=29&&ax<=34)))c=3;
-  if(c)rect(cx-45+ax*2,top+ay*2,2,2,palette[c]);
- }
- if(expression===13){rect(cx-8,top+55,16,9,0x2104);rect(cx-6,top+55,12,2,0xffff);rect(cx-4,top+61,8,3,0xf98f);}
-}
-function render(pose,frame){
- if(drawnPose!==pose){drawnPose=pose;poseStart=Date.now();}
- const t=(Date.now()-poseStart)/1000;
- const dance=pose===11, play=pose===14;
- const running=play&&t>=.8&&t<7.5;
- const phase=t*(running?11:3), wave=Math.sin(phase);
- rect(0,0,128,160,pose===4?0x0001:0x0843);rect(0,137,128,1,0x2152);
- if(pose===4){
-  // A separately drawn horizontal sleeping pose, not a rotated seated sprite.
-  rect(8,118,32,18,0xffff);
-  poly([[13,111],[7,104],[10,96],[22,100],[33,108],[38,118],[30,130],[17,129],[11,123]],0x2104);
-  poly([[15,112],[10,104],[12,100],[22,104],[33,112],[35,120],[29,127],[18,125]],0x3b72);
-  poly([[19,107],[22,98],[36,101],[43,110],[42,121],[32,128],[22,123]],0x3b72);
-  rect(23,108,18,7,0x5295);rect(25,110,14,2,0x2104);rect(34,117,9,5,0x020f);
-  const breath=Math.round(Math.sin(t*1.6));
-  poly([[40,116+breath],[49,111+breath],[93,112],[110,121],[111,135],[39,135]],0x2104);
-  poly([[42,118+breath],[51,114+breath],[92,115],[107,123],[108,132],[42,132]],0x3b72);
-  rect(43,116+breath,51,3,0x65ff);for(let i=0;i<5;i++)rect(53+i*10,123,3,3,0x65ff);
-  if(pet.sick)rect(25,102,12,3,0xafff);
-  text(88,87-Math.floor(t%3)*3,'Zz',0xffff);
- }else{
- let cx=64,top=46;
- const standing=dance||pose===8||play;
- if(play){if(t>=.8&&t<3.5)cx=64+(t-.8)/2.7*120;else if(t>=3.5&&t<4.2)cx=184;else if(t>=4.2&&t<7.5)cx=-52+(t-4.2)/3.3*116;}
- if(dance)cx+=Math.round(wave*3);
- if(standing)top=34+Math.round(Math.abs(wave)*(running?2:1));
- if(pose===7)top+=3;
- const shoulderY=top+61,hipY=standing?119:125;
- const lift=running?wave*7:dance?wave*3:0;
- // Legs are articulated at the hip, knee and ankle, with counter-phase steps.
- for(const side of [-1,1]){
- const hip=[cx+side*8,hipY-4],knee=[cx+side*(standing?10:20)+lift*side,standing?126:130];
- const foot=[cx+side*(standing?12:26)-lift*side,134-Math.max(0,lift*side)];
- limb(hip,knee,0x3b72,11);limb(knee,foot,0x3b72,10);
- rect(foot[0]-7,foot[1]-2,15,5,0x2104);rect(foot[0]-5,foot[1]-2,11,3,0x3b72);
- }
- poly([[cx-15,shoulderY-3],[cx+14,shoulderY-3],[cx+18,hipY-2],[cx+9,hipY+3],[cx-12,hipY+3],[cx-18,hipY-3]],0x2104);
- poly([[cx-12,shoulderY],[cx+11,shoulderY],[cx+14,hipY-3],[cx+7,hipY],[cx-10,hipY],[cx-14,hipY-4]],0x3b72);
- poly([[cx-7,shoulderY],[cx+7,shoulderY],[cx+9,hipY-5],[cx+5,hipY-1],[cx-6,hipY-1]],0x8e3b);
- let right=[cx+19,hipY-3],left=[cx-19,hipY-3];
- if(running){right=[cx+20+wave*9,shoulderY+15-wave*8];left=[cx-20-wave*9,shoulderY+15+wave*8];}
- if(dance){right=[cx+28,shoulderY+wave*6];left=[cx-28,shoulderY-wave*6];}
- if(pose===8)right=[cx+26+wave*5,112];
- if([1,9,12].includes(pose)){
-  const a=(1-Math.cos(Math.min(t,4)*Math.PI/2))/2;
-  if(pose===9)right=[cx+15-a*10,shoulderY+16-a*21];else left=[cx-17+a*12,shoulderY+16-a*20];
- }
- for(const [side,hand]of [[-1,left],[1,right]]){
- const shoulder=[cx+side*13,shoulderY+1],elbow=[(shoulder[0]+hand[0])/2+side*3,(shoulder[1]+hand[1])/2+4];
- limb(shoulder,elbow,0x3b72,8);limb(elbow,hand,0x3b72,8);rect(hand[0]-4,hand[1]-3,8,7,0x3b72);
- }
- head(cx,top,pose,Math.floor(t*10)%40===0);
- if(dance){for(let i=0;i<7;i++)poly([[cx-18+i*5,116],[cx-13+i*5,116],[cx-14+i*5,125+i%2]],i%2?0x35a7:0x5ca6);for(let i=0;i<6;i++)rect(cx-19+i*7,top+23+Math.abs(i-2)*2,5,4,0x5ca6);}
- if(pose===7){rect(cx-11,top+31,22,4,0xafff);rect(cx+5,top+57,21,2,0xffff);rect(cx+24,top+56,4,4,0xf800);}
- if(pose===8){rect(right[0],right[1]-10,2,25,0xb346);rect(right[0]-5,right[1]+15,12,5,0xd5aa);for(let i=0;i<4;i++)rect(right[0]-5+i*3,right[1]+19,1,3,0xb346);}
- if(pose===9){if(t<2.5){rect(right[0]-2,right[1]-4,5,3,0xffff);rect(right[0],right[1]-4,2,3,0xf98f);}else{rect(right[0]-4,right[1]-8,9,10,0x65ff);rect(right[0]-3,right[1]-8,7,2,0xffff);}}
- if(pose===1)rect(left[0]-4,left[1]-5,10,6,[0xffff,0x07e0,0xfd20][state.meal]);
- if(pose===12){rect(left[0]-5,left[1]-7,12,9,0x8200);rect(left[0]-3,left[1]-7,8,2,0xc618);}
- if(pose===2)heart(20,65-Math.round(t*10)%25);
- if(play&&t<3.5){let x=84+t*36;rect(x,129,10,8,0x8200);rect(x+2,129,5,2,0xc618);}
- }
- if(state.waste){rect(107,130,10,4,0x8200);rect(109,127,6,3,0x8200);}
+function render(pose, frame) {
+  const t = frame / 12 * Math.PI * 2;
+
+  rect(0, 0, 128, 160, pose === 4 ? 0 : 0x0843);
+  rect(0, 137, 128, 1, 0x2152);
+
+  let x = 25;
+  let y = 46;
+  const w = 78;
+  let h = 88;
+  let flip = false;
+
+  if (pose === 0) y += Math.round(Math.sin(t));
+
+  if (pose === 1) {
+    y -= Math.round(3 * Math.abs(Math.sin(t)));
+  }
+
+  if (pose === 2) {
+    y -= Math.round(12 * Math.abs(Math.sin(t)));
+    x += Math.round(3 * Math.sin(t));
+  }
+
+  // Giữ nguyên tỷ lệ khi ngủ.
+  if (pose === 4) y = 46 + Math.round(Math.sin(t));
+
+  if (pose === 7) {
+    x += frame % 2;
+    y += 4;
+    h = 84;
+  }
+
+  if (pose === 8) {
+    x += Math.round(14 * Math.sin(t));
+    flip = Math.cos(t) < 0;
+  }
+
+  if (pose === 9) {
+    y -= Math.round(2 * Math.abs(Math.sin(t)));
+  }
+
+  if (pose === 10) {
+    y -= Math.round(4 * Math.abs(Math.sin(t)));
+  }
+
+  rect(x + 14, 135, w - 28, 2, 0x2104);
+
+  for (let sy = 0; sy < h; sy++) {
+    for (let sx = 0; sx < w; sx++) {
+      let ax = Math.floor(sx * 45 / w);
+      let ay = Math.floor(sy * 51 / h);
+
+      if (flip) ax = 44 - ax;
+
+      if (ay < 18 && pose !== 4) {
+        ay = Math.max(0, Math.min(
+          50,
+          ay + Math.round(Math.sin(t) * (ax < 10 ? 1 : -1))
+        ));
+      }
+
+      const expression =
+        [0, 11, 12].includes(pose) && frame === 0 ? 3 : pose;
+
+      const c = ink(ax, ay, expression, frame < 6 ? 0 : 1);
+
+      if (c && !(pose === 11 && ay >= 30)) {
+        rect(x + sx, y + sy, 1, 1, palette[c]);
+      }
+    }
+  }
+
+  const wave = Math.round(3 * Math.sin(t));
+
+  if (pose === 1) {
+    const foodY = 100 - Math.round(13 * (1 + Math.sin(t)) / 2);
+    rect(x + 32, foodY, 12, 7, [0xffff, 0x07e0, 0xfd20][state.meal]);
+    rect(x + 34, foodY + 7, 8, 2, 0x2104);
+
+    if (frame > 7) {
+      rect(x + 30, foodY + 4, 2, 2, 0xffe0);
+      rect(x + 47, foodY + 6, 2, 2, 0xffe0);
+    }
+  }
+
+  if (pose === 2) {
+    for (let i = 0; i < 2; i++) {
+      heart(10 + i * 97, 75 - ((frame + i * 5) % 12) * 3);
+    }
+  }
+
+  if (pose === 4) {
+    rect(38, 107, 56, 24, 0x3b72);
+    rect(38, 107, 56, 3, 0x65ff);
+    text(85, 82 - frame * 2, "ZZZ");
+  }
+
+  if (pose === 11) {
+    const sway = Math.round(Math.sin(t) * 3);
+
+    // Thân đứng, chân nhấc luân phiên.
+    rect(49 + sway, 98, 30, 23, 0x3b72);
+    rect(56 + sway, 98, 16, 17, 0x8e3b);
+    rect(47 + sway, 119, 12, 13, 0x3b72);
+    rect(68 + sway, 119, 12, 13, 0x3b72);
+
+    rect(43 + sway, 130 - (frame < 6 ? 2 : 0), 17, 4, 0x2104);
+    rect(67 + sway, 130 - (frame >= 6 ? 2 : 0), 17, 4, 0x2104);
+
+    // Váy lá.
+    for (let i = 0; i < 7; i++) {
+      rect(46 + sway + i * 5, 113, 4, 10 + i % 3, 0x5ca6);
+    }
+
+    // Tay múa, vòng lá trên đầu và cổ tay.
+    rect(35, 102 + wave, 18, 5, 0x3b72);
+    rect(77, 98 - wave, 18, 5, 0x3b72);
+
+    for (let i = 0; i < 5; i++) {
+      rect(47 + i * 7, 60 - i % 2 * 3, 5, 5, 0x5ca6);
+    }
+
+    rect(34, 100 + wave, 5, 7, 0x5ca6);
+    rect(92, 96 - wave, 5, 7, 0x5ca6);
+  }
+
+  if (pose === 12) {
+    rect(55, 91 - wave, 20, 17, 0x8200);
+    rect(58, 89 - wave, 14, 3, 0xc618);
+    rect(60, 94 - wave, 2, 2, 0x2104);
+
+    if (frame > 6) rect(72, 91 - wave, 3, 4, 0x0843);
+  }
+
+  if (pose === 13) text(81, 52, "ZZ?", 0xffe0);
+
+  if (pose === 7) {
+    rect(x + 58, 83 + frame % 4, 2, 4, 0x65ff);
+  }
+
+  if (pose === 8) {
+    rect(x + 62 + wave, 104, 2, 23, 0xfd20);
+    rect(x + 57 + wave, 125, 12, 4, 0xffff);
+    rect(108, 130, 10, 4, 0x8200);
+    rect(110, 127, 6, 3, 0x8200);
+  }
+
+  if (pose === 9) {
+    rect(105, 96, 13, 17, 0xffff);
+    rect(110, 98, 3, 13, 0xf800);
+    rect(107, 103, 9, 3, 0xf800);
+    rect(
+      x + 34,
+      105 - Math.round(17 * (1 + Math.sin(t)) / 2),
+      5, 3, 0xffff
+    );
+  }
+
+  if (pose === 10) {
+    text(106, 65 - wave, "!", 0xffe0, 12);
+  }
+
+  if (state.waste && pose !== 8) {
+    rect(107, 130, 10, 4, 0x8200);
+    rect(109, 127, 6, 3, 0x8200);
+  }
 }
 
 /* Luật nuôi và lưu trạng thái. */
@@ -780,8 +866,6 @@ function update() {
     pet.health + hours * (pet.sick ? -3 : pet.sleep ? 2 : 0)
   ));
 
-  if(pet.medicineDue && now>=pet.medicineDue){pet.medicineDue=0;pet.sick=false;pet.health=Math.min(100,pet.health+25);say("Uống xong rồi, Ohana!");}
-  if(pet.cleaningDue && now>=pet.cleaningDue){pet.cleaningDue=0;pet.waste=Math.max(0,pet.waste-(pet.cleaningCount||0));pet.cleaningCount=0;pet.clean=Math.min(100,pet.clean+25);say("Đã quét dọn xong.");}
   state.waste = pet.waste;
   updateHud();
   save();
@@ -880,7 +964,6 @@ function select() {
   }
 
   const name = tree[page][index];
-  if ((pet.medicineDue || pet.cleaningDue) && !["Chỉ số","Tình trạng","Bộ đếm","Đồng hồ","Kết nối"].includes(name) && !tree[name]) {say("Chờ Stitch làm xong nhé."); return;}
 
   if (tree[name]) {
     stack.push([page, index]);
@@ -909,20 +992,21 @@ function select() {
     if (!pet.waste) {
       say("Chưa có chất thải để dọn.");
     } else {
-      if(pet.sleep){say("Đánh thức Stitch trước nhé.");return;}
-      pet.cleaningCount=pet.waste;pet.cleaningDue=Date.now()+5000;
+      pet.waste = 0;
+      state.waste = 0;
+      pet.clean = Math.min(100, pet.clean + 25);
       animate(8);
-      say("Stitch đang quét dọn.");
+      say("Đã dọn sạch chất thải.");
     }
 
   } else if (name === "Uống thuốc") {
     if (!pet.sick) {
       say("Stitch khỏe, không cần uống thuốc.");
     } else {
-      if(pet.sleep){say("Đánh thức Stitch trước nhé.");return;}
-      pet.medicineDue=Date.now()+5000;
+      pet.sick = false;
+      pet.health = Math.min(100, pet.health + 25);
       animate(9);
-      say("Stitch đang uống thuốc rồi uống nước.");
+      say("Đỡ rồi, vẫn cần nghỉ ngơi nhé.");
     }
 
   } else if (name === "Đi ngủ" || name === "Nghỉ ngơi") {
@@ -938,8 +1022,7 @@ function select() {
       say("Stitch đang ngủ.");
     } else {
       pet.happy = Math.min(100, pet.happy + 15);
-      if(name==="Chơi cùng" && (pet.sick||pet.energy<15)){say("Stitch cần nghỉ, chưa chạy được.");return;}
-      animate(name==="Chơi cùng"?14:2,name==="Chơi cùng"?8:5);
+      animate(2);
       say("Ohana! Vui quá!");
     }
 
@@ -1028,7 +1111,7 @@ function loop(now) {
   const idle = time - lastInput;
   const hour = new Date().getHours();
 
-  if (!opened && !end && !pet.medicineDue && !pet.cleaningDue && !pet.sleep && !pet.sick && pet.energy > 25) {
+  if (!opened && !pet.sleep && !pet.sick && pet.energy > 25) {
     if (idle >= 90000 && !idleDance) {
       idleDance = true;
       animate(11, 12);
@@ -1048,15 +1131,13 @@ function loop(now) {
   }
 
   state.pose =
-    pet.medicineDue ? 9 :
-    pet.cleaningDue ? 8 :
     pet.sleep ? 4 :
     pet.sick ? 7 :
     end ? temporary :
     (hour >= 22 || hour < 6 || pet.energy < 25) ? 13 :
     0;
 
-  const frame = Math.floor(now / 80) % 100000;
+  const frame = Math.floor(now / 120) % 12;
   const key = state.pose + ":" + frame + ":" + state.waste;
 
   if (key !== lastFrame) {
