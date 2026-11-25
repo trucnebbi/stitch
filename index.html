@@ -5,133 +5,129 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stitch — Ohana Pocket</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 <style>
 :root {
-  --shell-main: #269eea;
-  --shell-light: #a5e4ff;
-  --shell-dark: #135aa6;
-  --border-dark: #141720;
-  --screen-bezel: #7d83a8;
-  --screen-bezel-dark: #585d7e;
-  --screen-bg: #3b405c;
-  --dpad-main: #868eb2;
-  --dpad-light: #a5adc9;
-  --dpad-dark: #616887;
-  --btn-red: #d45567;
-  --btn-red-light: #ec7888;
-  --btn-red-dark: #9c3445;
-  --speaker: #2a2f45;
+  --shell: #269eea;
+  --light: #a5e4ff;
+  --dark: #135aa6;
+  --border: #141720;
 }
 
 * {
   box-sizing: border-box;
-  user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  padding: 24px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  padding: 24px 12px;
+  gap: 24px;
   background:
     radial-gradient(circle at 20% 20%, #23283d, transparent 45%),
     radial-gradient(circle at 80% 80%, #1c323a, transparent 45%),
     #121520;
-  font-family: "Press Start 2P", monospace;
-  color: #f4f7ff;
+  color: #eef5ff;
+  font-family: monospace;
 }
 
 .console {
-  position: relative;
   width: 340px;
   max-width: 94vw;
-  padding: 24px 24px 28px;
-  background: var(--shell-main);
-  border: 6px solid var(--border-dark);
+  padding: 24px;
+  background: var(--shell);
+  border: 6px solid var(--border);
   border-radius: 36px 36px 22px 22px;
   box-shadow:
-    inset 0 8px 0 var(--shell-light),
-    inset 0 -10px 0 var(--shell-dark),
-    inset 8px 0 0 var(--shell-light),
-    inset -8px 0 0 var(--shell-dark),
+    inset 8px 8px 0 var(--light),
+    inset -8px -10px 0 var(--dark),
     0 18px 0 #0b0d14,
     0 26px 40px #0008;
-  image-rendering: pixelated;
+}
+
+.brand {
+  margin-bottom: 18px;
+  text-align: center;
+  color: var(--border);
+  font: bold 12px monospace;
+  letter-spacing: 2px;
 }
 
 .bezel {
   padding: 12px;
-  margin-bottom: 34px;
-  background: var(--screen-bezel);
-  border: 6px solid var(--border-dark);
+  background: #7d83a8;
+  border: 6px solid var(--border);
   box-shadow:
-    inset 4px 4px 0 #9aa0c4,
-    inset -4px -4px 0 var(--screen-bezel-dark);
+    inset 4px 4px 0 #a5adc9,
+    inset -4px -4px 0 #585d7e;
 }
 
-.screen-wrapper {
+.screen {
   position: relative;
-  width: 100%;
   aspect-ratio: 128 / 160;
-  background: var(--screen-bg);
-  border: 5px solid var(--border-dark);
   overflow: hidden;
-  box-shadow: inset 0 0 24px #0a0c168c;
+  background: #084358;
+  border: 5px solid var(--border);
 }
 
-.screen-wrapper::after {
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.screen::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 4;
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
-    #ffffff08 0 2px,
+    #ffffff06 0 2px,
     transparent 2px 4px
   );
 }
 
-#gameCanvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-  image-rendering: pixelated;
-}
-
-.hud-bar {
+/* Giờ và hai thanh chỉ dùng biểu tượng. */
+.hud {
   position: absolute;
-  top: 5px;
-  left: 5px;
-  right: 5px;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  font-size: 9px;
-  color: #ffd166;
-  text-shadow: 2px 2px 0 var(--border-dark);
+  gap: 5px;
+  padding: 6px 5px;
+  background: #084358;
   pointer-events: none;
-  z-index: 2;
+}
+
+.clock {
+  padding-top: 3px;
+  color: #ffd166;
+  font: bold 12px monospace;
+  white-space: nowrap;
 }
 
 .status-bars {
   display: grid;
-  gap: 3px;
-  width: 54%;
+  gap: 4px;
+  width: 58%;
 }
 
 .status-row {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  height: 12px;
 }
 
 .status-row svg {
@@ -141,15 +137,15 @@ body {
   shape-rendering: crispEdges;
 }
 
-.status-track {
-  height: 8px;
+.track {
   flex: 1;
+  height: 8px;
+  border: 1px solid #bddce8;
   background: #102437;
-  border: 1px solid #b8d6e3;
   overflow: hidden;
 }
 
-.status-track i {
+.fill {
   display: block;
   height: 100%;
   width: 0;
@@ -158,50 +154,42 @@ body {
 #spiritFill { background: #ff789e; }
 #hungerFill { background: #ffc56b; }
 
-.menu-panel {
+.menu {
   position: absolute;
   inset: 0;
+  z-index: 3;
   padding: 10px;
-  z-index: 5;
   overflow: auto;
   background: #18243bf5;
   font: 14px monospace;
 }
 
-.menu-panel[hidden] { display: none; }
+.menu[hidden] {
+  display: none;
+}
 
-.menu-panel h3 {
+.menu h3 {
   margin: 0 0 10px;
   color: #ffd166;
+  font-size: 15px;
 }
 
 .menu-row {
   padding: 7px 3px;
+  line-height: 1.3;
 }
 
 .menu-row.active {
-  background: #a5e4ff;
-  color: #141720;
+  background: var(--light);
+  color: var(--border);
 }
-
-.overlay-msg {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #22263ac7;
-}
-
-.overlay-msg.hidden { display: none; }
 
 .controls {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
 }
 
 .dpad {
@@ -211,97 +199,88 @@ body {
   flex-shrink: 0;
 }
 
-.dpad-btn {
+.dpad button {
   position: absolute;
   width: 36px;
   height: 36px;
   padding: 0;
-  background: var(--dpad-main);
-  border: 5px solid var(--border-dark);
-  cursor: pointer;
-  touch-action: manipulation;
+  color: var(--border);
+  background: #868eb2;
+  border: 5px solid var(--border);
   box-shadow:
-    inset 3px 3px 0 var(--dpad-light),
-    inset -3px -3px 0 var(--dpad-dark);
+    inset 3px 3px 0 #a5adc9,
+    inset -3px -3px 0 #616887;
 }
 
-.dpad-up {
+.up {
   top: 0;
   left: 36px;
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
-.dpad-down {
+.down {
   bottom: 0;
   left: 36px;
-  border-top: none;
+  border-top: none !important;
 }
 
-.dpad-left {
+.left {
   top: 36px;
   left: 0;
-  border-right: none;
+  border-right: none !important;
 }
 
-.dpad-right {
+.right {
   top: 36px;
   right: 0;
-  border-left: none;
+  border-left: none !important;
 }
 
-.dpad-center {
+.center {
   position: absolute;
   top: 36px;
   left: 36px;
   width: 36px;
   height: 36px;
-  background: var(--dpad-main);
-  pointer-events: none;
+  background: #868eb2;
 }
 
-.dpad-btn:active {
-  transform: translateY(2px);
-  background: var(--dpad-dark);
-}
-
-.action-pad {
-  width: 120px;
-  height: 130px;
+.actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px 0;
-  flex-shrink: 0;
+  grid-template-columns: repeat(2, 58px);
+  gap: 20px 2px;
+  text-align: center;
 }
 
-.round-btn {
-  position: relative;
+.actions button {
+  display: block;
   width: 30px;
   height: 30px;
   margin: auto;
   padding: 0;
   border-radius: 50%;
-  background: var(--btn-red);
-  border: 5px solid var(--border-dark);
+  background: #d45567;
+  border: 5px solid var(--border);
+  box-shadow:
+    inset 3px 3px 0 #ec7888,
+    inset -3px -3px 0 #9c3445;
+}
+
+.actions span {
+  display: block;
+  margin-top: 8px;
+  color: var(--border);
+  font: bold 9px monospace;
+}
+
+button {
   cursor: pointer;
   touch-action: manipulation;
-  box-shadow:
-    inset 3px 3px 0 var(--btn-red-light),
-    inset -3px -3px 0 var(--btn-red-dark);
 }
 
-.round-btn::after {
-  content: attr(data-label);
-  position: absolute;
-  top: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  font: 7px "Press Start 2P", monospace;
-  color: #141720;
-}
-
-.round-btn:active {
-  transform: scale(.94);
-  background: var(--btn-red-dark);
+button:active {
+  filter: brightness(.8);
+  transform: translateY(2px);
 }
 
 button:focus-visible {
@@ -313,35 +292,47 @@ button:focus-visible {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding-right: 14px;
-  margin-top: 6px;
+  margin-top: 22px;
 }
 
-.speaker-slot {
+.speaker i {
   width: 14px;
   height: 44px;
-  background: var(--speaker);
-  border: 4px solid var(--border-dark);
+  border: 4px solid var(--border);
   border-radius: 6px;
-  box-shadow: inset 3px 0 0 #1b1e2e;
+  background: #2a2f45;
 }
 
-.footer-note {
-  max-width: 420px;
-  font-size: 9px;
-  line-height: 1.8;
+footer {
+  max-width: 360px;
   text-align: center;
-  color: #9ba5c9;
+  color: #adbbd4;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+#message {
+  margin-bottom: 8px;
+  color: #ffd166;
 }
 </style>
 </head>
 
 <body>
-<main class="console" aria-label="Máy chăm Stitch màu xanh biển">
+<main class="console">
+  <div class="brand">OHANA POCKET PET</div>
+
   <div class="bezel">
-    <div class="screen-wrapper">
-      <div class="hud-bar" aria-label="Đồng hồ và tình trạng Stitch">
-        <span id="petClock">00:00</span>
+    <div class="screen">
+      <canvas
+        id="petCanvas"
+        width="128"
+        height="160"
+        aria-label="Stitch pixel"
+      ></canvas>
+
+      <div class="hud">
+        <time class="clock" id="petClock">00:00</time>
 
         <div class="status-bars">
           <div class="status-row">
@@ -350,17 +341,18 @@ button:focus-visible {
                 fill="#ff789e"
                 d="M1 2h4v1h2V2h4v5H9v2H7v2H5V9H3V7H1z"
               />
+              <path fill="#ffd1e0" d="M2 3h2v1H2z"/>
             </svg>
 
             <div
-              class="status-track"
+              class="track"
+              id="spiritTrack"
               role="progressbar"
               aria-label="Tinh thần"
               aria-valuemin="0"
               aria-valuemax="100"
-              id="spiritTrack"
             >
-              <i id="spiritFill"></i>
+              <i class="fill" id="spiritFill"></i>
             </div>
           </div>
 
@@ -371,91 +363,80 @@ button:focus-visible {
                 d="M3 1h6v1h2v7H9v2H3V9H1V2h2z"
               />
               <path
-                fill="#af7038"
-                d="M4 4h1v1H4zm3 2h1v1H7zM3 8h1v1H3z"
+                fill="#995c2d"
+                d="M4 3h2v2H4zM8 5h1v2H8zM3 7h2v2H3z"
               />
             </svg>
 
             <div
-              class="status-track"
+              class="track"
+              id="hungerTrack"
               role="progressbar"
               aria-label="Độ đói"
               aria-valuemin="0"
               aria-valuemax="100"
-              id="hungerTrack"
             >
-              <i id="hungerFill"></i>
+              <i class="fill" id="hungerFill"></i>
             </div>
           </div>
         </div>
       </div>
 
-      <section class="menu-panel" id="menuPanel" hidden></section>
-
-      <canvas
-        id="gameCanvas"
-        width="128"
-        height="160"
-        aria-label="Stitch pixel"
-      ></canvas>
-
-      <div id="overlay" class="overlay-msg hidden">
-        <div id="overlayTitle">STITCH</div>
-        <div id="overlaySub">OHANA POCKET PET</div>
-      </div>
+      <section id="menu" class="menu" hidden></section>
     </div>
   </div>
 
   <div class="controls">
-    <div class="dpad" role="group" aria-label="Phím điều hướng">
-      <button class="dpad-btn dpad-up" data-dir="UP" aria-label="Lên"></button>
-      <button class="dpad-btn dpad-down" data-dir="DOWN" aria-label="Xuống"></button>
-      <button class="dpad-btn dpad-left" data-dir="LEFT" aria-label="Trái"></button>
-      <button class="dpad-btn dpad-right" data-dir="RIGHT" aria-label="Phải"></button>
-      <div class="dpad-center"></div>
+    <div class="dpad" role="group" aria-label="Chọn mục menu">
+      <button class="up" data-step="-1" aria-label="Lên">▲</button>
+      <button class="left" data-step="-1" aria-label="Trái">◀</button>
+      <div class="center"></div>
+      <button class="right" data-step="1" aria-label="Phải">▶</button>
+      <button class="down" data-step="1" aria-label="Xuống">▼</button>
     </div>
 
-    <div class="action-pad" role="group" aria-label="Nút hành động">
-      <button data-label="HOME" class="round-btn btn-top" aria-label="HOME"></button>
-      <button data-label="EXIT" class="round-btn btn-bottom" aria-label="EXIT"></button>
-      <button data-label="BACK" class="round-btn btn-left" aria-label="BACK"></button>
-      <button data-label="SELECT" class="round-btn btn-right" aria-label="SELECT"></button>
+    <div class="actions">
+      <div>
+        <button id="home" aria-label="Home"></button>
+        <span>HOME</span>
+      </div>
+      <div>
+        <button id="back" aria-label="Back"></button>
+        <span>BACK</span>
+      </div>
+      <div>
+        <button id="select" aria-label="Select"></button>
+        <span>SELECT</span>
+      </div>
+      <div>
+        <button id="exit" aria-label="Exit"></button>
+        <span>EXIT</span>
+      </div>
     </div>
   </div>
 
   <div class="speaker" aria-hidden="true">
-    <div class="speaker-slot"></div>
-    <div class="speaker-slot"></div>
-    <div class="speaker-slot"></div>
+    <i></i><i></i><i></i>
   </div>
 </main>
 
-<p class="footer-note" aria-live="polite">
-  DEMO • Chưa kết nối ESP32 / Adafruit
-</p>
+<footer>
+  <div id="message" aria-live="polite"></div>
+  Thú nuôi trên trình duyệt • Chưa đồng bộ ESP32 / Adafruit<br>
+  Phím hướng: chọn · Enter: xác nhận · Esc: quay lại<br>
+  H: HOME · X: EXIT
+</footer>
 
 <script>
 "use strict";
 
-/* Sprite pixel gốc. */
-const art = {
-  palette: [
-    0, 8452, 15218, 36411,
-    38037, 2152, 65535, 63887
-  ],
+/* Sprite Stitch pixel, bảng màu RGB565. */
+const palette = [
+  0, 8452, 15218, 36411,
+  38037, 2152, 65535, 63887
+];
 
-  glyph: [
-    31725, 27566, 29255, 27502, 29639, 29636,
-    29419, 23533, 29847, 4686, 23469, 18727,
-    24557, 24429, 31599, 31716, 31611, 31661,
-    29582, 29842, 23407, 23402, 23549, 23213,
-    23186, 29351, 31599, 13463, 25255, 25294,
-    23497, 29582, 29679, 29330, 31727, 31694,
-    1040, 448, 2, 4772, 21157, 1488,
-    5393, 17492, 25218, 0
-  ],
-
-  pixels: `
+const pixels = `
 000000000000000000000000000000000000000000000
 000000000000000000000000000000000001110000000
 000000000000000000000000000000000001111000000
@@ -507,13 +488,20 @@ const art = {
 000011111111111111000000011111111111222211000
 000000000000000000000000000000000011111110000
 000000000000000000000000000000000000000000000
-`.trim().split(/\s+/).map(row => Array.from(row, Number))
-};
+`.trim().split(/\s+/).map(row => Array.from(row, Number));
 
-const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("petCanvas");
 const ctx = canvas.getContext("2d");
-
 ctx.imageSmoothingEnabled = false;
+
+const panel = document.getElementById("menu");
+const message = document.getElementById("message");
+
+const clockElement = document.getElementById("petClock");
+const spiritFill = document.getElementById("spiritFill");
+const hungerFill = document.getElementById("hungerFill");
+const spiritTrack = document.getElementById("spiritTrack");
+const hungerTrack = document.getElementById("hungerTrack");
 
 const state = {
   pose: 0,
@@ -528,31 +516,19 @@ function color(value) {
   return `rgb(${r},${g},${b})`;
 }
 
-function rect(x, y, width, height, value) {
-  ctx.fillStyle = color(value);
-  ctx.fillRect(x, y, width, height);
+function rect(x, y, w, h, c) {
+  ctx.fillStyle = color(c);
+  ctx.fillRect(Math.round(x), Math.round(y), w, h);
 }
 
-function text(x, y, value, scale, c) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:-./%+<>? ";
-
-  for (const ch of value.toUpperCase()) {
-    const bits = art.glyph[alphabet.indexOf(ch)] || 0;
-
-    for (let j = 0; j < 5; j++) {
-      for (let i = 0; i < 3; i++) {
-        if (bits & (1 << (14 - j * 3 - i))) {
-          rect(x + i * scale, y + j * scale, scale, scale, c);
-        }
-      }
-    }
-
-    x += 4 * scale;
-  }
+function text(x, y, value, c = 0xffff, size = 8) {
+  ctx.fillStyle = color(c);
+  ctx.font = size + "px monospace";
+  ctx.fillText(value, x, y);
 }
 
 function ink(x, y, pose, frame) {
-  let c = art.pixels[y][x];
+  let c = pixels[y][x];
 
   const eyes =
     (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
@@ -573,440 +549,196 @@ function ink(x, y, pose, frame) {
   }
 
   if (
-    pose === 2 &&
-    y === 26 &&
+    pose === 2 && y === 26 &&
     ((x >= 12 && x <= 14) || (x >= 31 && x <= 33))
   ) {
     c = 7;
   }
 
-  if (
-    pose === 5 &&
-    y === 19 &&
-    ((x >= 13 && x <= 14) || (x >= 30 && x <= 31))
-  ) {
-    c = 6;
-  }
-
   return c;
 }
 
+function heart(x, y) {
+  rect(x, y, 3, 3, 0xf98f);
+  rect(x + 5, y, 3, 3, 0xf98f);
+  rect(x, y + 3, 8, 3, 0xf98f);
+  rect(x + 2, y + 6, 4, 2, 0xf98f);
+}
+
 /*
-  0: bình thường
-  1: ăn
-  2: nựng / vui
-  3: chớp mắt
-  4: ngủ
-  7: ốm
-  8: dọn
-  9: uống thuốc
-  10: kỷ luật
-  11: Hawaii
-  12: gặm vỏ dừa
-  13: buồn ngủ
-  14: chạy đuổi dừa
+  0 bình thường; 1 ăn; 2 vui; 3 chớp mắt; 4 ngủ;
+  7 ốm; 8 dọn; 9 thuốc; 10 kỷ luật;
+  11 Hawaii; 12 dừa; 13 buồn ngủ.
 */
-
-let poseStarted = 0;
-let renderedPose = -1;
-
-const ease = value => {
-  value = Math.max(0, Math.min(1, value));
-  return value * value * (3 - 2 * value);
-};
-
-/* Mọi phần cơ thể dùng chung gốc và tỷ lệ. */
-function spriteLayer(region, pose, angle = 0, dx = 0, dy = 0) {
-  const [x0, y0, x1, y1, pivotX, pivotY] = region;
-
-  ctx.save();
-
-  ctx.translate(
-    (pivotX - 23) * 1.72,
-    (pivotY - 29) * 1.72
-  );
-
-  ctx.rotate(angle);
-
-  for (let y = y0; y < y1; y++) {
-    for (let x = x0; x < x1; x++) {
-      const c = ink(x, y, pose, 0);
-
-      if (c) {
-        rect(
-          (x - pivotX) * 1.72,
-          (y - pivotY) * 1.72,
-          2,
-          2,
-          art.palette[c]
-        );
-      }
-    }
-  }
-
-  ctx.restore();
-}
-
-function coconut(x, y, rotation = 0) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
-
-  rect(-6, -6, 12, 12, 0x8200);
-  rect(-4, -8, 8, 2, 0xb386);
-  rect(-3, -4, 2, 2, 0x2104);
-  rect(2, -2, 2, 2, 0x2104);
-  rect(-1, 2, 2, 2, 0x2104);
-
-  ctx.restore();
-}
-
 function render(pose, frame) {
-  const now = performance.now();
+  const t = frame / 12 * Math.PI * 2;
 
-  if (pose !== renderedPose) {
-    renderedPose = pose;
-    poseStarted = now;
-  }
-
-  const elapsed = (now - poseStarted) / 1000;
-  const t = elapsed * 3.2;
-
-  rect(0, 0, 128, 160, pose === 4 ? 0x0001 : 0x0843);
+  rect(0, 0, 128, 160, pose === 4 ? 0 : 0x0843);
   rect(0, 137, 128, 1, 0x2152);
 
-  let cx = 64;
-  let cy = 98;
-  let running = 0;
+  let x = 25;
+  let y = 46;
+  const w = 78;
+  let h = 88;
+  let flip = false;
 
-  /* Gối vẽ phía sau nhân vật. */
-  if (pose === 4) {
-    rect(9, 111, 31, 23, 0xbfff);
-    rect(12, 114, 25, 17, 0xffff);
-  }
+  if (pose === 0) y += Math.round(Math.sin(t));
 
-  /* Dừa lăn sang phải, chạy ra phải và về từ trái. */
-  if (pose === 14) {
-    if (elapsed < 1) {
-      coconut(
-        88 + elapsed * 25,
-        89 + elapsed * 40,
-        elapsed * 5
-      );
-    } else if (elapsed < 3.7) {
-      const u = (elapsed - 1) / 2.7;
-      cx = 64 + u * 118;
-      running = 1;
-      coconut(cx + 42, 129, u * 20);
-    } else if (elapsed < 4.3) {
-      cx = 185;
-      running = 1;
-    } else {
-      const u = Math.min(1, (elapsed - 4.3) / 3.2);
-      cx = -48 + 112 * u;
-      running = u < 1 ? 1 : 0;
-
-      if (u < 1) {
-        coconut(cx + 38, 129, u * 18);
-      }
-    }
-  }
-
-  if (pose === 11) {
-    cx += Math.sin(t) * 2;
-    cy -= Math.sin(t * 2) * 1.8;
+  if (pose === 1) {
+    y -= Math.round(3 * Math.abs(Math.sin(t)));
   }
 
   if (pose === 2) {
-    cy -= Math.abs(Math.sin(t)) * 7;
+    y -= Math.round(12 * Math.abs(Math.sin(t)));
+    x += Math.round(3 * Math.sin(t));
   }
 
-  if (running) {
-    cy -= Math.abs(Math.sin(elapsed * 14)) * 3;
-  }
+  // Giữ nguyên tỷ lệ khi ngủ.
+  if (pose === 4) y = 46 + Math.round(Math.sin(t));
 
   if (pose === 7) {
-    cy += 3;
+    x += frame % 2;
+    y += 4;
+    h = 84;
   }
-
-  rect(cx - 23, 135, 46, 2, 0x2104);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-
-  /* Nằm xuống bằng phép xoay, không ép bẹt sprite. */
-  if (pose === 4) {
-    const settle = ease(elapsed / 1.2);
-
-    ctx.translate(
-      0,
-      (18 + Math.sin(t * .45)) * settle
-    );
-
-    ctx.rotate(-Math.PI / 2 * settle);
-  }
-
-  const swing = running
-    ? Math.sin(elapsed * 14) * .65
-    : pose === 11
-      ? Math.sin(t) * .23
-      : Math.sin(t) * .035;
-
-  /* Thân và chân giữ màu, nét từ sprite gốc. */
-  spriteLayer(
-    [18, 31, 29, 49, 23, 34],
-    pose,
-    pose === 11 ? Math.sin(t) * .035 : 0,
-    0,
-    5
-  );
-
-  spriteLayer(
-    [0, 40, 18, 51, 15, 42],
-    pose,
-    swing,
-    -14,
-    22
-  );
-
-  spriteLayer(
-    [29, 40, 45, 51, 31, 42],
-    pose,
-    -swing,
-    14,
-    22
-  );
-
-  let leftArm = pose === 11
-    ? -.65 + Math.sin(t) * .4
-    : running ? -swing : 0;
-
-  let rightArm = pose === 11
-    ? .65 + Math.sin(t) * .4
-    : running ? swing : 0;
 
   if (pose === 8) {
-    rightArm = -.25 + Math.sin(t * 2) * .35;
+    x += Math.round(14 * Math.sin(t));
+    flip = Math.cos(t) < 0;
   }
 
   if (pose === 9) {
-    rightArm = 1.8 * ease(elapsed / 1.7);
+    y -= Math.round(2 * Math.abs(Math.sin(t)));
   }
 
-  if (pose === 1 || pose === 12) {
-    leftArm = -.7;
+  if (pose === 10) {
+    y -= Math.round(4 * Math.abs(Math.sin(t)));
   }
 
-  spriteLayer(
-    [14, 31, 18, 45, 16, 33],
-    pose,
-    leftArm,
-    -10,
-    5
-  );
+  rect(x + 14, 135, w - 28, 2, 0x2104);
 
-  spriteLayer(
-    [29, 31, 33, 45, 31, 33],
-    pose,
-    rightArm,
-    10,
-    5
-  );
+  for (let sy = 0; sy < h; sy++) {
+    for (let sx = 0; sx < w; sx++) {
+      let ax = Math.floor(sx * 45 / w);
+      let ay = Math.floor(sy * 51 / h);
 
-  /* Đầu và phụ kiện trên mặt dùng cùng phép xoay. */
-  const headPose =
-    pose === 0 && Math.floor(elapsed * 10) % 45 === 0
-      ? 3
-      : pose;
+      if (flip) ax = 44 - ax;
 
-  const headAngle = pose === 11
-    ? Math.sin(t) * .055
-    : pose === 7 ? .08 : 0;
+      if (ay < 18 && pose !== 4) {
+        ay = Math.max(0, Math.min(
+          50,
+          ay + Math.round(Math.sin(t) * (ax < 10 ? 1 : -1))
+        ));
+      }
 
-  spriteLayer(
-    [0, 0, 45, 31, 23, 29],
-    headPose,
-    headAngle
-  );
+      const expression =
+        [0, 11, 12].includes(pose) && frame === 0 ? 3 : pose;
 
-  ctx.save();
-  ctx.rotate(headAngle);
+      const c = ink(ax, ay, expression, frame < 6 ? 0 : 1);
 
-  /* Mắt lim dim, miệng ngáp có răng và lưỡi. */
-  if (pose === 13) {
-    rect(-23, -19, 13, 10, 0x8e3b);
-    rect(10, -19, 11, 10, 0x8e3b);
-
-    rect(-23, -11, 13, 2, 0x2104);
-    rect(10, -11, 11, 2, 0x2104);
-
-    const phase = elapsed % 8;
-
-    const yawning = phase < 1
-      ? ease(phase)
-      : phase < 2.8
-        ? 1
-        : phase < 4
-          ? 1 - ease((phase - 2.8) / 1.2)
-          : 0;
-
-    const jaw = 2 + Math.round(yawning * 10);
-
-    rect(-7, -2, 15, jaw + 2, 0x2104);
-
-    if (yawning > .15) {
-      rect(-5, 0, 11, jaw - 1, 0x7808);
-      rect(-3, jaw - 4, 7, 3, 0xf98f);
-      rect(-5, 0, 2, 2, 0xffda);
-      rect(4, 0, 2, 2, 0xffda);
+      if (c && !(pose === 11 && ay >= 30)) {
+        rect(x + sx, y + sy, 1, 1, palette[c]);
+      }
     }
   }
 
-  /* Bịt mắt ngủ. */
-  if (pose === 4) {
-    rect(-22, -19, 41, 3, 0x416c);
-    rect(-23, -23, 20, 10, 0x99b8);
-    rect(3, -23, 19, 10, 0x99b8);
-
-    rect(-20, -22, 14, 2, 0xc4df);
-    rect(6, -22, 13, 2, 0xc4df);
-  }
-
-  /* Miếng hạ sốt giữ lại khi đang ốm. */
-  if (
-    pose === 7 ||
-    pose === 9 ||
-    (pose === 4 && pet.sick)
-  ) {
-    rect(-10, -30, 22, 6, 0xbfff);
-    rect(-8, -29, 18, 2, 0xffff);
-
-    if (pose === 7) {
-      rect(1, 0, 25, 2, 0xffff);
-      rect(19, -1, 6, 4, 0xc618);
-      rect(23, 0, 3, 2, 0xf800);
-    }
-  }
-
-  ctx.restore();
-
-  /* Váy lá ở eo và vòng lá trên trán. */
-  if (pose === 11) {
-    for (let i = 0; i < 8; i++) {
-      rect(-17 + i * 4, 19, 4, 10 + i % 3, 0x5ca6);
-      rect(-16 + i * 4, 20, 1, 7, 0x8ea8);
-    }
-
-    for (let i = 0; i < 6; i++) {
-      rect(
-        -16 + i * 6,
-        -29 + Math.sin(t + i),
-        5,
-        4,
-        0x5ca6
-      );
-    }
-  }
-
-  /* Chổi đi theo tay phải. */
-  if (pose === 8) {
-    ctx.save();
-
-    ctx.translate(
-      (31 - 23) * 1.72,
-      (33 - 29) * 1.72
-    );
-
-    ctx.rotate(rightArm);
-
-    rect(-1, 10, 2, 22, 0xb386);
-    rect(-6, 29, 12, 5, 0xfd20);
-
-    for (let i = 0; i < 5; i++) {
-      rect(-5 + i * 2, 32, 1, 4, 0xb386);
-    }
-
-    ctx.restore();
-  }
-
-  /* Đưa thuốc lên, sau đó uống nước. */
-  if (pose === 9) {
-    ctx.save();
-
-    ctx.translate(
-      (31 - 23) * 1.72,
-      (33 - 29) * 1.72
-    );
-
-    ctx.rotate(rightArm);
-
-    if (elapsed < 2) {
-      rect(-2, 15, 5, 3, 0xffff);
-      rect(1, 15, 2, 3, 0xf800);
-    } else {
-      rect(-3, 12, 7, 10, 0x65ff);
-      rect(-2, 13, 5, 2, 0xffff);
-    }
-
-    ctx.restore();
-  }
+  const wave = Math.round(3 * Math.sin(t));
 
   if (pose === 1) {
-    rect(
-      -7,
-      4,
-      13,
-      7,
-      [0xffff, 0x07e0, 0xfd20][state.meal] || 0xffff
-    );
-  }
+    const foodY = 100 - Math.round(13 * (1 + Math.sin(t)) / 2);
+    rect(x + 32, foodY, 12, 7, [0xffff, 0x07e0, 0xfd20][state.meal]);
+    rect(x + 34, foodY + 7, 8, 2, 0x2104);
 
-  if (pose === 12) {
-    coconut(0, 6, Math.sin(t) * .08);
-  }
-
-  ctx.restore();
-
-  /* Chăn phủ sau khi Stitch nằm xuống. */
-  if (pose === 4) {
-    const cover = ease((elapsed - .3) / .9);
-    const blanketY = 132 - 24 * cover + Math.sin(t * .45);
-
-    rect(48, blanketY, 56, 24 * cover, 0x3b72);
-    rect(48, blanketY, 56, 3, 0x65ff);
-
-    for (let i = 0; i < 5; i++) {
-      rect(52 + i * 10, 117, 3, 3, 0x8e3b);
+    if (frame > 7) {
+      rect(x + 30, foodY + 4, 2, 2, 0xffe0);
+      rect(x + 47, foodY + 6, 2, 2, 0xffe0);
     }
   }
 
   if (pose === 2) {
     for (let i = 0; i < 2; i++) {
-      const x = 9 + i * 101;
-      const y = 67 - (elapsed * 14 + i * 9) % 28;
-
-      rect(x, y, 3, 3, 0xf98f);
-      rect(x + 5, y, 3, 3, 0xf98f);
-      rect(x, y + 3, 8, 3, 0xf98f);
-      rect(x + 2, y + 6, 4, 2, 0xf98f);
+      heart(10 + i * 97, 75 - ((frame + i * 5) % 12) * 3);
     }
   }
 
-  if (pose === 13) {
-    text(97, 53, "ZZ?", 1, 0xffe0);
+  if (pose === 4) {
+    rect(38, 107, 56, 24, 0x3b72);
+    rect(38, 107, 56, 3, 0x65ff);
+    text(85, 82 - frame * 2, "ZZZ");
+  }
+
+  if (pose === 11) {
+    const sway = Math.round(Math.sin(t) * 3);
+
+    // Thân đứng, chân nhấc luân phiên.
+    rect(49 + sway, 98, 30, 23, 0x3b72);
+    rect(56 + sway, 98, 16, 17, 0x8e3b);
+    rect(47 + sway, 119, 12, 13, 0x3b72);
+    rect(68 + sway, 119, 12, 13, 0x3b72);
+
+    rect(43 + sway, 130 - (frame < 6 ? 2 : 0), 17, 4, 0x2104);
+    rect(67 + sway, 130 - (frame >= 6 ? 2 : 0), 17, 4, 0x2104);
+
+    // Váy lá.
+    for (let i = 0; i < 7; i++) {
+      rect(46 + sway + i * 5, 113, 4, 10 + i % 3, 0x5ca6);
+    }
+
+    // Tay múa, vòng lá trên đầu và cổ tay.
+    rect(35, 102 + wave, 18, 5, 0x3b72);
+    rect(77, 98 - wave, 18, 5, 0x3b72);
+
+    for (let i = 0; i < 5; i++) {
+      rect(47 + i * 7, 60 - i % 2 * 3, 5, 5, 0x5ca6);
+    }
+
+    rect(34, 100 + wave, 5, 7, 0x5ca6);
+    rect(92, 96 - wave, 5, 7, 0x5ca6);
+  }
+
+  if (pose === 12) {
+    rect(55, 91 - wave, 20, 17, 0x8200);
+    rect(58, 89 - wave, 14, 3, 0xc618);
+    rect(60, 94 - wave, 2, 2, 0x2104);
+
+    if (frame > 6) rect(72, 91 - wave, 3, 4, 0x0843);
+  }
+
+  if (pose === 13) text(81, 52, "ZZ?", 0xffe0);
+
+  if (pose === 7) {
+    rect(x + 58, 83 + frame % 4, 2, 4, 0x65ff);
+  }
+
+  if (pose === 8) {
+    rect(x + 62 + wave, 104, 2, 23, 0xfd20);
+    rect(x + 57 + wave, 125, 12, 4, 0xffff);
+    rect(108, 130, 10, 4, 0x8200);
+    rect(110, 127, 6, 3, 0x8200);
+  }
+
+  if (pose === 9) {
+    rect(105, 96, 13, 17, 0xffff);
+    rect(110, 98, 3, 13, 0xf800);
+    rect(107, 103, 9, 3, 0xf800);
+    rect(
+      x + 34,
+      105 - Math.round(17 * (1 + Math.sin(t)) / 2),
+      5, 3, 0xffff
+    );
   }
 
   if (pose === 10) {
-    text(103, 70, "!", 2, 0xffe0);
+    text(106, 65 - wave, "!", 0xffe0, 12);
   }
 
-  if (state.waste || (pose === 8 && elapsed < 3)) {
+  if (state.waste && pose !== 8) {
     rect(107, 130, 10, 4, 0x8200);
     rect(109, 127, 6, 3, 0x8200);
   }
 }
 
-/* Luật nuôi: lưu riêng trong trình duyệt. */
+/* Luật nuôi và lưu trạng thái. */
 const KEY = "ohana-pet-v2";
 const HOUR = 3600000;
 
@@ -1040,8 +772,6 @@ let idleCoconut = false;
 let temporary = 0;
 let end = 0;
 
-const note = document.querySelector(".footer-note");
-
 function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(pet));
@@ -1049,8 +779,7 @@ function save() {
 }
 
 function say(value) {
-  note.textContent =
-    value + " • Thú nuôi trên trình duyệt, chưa đồng bộ ESP32";
+  message.textContent = value;
 }
 
 function touch() {
@@ -1060,7 +789,6 @@ function touch() {
 }
 
 function animate(pose, seconds = 5) {
-  renderedPose = -1;
   temporary = pose;
   end = Date.now() + seconds * 1000;
 }
@@ -1072,37 +800,28 @@ function hunger() {
   );
 }
 
+let previousHud = "";
+
 function updateHud() {
-  const date = new Date();
+  const now = new Date();
+  const clock =
+    String(now.getHours()).padStart(2, "0") + ":" +
+    String(now.getMinutes()).padStart(2, "0");
 
-  document.getElementById("petClock").textContent =
-    String(date.getHours()).padStart(2, "0") + ":" +
-    String(date.getMinutes()).padStart(2, "0");
-
-  const spirit = Math.round(
-    Math.max(0, Math.min(100, pet.happy))
-  );
-
+  const spirit = Math.round(Math.max(0, Math.min(100, pet.happy)));
   const hungry = Math.round(hunger());
+  const key = clock + ":" + spirit + ":" + hungry;
 
-  document.getElementById("spiritFill").style.width =
-    spirit + "%";
+  if (key === previousHud) return;
+  previousHud = key;
 
-  document.getElementById("hungerFill").style.width =
-    hungry + "%";
+  clockElement.textContent = clock;
+  spiritFill.style.width = spirit + "%";
+  hungerFill.style.width = hungry + "%";
+  hungerFill.style.background = hungry >= 80 ? "#ff6565" : "#ffc56b";
 
-  document.getElementById("hungerFill").style.background =
-    hungry >= 80 ? "#ff6565" : "#ffc56b";
-
-  document.getElementById("spiritTrack").setAttribute(
-    "aria-valuenow",
-    spirit
-  );
-
-  document.getElementById("hungerTrack").setAttribute(
-    "aria-valuenow",
-    hungry
-  );
+  spiritTrack.setAttribute("aria-valuenow", spirit);
+  hungerTrack.setAttribute("aria-valuenow", hungry);
 }
 
 function update() {
@@ -1110,16 +829,12 @@ function update() {
   const hours = Math.max(0, (now - pet.last) / HOUR);
 
   pet.last = now;
-
   pet.happy = Math.max(0, pet.happy - hours * 3);
 
-  pet.energy = Math.max(
-    0,
-    Math.min(
-      100,
-      pet.energy + hours * (pet.sleep ? 15 : -4)
-    )
-  );
+  pet.energy = Math.max(0, Math.min(
+    100,
+    pet.energy + hours * (pet.sleep ? 15 : -4)
+  ));
 
   pet.clean = Math.max(
     0,
@@ -1131,53 +846,37 @@ function update() {
       pet.waste++;
       return false;
     }
-
     return true;
   });
 
   const neglected =
-    pet.clean < 40 ||
-    hunger() > 85 ||
-    pet.energy < 20;
+    pet.clean < 40 || hunger() > 85 || pet.energy < 20;
 
   if (now >= pet.nextIll) {
-    if (neglected && Math.random() < .45) {
+    if (neglected && Math.random() < 0.45) {
       pet.sick = true;
       say("Stitch thấy không khỏe, cần chăm sóc.");
     }
 
-    pet.nextIll =
-      now + 6 * HOUR + Math.random() * 6 * HOUR;
+    pet.nextIll = now + 6 * HOUR + Math.random() * 6 * HOUR;
   }
 
-  pet.health = Math.max(
-    0,
-    Math.min(
-      100,
-      pet.health + hours * (
-        pet.sick ? -3 : pet.sleep ? 2 : 0
-      )
-    )
-  );
+  pet.health = Math.max(0, Math.min(
+    100,
+    pet.health + hours * (pet.sick ? -3 : pet.sleep ? 2 : 0)
+  ));
 
   state.waste = pet.waste;
-
   updateHud();
   save();
 }
 
-/* Menu. */
+/* Cần gạt chỉ chọn mục. SELECT xác nhận. */
 const tree = {
   home: [
-    "Cho ăn",
-    "Sức khỏe",
-    "Vệ sinh",
-    "Ngủ",
-    "Nựng / Chơi",
-    "Kỷ luật",
-    "Thông tin"
+    "Cho ăn", "Sức khỏe", "Vệ sinh", "Ngủ",
+    "Nựng / Chơi", "Kỷ luật", "Thông tin"
   ],
-
   "Cho ăn": ["Cơm", "Trái cây", "Snack"],
   "Sức khỏe": ["Nghỉ ngơi", "Uống thuốc", "Tình trạng"],
   "Vệ sinh": ["Dọn chất thải"],
@@ -1192,11 +891,8 @@ let index = 0;
 let stack = [];
 let opened = false;
 
-const panel = document.getElementById("menuPanel");
-
 function refresh() {
   panel.hidden = !opened;
-
   if (!opened) return;
 
   panel.replaceChildren();
@@ -1207,19 +903,12 @@ function refresh() {
 
   tree[page].forEach((name, i) => {
     const row = document.createElement("div");
-
-    row.className =
-      "menu-row" + (i === index ? " active" : "");
-
-    row.textContent =
-      (i === index ? "▶ " : "  ") + name;
-
+    row.className = "menu-row" + (i === index ? " active" : "");
+    row.textContent = (i === index ? "▶ " : "  ") + name;
     panel.append(row);
   });
 
-  panel.children[index + 1].scrollIntoView({
-    block: "nearest"
-  });
+  panel.children[index + 1].scrollIntoView({ block: "nearest" });
 }
 
 function home() {
@@ -1239,7 +928,6 @@ function exit() {
 
 function back() {
   touch();
-
   if (!opened) return;
 
   if (stack.length) {
@@ -1256,19 +944,14 @@ function move(step) {
   if (!opened) {
     home();
   } else {
-    index =
-      (index + step + tree[page].length) % tree[page].length;
-
+    index = (index + step + tree[page].length) % tree[page].length;
     refresh();
   }
 }
 
 function duration(milliseconds) {
-  const minutes =
-    Math.ceil(Math.max(0, milliseconds) / 60000);
-
-  return Math.floor(minutes / 60) +
-    "h " + minutes % 60 + "p";
+  const minutes = Math.ceil(Math.max(0, milliseconds) / 60000);
+  return Math.floor(minutes / 60) + "h " + minutes % 60 + "p";
 }
 
 function select() {
@@ -1277,12 +960,6 @@ function select() {
 
   if (!opened) {
     home();
-    return;
-  }
-
-  /* Không cho hành động khác chen ngang thuốc hoặc dọn. */
-  if (pet.medicineDue || pet.cleaningDue) {
-    say("Chờ Stitch làm xong nhé.");
     return;
   }
 
@@ -1303,40 +980,33 @@ function select() {
       say("Stitch còn no, đừng cho ăn thêm nhé.");
     } else {
       pet.fed = Date.now();
-
       pet.digestion.push(
         Date.now() + (45 + Math.random() * 45) * 60000
       );
-
-      state.meal =
-        ["Cơm", "Trái cây", "Snack"].indexOf(name);
-
+      state.meal = ["Cơm", "Trái cây", "Snack"].indexOf(name);
       animate(1);
-
-      say("Măm măm! No dần giảm trong 9 giờ.");
+      say("Măm măm! Độ đói sẽ tăng dần trong 9 giờ.");
     }
 
   } else if (name === "Dọn chất thải") {
     if (!pet.waste) {
       say("Chưa có chất thải để dọn.");
-    } else if (pet.sleep) {
-      say("Đánh thức Stitch trước nhé.");
     } else {
-      pet.cleaningDue = Date.now() + 5000;
-      pet.cleaningCount = pet.waste;
+      pet.waste = 0;
+      state.waste = 0;
+      pet.clean = Math.min(100, pet.clean + 25);
       animate(8);
-      say("Stitch đang quét dọn.");
+      say("Đã dọn sạch chất thải.");
     }
 
   } else if (name === "Uống thuốc") {
     if (!pet.sick) {
       say("Stitch khỏe, không cần uống thuốc.");
-    } else if (pet.sleep) {
-      say("Đánh thức Stitch trước khi uống thuốc nhé.");
     } else {
-      pet.medicineDue = Date.now() + 5000;
+      pet.sick = false;
+      pet.health = Math.min(100, pet.health + 25);
       animate(9);
-      say("Stitch đang uống thuốc…");
+      say("Đỡ rồi, vẫn cần nghỉ ngơi nhé.");
     }
 
   } else if (name === "Đi ngủ" || name === "Nghỉ ngơi") {
@@ -1350,16 +1020,9 @@ function select() {
   } else if (["Nựng", "Chơi cùng", "Khen"].includes(name)) {
     if (pet.sleep) {
       say("Stitch đang ngủ.");
-    } else if (pet.sick && name === "Chơi cùng") {
-      say("Stitch đang ốm, cần uống thuốc và nghỉ.");
     } else {
       pet.happy = Math.min(100, pet.happy + 15);
-
-      animate(
-        name === "Chơi cùng" ? 14 : 2,
-        name === "Chơi cùng" ? 8 : 5
-      );
-
+      animate(2);
       say("Ohana! Vui quá!");
     }
 
@@ -1373,14 +1036,9 @@ function select() {
       "Đói hoàn toàn sau " +
       duration(pet.fed + 9 * HOUR - Date.now()) +
       " • Tiêu hóa: " +
-      (
-        pet.digestion.length
-          ? duration(Math.min(...pet.digestion) - Date.now())
-          : "chưa có"
-      ) +
-      " • Rảnh: " +
-      Math.floor((Date.now() - lastInput) / 1000) +
-      " giây"
+      (pet.digestion.length
+        ? duration(Math.min(...pet.digestion) - Date.now())
+        : "chưa có")
     );
 
   } else if (name === "Chỉ số" || name === "Tình trạng") {
@@ -1404,57 +1062,42 @@ function select() {
 
   updateHud();
   save();
-
   opened = false;
   refresh();
 }
 
-/* Nút trên màn hình. */
-document.querySelectorAll(".dpad-btn").forEach(button => {
-  button.onclick = () => move(
-    ["UP", "LEFT"].includes(button.dataset.dir) ? -1 : 1
-  );
+document.querySelectorAll("[data-step]").forEach(button => {
+  button.onclick = () => move(Number(button.dataset.step));
 });
 
-document.querySelector(".btn-top").onclick = home;
-document.querySelector(".btn-left").onclick = back;
-document.querySelector(".btn-right").onclick = select;
-document.querySelector(".btn-bottom").onclick = exit;
+document.getElementById("home").onclick = home;
+document.getElementById("back").onclick = back;
+document.getElementById("select").onclick = select;
+document.getElementById("exit").onclick = exit;
 
-/* Bàn phím: giữ Enter không xác nhận nhiều lần. */
 document.addEventListener("keydown", event => {
+  const key = event.key.toLowerCase();
   const supported = [
-    "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight",
-    "Enter", "Escape", "h", "x"
+    "arrowup", "arrowleft", "arrowdown", "arrowright",
+    "enter", "escape", "h", "x"
   ];
 
-  if (!supported.includes(event.key)) return;
-
+  if (!supported.includes(key)) return;
   event.preventDefault();
 
-  if (
-    event.repeat &&
-    ["Enter", "Escape", "h", "x"].includes(event.key)
-  ) {
+  // Giữ SELECT không được xác nhận liên tiếp nhiều mục.
+  if (event.repeat && ["enter", "h", "x", "escape"].includes(key)) {
     return;
   }
 
-  if (event.key === "Enter") {
-    select();
-  } else if (event.key === "Escape") {
-    back();
-  } else if (event.key === "h") {
-    home();
-  } else if (event.key === "x") {
-    exit();
-  } else {
-    move(
-      ["ArrowUp", "ArrowLeft"].includes(event.key) ? -1 : 1
-    );
-  }
+  if (key === "enter") select();
+  else if (key === "escape") back();
+  else if (key === "h") home();
+  else if (key === "x") exit();
+  else move(["arrowup", "arrowleft"].includes(key) ? -1 : 1);
 });
 
-/* Vòng chạy: chỉ vẽ khi frame hoặc trạng thái đổi. */
+/* Thời lượng hoạt động dùng đồng hồ thật. */
 let lastFrame = "";
 let lastUpdate = 0;
 
@@ -1468,13 +1111,7 @@ function loop(now) {
   const idle = time - lastInput;
   const hour = new Date().getHours();
 
-  if (
-    !opened &&
-    !end &&
-    !pet.sleep &&
-    !pet.sick &&
-    pet.energy > 25
-  ) {
+  if (!opened && !pet.sleep && !pet.sick && pet.energy > 25) {
     if (idle >= 90000 && !idleDance) {
       idleDance = true;
       animate(11, 12);
@@ -1488,47 +1125,19 @@ function loop(now) {
     }
   }
 
-  /* Chỉ trừ chất thải sau khi dọn hoàn tất. */
-  if (pet.cleaningDue && time >= pet.cleaningDue) {
-    pet.waste = Math.max(
-      0,
-      pet.waste - pet.cleaningCount
-    );
-
-    pet.cleaningDue = 0;
-    pet.cleaningCount = 0;
-    pet.clean = Math.min(100, pet.clean + 25);
-
-    state.waste = pet.waste;
-
-    save();
-    say("Đã dọn xong.");
-  }
-
-  /* Chỉ khỏi ốm sau khi uống thuốc hoàn tất. */
-  if (pet.medicineDue && time >= pet.medicineDue) {
-    pet.medicineDue = 0;
-    pet.sick = false;
-    pet.health = Math.min(100, pet.health + 25);
-
-    save();
-    say("Đỡ rồi, vẫn cần nghỉ ngơi nhé.");
-  }
-
   if (end && time > end) {
     temporary = 0;
     end = 0;
   }
 
   state.pose =
-    end && [8, 9].includes(temporary) ? temporary :
     pet.sleep ? 4 :
     pet.sick ? 7 :
     end ? temporary :
     (hour >= 22 || hour < 6 || pet.energy < 25) ? 13 :
     0;
 
-  const frame = Math.floor(now / 33) % 120;
+  const frame = Math.floor(now / 120) % 12;
   const key = state.pose + ":" + frame + ":" + state.waste;
 
   if (key !== lastFrame) {
