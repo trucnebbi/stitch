@@ -527,11 +527,13 @@ function text(x, y, value, c = 0xffff, size = 8) {
 function ink(x, y, pose, frame) {
   let c = pixels[y][x];
 
-  const eyes =
-    (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
-    (x >= 29 && x <= 34 && y >= 18 && y <= 25);
+  // Mask the entire original pupil, mirrored on the same sprite grid.
+  const eyeSpans = {18:[13,17],19:[12,18],20:[12,18],21:[12,18],22:[12,18],23:[12,18],24:[13,18],25:[13,17]};
+  const span = eyeSpans[y];
+  const eyeX = x > 22 ? 44-x : x;
+  const eyes = span && eyeX >= span[0] && eyeX <= span[1];
 
-  if (eyes && [2, 3, 4, 7].includes(pose)) {
+  if (eyes && [2, 3, 4, 7, 13].includes(pose)) {
     const center = x < 20 ? 13 : 31;
 
     c = pose === 2
@@ -579,17 +581,17 @@ function limb(a,b,c,width=7){
 function head(cx,top,expression,blink=false,yawn=0){
  // Keep the approved face, but never stretch or rotate its seated body.
  for(let ay=0;ay<30;ay++)for(let ax=0;ax<45;ax++){
-  let c=ink(ax,ay,expression,blink?0:1);
-  if(expression===13 && ay>=18&&ay<=21&&((ax>=10&&ax<=16)||(ax>=29&&ax<=34)))c=3;
+  let c=ink(ax,ay,blink && expression===0?3:expression,1);
+  // Replace the original smile itself during yawning, including its teeth.
+  if(expression===13 && ay>=26 && ax>=10 && ax<=34)c=ay===29?2:3;
   if(c)rect(cx-45+ax*2,top+ay*2,2,2,palette[c]);
  }
  if(expression===13){
   // Relaxed eyelids; the mouth opens and closes during each yawn.
-  for(const ex of [cx-25,cx+13]){rect(ex,top+40,13,5,0x067a);rect(ex,top+44,13,2,0x0000);}
   const opening=2*Math.round(yawn*7);
   if(opening>2){
    // Stepped pixel mouth: separate cream teeth, not a white bar.
-   const w=16+2*Math.round(yawn*8), left=cx-w/2, mt=top+54;
+   const w=40-2*Math.round(yawn*4), left=cx-w/2, mt=top+54;
    rect(left,mt,w,opening+4,0x0000);
    rect(left+2,mt+2,w-4,opening,0x680a);
    rect(left+4,mt+opening+4,w-8,2,0x0000);
@@ -608,7 +610,11 @@ function head(cx,top,expression,blink=false,yawn=0){
      rect(tx,mt+opening,4,2,cream);
     }
    }
-  }else rect(cx-5,top+57,10,2,0x0000);
+  }else {
+   rect(cx-20,top+54,40,2,0x0000);
+   rect(cx-16,top+56,32,2,0x680a);
+   for(const x of [-14,-6,6,12])rect(cx+x,top+56,4,2,0xff59);
+  }
  }
 }
 // Side-facing head for rightward running, drawn directly on the pixel grid.
@@ -628,13 +634,51 @@ function seated(cx,top,pose){
   if(c)rect(cx-45+ax*2,top+ay*2,2,2,palette[c]);
  }
 }
+// Original pixel scenery; local clock of the device running this web page.
+function beach(date){
+ const h=date.getHours()+date.getMinutes()/60+date.getSeconds()/3600;
+ const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
+ const day=smooth((h-5)/2)*(1-smooth((h-17)/2.5));
+ const dawn=Math.max(0,1-Math.abs(h-6)/1.5);
+ const dusk=Math.max(0,1-Math.abs(h-18)/1.5);
+ const warm=Math.max(dawn,dusk);
+ function mix(n,d){return n.map((v,i)=>Math.round(v+(d[i]-v)*day));}
+ function fill(x,y,w,hh,rgb){ctx.fillStyle=`rgb(${rgb.join(',')})`;ctx.fillRect(x,y,w,hh);}
+ for(let y=0;y<90;y+=4){
+  const rgb=mix([12+y/8,20+y/8,51+y/5],[77+y/3,185+y/4,229]);
+  rgb[0]=Math.round(rgb[0]*(1-warm*.4)+240*warm*.4);
+  fill(0,y,128,4,rgb);
+ }
+ if(day<.5)for(let i=0;i<19;i++)fill((i*37+11)%128,(i*19+7)%66,1,1,mix([214,228,250],[77,185,229]));
+ const orbX=Math.round(14+100*Math.max(0,Math.min(1,(h-6)/12)));
+ if(day>.02){fill(orbX,22+Math.round(Math.abs(h-12)*4),8,8,[255,231,154]);}
+ else {fill(98,17,8,10,[233,239,213]);fill(96,15,5,8,[14,22,54]);}
+ fill(0,87,128,35,mix([16,49,79],[30,158,185]));
+ for(let i=0;i<5;i++)fill((i*29+Math.floor(date.getTime()/1200)%9)%118,93+i*5,14,1,mix([56,84,111],[158,229,231]));
+ fill(0,120,128,40,mix([64,61,88],[246,199,133]));
+ fill(0,120,128,3,mix([101,111,127],[225,242,218]));
+ for(let i=0;i<17;i++)fill((i*31+5)%128,127+(i*11)%31,3,1,mix([88,78,100],[217,159,113]));
+ // Coconut palms frame the pet without covering its face.
+ function palm(x,y,side){
+  for(let j=0;j<12;j++)fill(x+side*Math.floor(j/3),y+j*5,5,6,mix([55,42,60],[153,99,73]));
+  const green=day>.5?0x5ca6:0x19c7;
+  for(const dir of [-1,1])for(let k=0;k<5;k++){
+   const px=x+dir*k*6,py=y-5+Math.floor(k*k/3);
+   rect(px,py,8,4,green);rect(px+dir*2,py+3,5,4,green);
+  }
+  rect(x-3,y,4,5,day>.5?0x8200:0x30a2);rect(x+3,y+2,4,5,day>.5?0x8200:0x30a2);
+ }
+ palm(6,67,-1);palm(119,48,1);
+ // Ground contact shadow remains readable by day and night.
+ fill(35,135,59,4,mix([42,40,63],[187,132,117]));
+}
 function render(pose,frame){
  if(drawnPose!==pose){drawnPose=pose;poseStart=Date.now();}
  const t=(Date.now()-poseStart)/1000;
  const dance=pose===11, play=pose===14;
  const running=play&&((t>=1.2&&t<3.8)||(t>=4.5&&t<7.1));
  const phase=t*(running?11:3), wave=Math.sin(phase);
- rect(0,0,128,160,pose===4?0x0001:0x0843);rect(0,137,128,1,0x2152);
+ beach(new Date());
  if(pose===4){
   const breath=Math.round(Math.sin(t*1.6));
   // Pillow and long purple ears spread sideways in a dedicated lying pose.
@@ -670,6 +714,7 @@ function render(pose,frame){
   text(88,87-Math.floor(t%3)*3,'Zz',0xffff);
  }else{
  let cx=64,top=34;
+ if(pose===0 || pose===13)top+=Math.round(Math.sin(Date.now()/1000*1.7));
  const standAmount=play?Math.max(0,Math.min(1,(t-.5)/.7,(7.8-t)/.7)):dance?1:0;
  const standing=standAmount>0;
  if(play){
@@ -719,8 +764,15 @@ function render(pose,frame){
  if(dance){elbow[0]=cx+side*23;elbow[1]=shoulderY+8;}
  limb(shoulder,elbow,0x53f4,8);limb(elbow,hand,0x53f4,8);rect(hand[0]-4,hand[1]-3,8,7,0x53f4);
  }
- if(!standing)seated(cx,top,pose);
- if(running)runHead(cx,top);else head(cx,top,pose,Math.floor(t*10)%40===0,pose===13?Math.sin(Math.PI*Math.min(1,(t%7)/2.8))**2:0);
+ if(!standing){
+  seated(cx,top,pose);
+  // Continuous dark seams separate forearms from belly and hind paws.
+  for(const side of [-1,1]){
+   poly([[cx+side*15,top+65],[cx+side*17,top+76],[cx+side*17,top+90],[cx+side*13,top+96],[cx+side*10,top+96],[cx+side*14,top+89],[cx+side*14,top+76]],0x0000);
+   rect(cx+side*14-1,top+94,3,2,0x216e);
+  }
+ }
+ if(running)runHead(cx,top);else head(cx,top,pose,(Date.now()%4700)<160,pose===13?Math.sin(Math.PI*Math.min(1,(t%7)/2.8))**2:0);
  if(dance){
   // Belt follows the actual hips; individual leaves trail the sway.
   rect(cx-17,hipY-7,34,3,0x2285);
