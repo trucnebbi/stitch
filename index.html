@@ -1,551 +1,815 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pixel Handheld Console - GitHub Pages</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --shell-main: #8fdce3;
-      --shell-light: #b6eef3;
-      --shell-dark: #63bcc6;
-      --border-dark: #141720;
-      --screen-bezel: #7d83a8;
-      --screen-bezel-dark: #585d7e;
-      --screen-bg: #3b405c;
-      --screen-glow: #4c5275;
-      --dpad-main: #868eb2;
-      --dpad-light: #a5adc9;
-      --dpad-dark: #616887;
-      --btn-red: #d45567;
-      --btn-red-light: #ec7888;
-      --btn-red-dark: #9c3445;
-      --speaker: #2a2f45;
-      --gold-light: #ffd166;
-      --gold-dark: #e08e26;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stitch — Ohana Pocket</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+<style>
+:root {
+  --shell-main: #269eea;
+  --shell-light: #a5e4ff;
+  --shell-dark: #135aa6;
+  --border: #141720;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background:
-        radial-gradient(circle at 20% 20%, #23283d 0%, transparent 45%),
-        radial-gradient(circle at 80% 80%, #1c323a 0%, transparent 45%),
-        #121520;
-      font-family: 'Press Start 2P', monospace;
-      color: #f4f7ff;
-      padding: 24px 12px;
-      gap: 18px;
-    }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
-    /* Thân máy pixel */
-    .console {
-      position: relative;
-      width: 340px;
-      max-width: 94vw;
-      background: var(--shell-main);
-      border: 6px solid var(--border-dark);
-      border-radius: 36px 36px 22px 22px;
-      padding: 24px 24px 28px;
-      box-shadow:
-        inset 0 8px 0 var(--shell-light),
-        inset 0 -10px 0 var(--shell-dark),
-        inset 8px 0 0 var(--shell-light),
-        inset -8px 0 0 var(--shell-dark),
-        0 18px 0 #0b0d14,
-        0 26px 40px rgba(0, 0, 0, 0.55);
-      image-rendering: pixelated;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 12px;
+  color: #eef5ff;
+  background:
+    radial-gradient(circle at 20% 20%, #23283d, transparent 45%),
+    radial-gradient(circle at 80% 80%, #1c323a, transparent 45%),
+    #121520;
+  font-family: monospace;
+}
 
-    /* Viền màn hình */
-    .bezel {
-      background: var(--screen-bezel);
-      border: 6px solid var(--border-dark);
-      padding: 12px;
-      box-shadow:
-        inset 4px 4px 0 #9aa0c4,
-        inset -4px -4px 0 var(--screen-bezel-dark);
-      margin-bottom: 34px;
-    }
+.console {
+  width: 340px;
+  max-width: 94vw;
+  padding: 24px;
+  background: var(--shell-main);
+  border: 6px solid var(--border);
+  border-radius: 36px 36px 22px 22px;
+  box-shadow:
+    inset 8px 8px 0 var(--shell-light),
+    inset -8px -10px 0 var(--shell-dark),
+    0 18px 0 #0b0d14,
+    0 26px 40px #0008;
+}
 
-    .screen-wrapper {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      background: var(--screen-bg);
-      border: 5px solid var(--border-dark);
-      box-shadow: inset 0 0 24px rgba(10, 12, 22, 0.55);
-      overflow: hidden;
-    }
+.brand {
+  margin-bottom: 18px;
+  text-align: center;
+  color: var(--border);
+  font: 10px "Press Start 2P", monospace;
+  line-height: 1.7;
+}
 
-    /* Hiệu ứng scanline nhẹ cho màn hình pixel */
-    .screen-wrapper::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.03) 0px,
-        rgba(255, 255, 255, 0.03) 2px,
-        transparent 2px,
-        transparent 4px
-      );
-      pointer-events: none;
-    }
+.bezel {
+  padding: 12px;
+  background: #7d83a8;
+  border: 6px solid var(--border);
+  box-shadow:
+    inset 4px 4px 0 #a5adc9,
+    inset -4px -4px 0 #585d7e;
+}
 
-    canvas#gameCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      image-rendering: pixelated;
-    }
+.screen {
+  position: relative;
+  aspect-ratio: 128 / 160;
+  overflow: hidden;
+  background: #084358;
+  border: 5px solid var(--border);
+}
 
-    .hud-bar {
-      position: absolute;
-      top: 6px;
-      left: 8px;
-      right: 8px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 9px;
-      color: #ffd166;
-      text-shadow: 2px 2px 0 var(--border-dark);
-      pointer-events: none;
-      z-index: 2;
-    }
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
 
-    .overlay-msg {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 10px;
-      background: rgba(34, 38, 58, 0.78);
-      z-index: 3;
-      gap: 10px;
-    }
+.screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ffffff06 0 2px,
+    transparent 2px 4px
+  );
+}
 
-    .overlay-msg.hidden {
-      display: none;
-    }
+.message {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 7px 5px;
+  background: #141720e8;
+  color: #ffd166;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
+}
 
-    .pixel-title {
-      font-size: 20px;
-      line-height: 1.35;
-      background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-dark) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(3px 3px 0 var(--border-dark));
-    }
+.menu {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: #18243bf5;
+}
 
-    .pixel-sub {
-      font-size: 8px;
-      line-height: 1.6;
-      color: #dce3ff;
-      text-shadow: 2px 2px 0 var(--border-dark);
-    }
+.menu[hidden] {
+  display: none;
+}
 
-    /* Khu vực nút điều khiển */
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
+.menu h2 {
+  margin: 0 0 8px;
+  color: #ffd166;
+  font-size: 15px;
+  line-height: 1.3;
+}
 
-    /* Cụm D-Pad dấu cộng */
-    .dpad {
-      position: relative;
-      width: 108px;
-      height: 108px;
-      flex-shrink: 0;
-    }
+.items {
+  flex: 1;
+  overflow-y: auto;
+}
 
-    .dpad-btn {
-      position: absolute;
-      width: 36px;
-      height: 36px;
-      background: var(--dpad-main);
-      border: 5px solid var(--border-dark);
-      cursor: pointer;
-      padding: 0;
-      box-shadow:
-        inset 3px 3px 0 var(--dpad-light),
-        inset -3px -3px 0 var(--dpad-dark);
-    }
+.item {
+  padding: 7px 4px;
+  border: 2px solid transparent;
+  font-size: 14px;
+  line-height: 1.3;
+}
 
-    .dpad-btn:active,
-    .dpad-btn.pressed {
-      transform: translateY(2px);
-      background: var(--dpad-dark);
-      box-shadow: inset 2px 2px 0 var(--border-dark);
-    }
+.item.active {
+  border-color: #269eea;
+  background: #a5e4ff;
+  color: #141720;
+}
 
-    .dpad-up {
-      top: 0;
-      left: 36px;
-      border-bottom: none;
-    }
+.menu-hint {
+  padding-top: 7px;
+  color: #bdcbe3;
+  font-size: 10px;
+  line-height: 1.5;
+}
 
-    .dpad-down {
-      bottom: 0;
-      left: 36px;
-      border-top: none;
-    }
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+}
 
-    .dpad-left {
-      top: 36px;
-      left: 0;
-      border-right: none;
-    }
+.dpad {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
+}
 
-    .dpad-right {
-      top: 36px;
-      right: 0;
-      border-left: none;
-    }
+.dpad button {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: #141720;
+  background: #868eb2;
+  border: 5px solid var(--border);
+  box-shadow:
+    inset 3px 3px 0 #a5adc9,
+    inset -3px -3px 0 #616887;
+}
 
-    .dpad-center {
-      position: absolute;
-      top: 36px;
-      left: 36px;
-      width: 36px;
-      height: 36px;
-      background: var(--dpad-main);
-      pointer-events: none;
-    }
+.up {
+  top: 0;
+  left: 36px;
+  border-bottom: none !important;
+}
 
-    /* Cụm 4 nút tròn đỏ xếp vòng tròn */
-    .action-pad {
-      position: relative;
-      width: 112px;
-      height: 112px;
-      flex-shrink: 0;
-    }
+.down {
+  bottom: 0;
+  left: 36px;
+  border-top: none !important;
+}
 
-    .round-btn {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--btn-red);
-      border: 5px solid var(--border-dark);
-      cursor: pointer;
-      padding: 0;
-      box-shadow:
-        inset 3px 3px 0 var(--btn-red-light),
-        inset -3px -3px 0 var(--btn-red-dark);
-    }
+.left {
+  top: 36px;
+  left: 0;
+  border-right: none !important;
+}
 
-    .round-btn:active,
-    .round-btn.pressed {
-      transform: scale(0.94);
-      background: var(--btn-red-dark);
-    }
+.right {
+  top: 36px;
+  right: 0;
+  border-left: none !important;
+}
 
-    .btn-top {
-      top: 2px;
-      left: 41px;
-    }
+.center {
+  position: absolute;
+  top: 36px;
+  left: 36px;
+  width: 36px;
+  height: 36px;
+  background: #868eb2;
+}
 
-    .btn-bottom {
-      bottom: 2px;
-      left: 41px;
-    }
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, 58px);
+  gap: 20px 2px;
+  text-align: center;
+}
 
-    .btn-left {
-      top: 41px;
-      left: 2px;
-    }
+.actions button {
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  padding: 0;
+  border-radius: 50%;
+  background: #d45567;
+  border: 5px solid var(--border);
+  box-shadow:
+    inset 3px 3px 0 #ec7888,
+    inset -3px -3px 0 #9c3445;
+}
 
-    .btn-right {
-      top: 41px;
-      right: 2px;
-    }
+.actions span {
+  display: block;
+  margin-top: 8px;
+  color: #141720;
+  font: 7px "Press Start 2P", monospace;
+}
 
-    /* 3 khe loa góc dưới phải */
-    .speaker {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      padding-right: 14px;
-      margin-top: 6px;
-    }
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
 
-    .speaker-slot {
-      width: 14px;
-      height: 44px;
-      background: var(--speaker);
-      border: 4px solid var(--border-dark);
-      border-radius: 6px;
-      box-shadow: inset 3px 0 0 #1b1e2e;
-    }
+button:active {
+  filter: brightness(.8);
+  transform: translateY(2px);
+}
 
-    .footer-note {
-      font-size: 9px;
-      line-height: 1.6;
-      text-align: center;
-      color: #9ba5c9;
-    }
-  </style>
+button:focus-visible {
+  outline: 3px solid #ffd166;
+  outline-offset: 2px;
+}
+
+.speaker {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.speaker i {
+  width: 14px;
+  height: 44px;
+  border: 4px solid var(--border);
+  border-radius: 6px;
+  background: #2a2f45;
+}
+
+footer {
+  max-width: 340px;
+  text-align: center;
+  color: #adbbd4;
+  font-size: 12px;
+  line-height: 1.8;
+}
+</style>
 </head>
+
 <body>
-  <main class="console" aria-label="Máy chơi game pixel">
-    <div class="bezel">
-      <div class="screen-wrapper">
-        <div class="hud-bar">
-          <span id="scoreText">SCORE: 00</span>
-          <span id="bestText">BEST: 00</span>
+<main class="console">
+  <div class="brand">OHANA POCKET PET</div>
+
+  <div class="bezel">
+    <div class="screen">
+      <canvas id="pet" width="128" height="160"
+        aria-label="Stitch pixel"></canvas>
+
+      <div class="message" id="message" aria-live="polite">
+        Ohana! Nhấn HOME để mở menu.
+      </div>
+
+      <section class="menu" id="menu" hidden>
+        <h2 id="menuTitle">MENU OHANA</h2>
+        <div class="items" id="items"></div>
+        <div class="menu-hint">
+          ↑ ↓ ← → chọn mục<br>
+          SELECT xác nhận · BACK quay lại
         </div>
+      </section>
+    </div>
+  </div>
 
-        <canvas id="gameCanvas" width="160" height="120"></canvas>
-
-        <div id="overlay" class="overlay-msg">
-          <div class="pixel-title" id="overlayTitle">PIXEL<br />GAME</div>
-          <div class="pixel-sub" id="overlaySub">NHẤN NÚT ĐỎ<br />HOẶC ENTER ĐỂ CHƠI</div>
-        </div>
-      </div>
+  <div class="controls">
+    <div class="dpad" role="group" aria-label="Chọn mục menu">
+      <button class="up" data-step="-1" aria-label="Lên">▲</button>
+      <button class="left" data-step="-1" aria-label="Trái">◀</button>
+      <div class="center"></div>
+      <button class="right" data-step="1" aria-label="Phải">▶</button>
+      <button class="down" data-step="1" aria-label="Xuống">▼</button>
     </div>
 
-    <div class="controls">
-      <div class="dpad" role="group" aria-label="Phím điều hướng">
-        <button class="dpad-btn dpad-up" data-dir="UP" aria-label="Lên"></button>
-        <button class="dpad-btn dpad-down" data-dir="DOWN" aria-label="Xuống"></button>
-        <button class="dpad-btn dpad-left" data-dir="LEFT" aria-label="Trái"></button>
-        <button class="dpad-btn dpad-right" data-dir="RIGHT" aria-label="Phải"></button>
-        <div class="dpad-center"></div>
+    <div class="actions" role="group" aria-label="Điều khiển menu">
+      <div>
+        <button id="home" aria-label="Home"></button>
+        <span>HOME</span>
       </div>
-
-      <div class="action-pad" role="group" aria-label="Nút hành động">
-        <button class="round-btn btn-top" data-action="start" aria-label="Nút trên"></button>
-        <button class="round-btn btn-bottom" data-action="start" aria-label="Nút dưới"></button>
-        <button class="round-btn btn-left" data-action="pause" aria-label="Nút trái"></button>
-        <button class="round-btn btn-right" data-action="start" aria-label="Nút phải"></button>
+      <div>
+        <button id="back" aria-label="Back"></button>
+        <span>BACK</span>
+      </div>
+      <div>
+        <button id="select" aria-label="Select"></button>
+        <span>SELECT</span>
+      </div>
+      <div>
+        <button id="exit" aria-label="Exit"></button>
+        <span>EXIT</span>
       </div>
     </div>
+  </div>
 
-    <div class="speaker" aria-hidden="true">
-      <div class="speaker-slot"></div>
-      <div class="speaker-slot"></div>
-      <div class="speaker-slot"></div>
-    </div>
-  </main>
+  <div class="speaker" aria-hidden="true">
+    <i></i><i></i><i></i>
+  </div>
+</main>
 
-  <p class="footer-note">
-    Dùng phím mũi tên / WASD để di chuyển · Enter để bắt đầu · P để tạm dừng
-  </p>
+<footer>
+  DEMO • Chưa kết nối ESP32 / Adafruit<br>
+  HOME: menu chính · BACK: lùi một cấp<br>
+  SELECT: xác nhận · EXIT: đóng menu<br>
+  Máy tính: phím hướng, Enter, Esc, H, X
+</footer>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const overlay = document.getElementById("overlay");
-    const overlayTitle = document.getElementById("overlayTitle");
-    const overlaySub = document.getElementById("overlaySub");
-    const scoreText = document.getElementById("scoreText");
-    const bestText = document.getElementById("bestText");
+<script>
+"use strict";
 
-    const GRID = 8;
-    const COLS = canvas.width / GRID;
-    const ROWS = canvas.height / GRID;
+/* Sprite pixel hiện có của dự án. */
+const palette = [0, 8452, 15218, 36411, 38037, 2152, 65535, 63887];
 
-    let snake = [];
-    let dir = { x: 1, y: 0 };
-    let nextDir = { x: 1, y: 0 };
-    let food = { x: 12, y: 7 };
-    let score = 0;
-    let best = Number(localStorage.getItem("pixel_best_score") || 0);
-    let state = "IDLE";
-    let loopTimer = null;
+const pixels = `
+000000000000000000000000000000000000000000000
+000000000000000000000000000000000001110000000
+000000000000000000000000000000000001111000000
+000000000000000000000000000000000001441100000
+000000000000000000000000000000000001444110000
+001111111000000000000000000000000001444411000
+001111111000000000000000000000000001444441100
+001444441000000000000000000000000001444444110
+001444441000000000000000000000000001444444110
+001444441000000000001110000000000001444444110
+001444441000000000111111111100000001444444110
+001444441000000011112222211111000001444444410
+001444441000000112222222222221110001444444410
+001444441000001122222222222222211001444444410
+001444441000011222222222222222221101444444410
+001444441000012332222222222233332101444444410
+001444441000123333222222222233333111444444410
+001444441001333333222222222233333311444444410
+001444441112311333222222222233111311444444110
+001444444113111133222222222231661131444410000
+001144444111166113222222222231661111444410000
+000144444131166113555555555231111111444410000
+000114441111111113555555555531111111444410000
+000014444111111113555555555531116111444110000
+000011444111111113555555555533111111141110000
+000011144111111133555555555533111131111100000
+000000111111333333555555555533333310011000000
+000000001111233333225555555233333100000000000
+000000000001111222222555552222211000000000000
+000000000000111111111111111111110000000000000
+000000000000000022333333333321000000000000000
+000000000000000112233333333321000000000000000
+000000000000000212233333333322100000000000000
+000000000000000212233333333322100000000000000
+000000000000000212233333333322200000000000000
+000000000000000212233333333322210000000000000
+000000000000002212233333333322110000000000000
+000000000000002212233333333322110000000000000
+000000000000002212233333333322121000000000000
+000000000000012221223333333322221100000000000
+000000111111112221223333333222221100000000000
+000000222211112221223333333221211111111000000
+000001222221112222123333333221211122211110000
+000012222222112222123333333221211122222111000
+000012555522112222123333333212211122222211000
+000012555522111222123333333212211122555521000
+000012555522122122123333333212211122555521000
+000011222222112111111111111211111122555521000
+000011111111111111000000011111111111222211000
+000000000000000000000000000000000011111110000
+000000000000000000000000000000000000000000000
+`.trim().split(/\s+/).map(row => Array.from(row, Number));
 
-    bestText.textContent = `BEST: ${String(best).padStart(2, "0")}`;
+const canvas = document.getElementById("pet");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 
-    function randomFood() {
-      let pos;
-      do {
-        pos = {
-          x: Math.floor(Math.random() * COLS),
-          y: Math.floor(Math.random() * ROWS)
-        };
-      } while (snake.some(seg => seg.x === pos.x && seg.y === pos.y));
-      return pos;
+const panel = document.getElementById("menu");
+const title = document.getElementById("menuTitle");
+const list = document.getElementById("items");
+const message = document.getElementById("message");
+
+/* Mục trỏ tới menu con hoặc hành động có dấu @. */
+const menus = {
+  root: {
+    title: "MENU OHANA",
+    items: [
+      ["Cho ăn", "food"],
+      ["Ốm / Sức khỏe", "health"],
+      ["Vệ sinh", "clean"],
+      ["Ngủ / Năng lượng", "sleep"],
+      ["Nựng / Vui chơi", "play"],
+      ["Kỷ luật", "discipline"],
+      ["Thông tin", "info"]
+    ]
+  },
+
+  food: {
+    title: "CHO ĂN",
+    items: [
+      ["Bữa chính", "mainFood"],
+      ["Trái cây", "fruit"],
+      ["Snack", "snack"]
+    ]
+  },
+
+  mainFood: {
+    title: "BỮA CHÍNH",
+    items: [
+      ["Cơm", "@rice"],
+      ["Cá", "@fish"]
+    ]
+  },
+
+  fruit: {
+    title: "TRÁI CÂY",
+    items: [
+      ["Táo", "@apple"],
+      ["Chuối", "@banana"]
+    ]
+  },
+
+  snack: {
+    title: "SNACK",
+    items: [
+      ["Bánh quy", "@cookie"],
+      ["Bánh ngọt", "@cake"]
+    ]
+  },
+
+  health: {
+    title: "SỨC KHỎE",
+    items: [
+      ["Nghỉ ngơi", "@rest"],
+      ["Uống thuốc", "@medicine"],
+      ["Xem tình trạng", "@check"],
+      ["Dáng ốm (demo)", "@sick"]
+    ]
+  },
+
+  clean: {
+    title: "VỆ SINH",
+    items: [
+      ["Dọn chất thải", "@clean"]
+    ]
+  },
+
+  sleep: {
+    title: "NĂNG LƯỢNG",
+    items: [
+      ["Đi ngủ", "@sleep"],
+      ["Thức dậy", "@wake"]
+    ]
+  },
+
+  play: {
+    title: "VUI CHƠI",
+    items: [
+      ["Nựng Stitch", "@pet"],
+      ["Chơi cùng Stitch", "@play"]
+    ]
+  },
+
+  discipline: {
+    title: "KỶ LUẬT",
+    items: [
+      ["Nhắc nhở nhẹ", "@train"],
+      ["Khen Stitch", "@praise"]
+    ]
+  },
+
+  info: {
+    title: "THÔNG TIN",
+    items: [
+      ["Chỉ số nuôi", "@stats"],
+      ["Đồng hồ", "@clock"],
+      ["Kết nối", "@connection"]
+    ]
+  }
+};
+
+/* Các hành động dưới đây chỉ xem thử tại trình duyệt. */
+const actions = {
+  rice:     [1, "Măm cơm nào!", 0],
+  fish:     [1, "Măm cá nào!", 0],
+  apple:    [1, "Táo giòn ngon quá!", 1],
+  banana:   [1, "Chuối ngon quá!", 1],
+  cookie:   [1, "Một chiếc bánh nhé!", 2],
+  cake:     [1, "Bánh thơm quá!", 2],
+  rest:     [4, "Stitch đang nghỉ ngơi."],
+  medicine: [9, "Demo: Stitch uống thuốc."],
+  sick:     [7, "Demo: Stitch đang ốm."],
+  clean:    [8, "Demo: dọn vệ sinh."],
+  sleep:    [4, "Chúc Stitch ngủ ngon!"],
+  wake:     [0, "Stitch thức dậy rồi!"],
+  pet:      [2, "Ohana! Thích được nựng!"],
+  play:     [2, "Chơi cùng Ohana nào!"],
+  train:    [10, "Stitch sẽ ngoan mà!"],
+  praise:   [2, "Ohana khen Stitch nè!"]
+};
+
+let current = "root";
+let selected = 0;
+let stack = [];
+let opened = false;
+
+let pose = 0;
+let meal = 0;
+let actionEnds = 0;
+let lastFrame = "";
+
+function refreshMenu() {
+  panel.hidden = !opened;
+  if (!opened) return;
+
+  title.textContent = menus[current].title;
+  list.replaceChildren();
+
+  menus[current].items.forEach(([label], index) => {
+    const row = document.createElement("div");
+    row.className = "item" + (index === selected ? " active" : "");
+    row.textContent = (index === selected ? "▶ " : "  ") + label;
+    list.appendChild(row);
+  });
+
+  list.children[selected].scrollIntoView({ block: "nearest" });
+}
+
+function home() {
+  stack = [];
+  current = "root";
+  selected = 0;
+  opened = true;
+  refreshMenu();
+}
+
+function exit() {
+  opened = false;
+  refreshMenu();
+}
+
+function back() {
+  if (!opened) return;
+
+  if (stack.length) {
+    const previous = stack.pop();
+    current = previous.current;
+    selected = previous.selected;
+    refreshMenu();
+  } else {
+    exit();
+  }
+}
+
+function move(step) {
+  if (!opened) {
+    home();
+    return;
+  }
+
+  const count = menus[current].items.length;
+  selected = (selected + step + count) % count;
+  refreshMenu();
+}
+
+function select() {
+  if (!opened) {
+    home();
+    return;
+  }
+
+  const target = menus[current].items[selected][1];
+
+  if (!target.startsWith("@")) {
+    stack.push({ current, selected });
+    current = target;
+    selected = 0;
+    refreshMenu();
+    return;
+  }
+
+  const id = target.slice(1);
+
+  if (id === "clock") {
+    message.textContent = new Date().toLocaleString("vi-VN");
+    exit();
+    return;
+  }
+
+  const notices = {
+    check: "Chưa có dữ liệu sức khỏe từ ESP32.",
+    stats: "Chưa đồng bộ chỉ số từ ESP32.",
+    connection: "Offline demo — chưa kết nối Adafruit."
+  };
+
+  if (notices[id]) {
+    message.textContent = notices[id];
+    exit();
+    return;
+  }
+
+  const action = actions[id];
+  if (!action) return;
+
+  pose = action[0];
+  meal = action[2] || 0;
+  message.textContent = action[1];
+
+  actionEnds = ["rest", "sleep"].includes(id)
+    ? Infinity
+    : performance.now() + 3500;
+
+  lastFrame = "";
+  exit();
+}
+
+document.getElementById("home").onclick = home;
+document.getElementById("back").onclick = back;
+document.getElementById("select").onclick = select;
+document.getElementById("exit").onclick = exit;
+
+document.querySelectorAll("[data-step]").forEach(button => {
+  button.onclick = () => move(Number(button.dataset.step));
+});
+
+document.addEventListener("keydown", event => {
+  const key = event.key.toLowerCase();
+  const supported = [
+    "arrowup", "arrowdown", "arrowleft", "arrowright",
+    "enter", "escape", "h", "x"
+  ];
+
+  if (!supported.includes(key)) return;
+  event.preventDefault();
+
+  if (key === "enter") select();
+  else if (key === "escape") back();
+  else if (key === "h") home();
+  else if (key === "x") exit();
+  else move(["arrowup", "arrowleft"].includes(key) ? -1 : 1);
+});
+
+/* Vẽ sprite và đạo cụ bằng pixel. */
+function color(value) {
+  const r = Math.round(((value >> 11) & 31) * 255 / 31);
+  const g = Math.round(((value >> 5) & 63) * 255 / 63);
+  const b = Math.round((value & 31) * 255 / 31);
+  return `rgb(${r},${g},${b})`;
+}
+
+function rect(x, y, width, height, value) {
+  ctx.fillStyle = color(value);
+  ctx.fillRect(x, y, width, height);
+}
+
+function ink(x, y, currentPose, frame) {
+  let value = pixels[y][x];
+
+  const eye =
+    (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
+    (x >= 29 && x <= 34 && y >= 18 && y <= 25);
+
+  if (eye && [2, 3, 4, 7].includes(currentPose)) {
+    const center = x < 20 ? 13 : 31;
+
+    value = currentPose === 2
+      ? (y === 21 + (Math.abs(x - center) > 1 ? 1 : 0) ? 1 : 3)
+      : (y === 23 ? 1 : 3);
+  }
+
+  if (x >= 19 && x <= 27 && y >= 28 && y <= 29) {
+    if (currentPose === 1) value = frame ? 7 : 1;
+    if (currentPose === 2) {
+      value = y === 28 && x > 20 && x < 26 ? 7 : 1;
     }
-
-    function resetGame() {
-      snake = [
-        { x: 6, y: 7 },
-        { x: 5, y: 7 },
-        { x: 4, y: 7 }
-      ];
-      dir = { x: 1, y: 0 };
-      nextDir = { x: 1, y: 0 };
-      score = 0;
-      food = randomFood();
-      scoreText.textContent = "SCORE: 00";
+    if (currentPose === 7) {
+      value = y === 28 && x > 20 && x < 26 ? 1 : 2;
     }
+  }
 
-    function startGame() {
-      resetGame();
-      state = "PLAYING";
-      overlay.classList.add("hidden");
-      clearInterval(loopTimer);
-      loopTimer = setInterval(tick, 130);
+  if (
+    currentPose === 2 && y === 26 &&
+    ((x >= 12 && x <= 14) || (x >= 31 && x <= 33))
+  ) value = 7;
+
+  return value;
+}
+
+function draw(currentPose, frame) {
+  rect(0, 0, 128, 160, currentPose === 4 ? 0 : 0x0843);
+
+  ctx.fillStyle = "#a5e4ff";
+  ctx.font = "8px monospace";
+  ctx.fillText("STITCH / OHANA", 5, 12);
+
+  const dy = [1, 2, 8].includes(currentPose) && frame ? -2 : 0;
+
+  for (let y = 0; y < 88; y++) {
+    for (let x = 0; x < 78; x++) {
+      const value = ink(
+        Math.floor(x * 45 / 78),
+        Math.floor(y * 51 / 88),
+        currentPose,
+        frame
+      );
+
+      if (value) rect(25 + x, 36 + y + dy, 1, 1, palette[value]);
     }
+  }
 
-    function togglePause() {
-      if (state === "PLAYING") {
-        state = "PAUSED";
-        clearInterval(loopTimer);
-        overlayTitle.innerHTML = "PAUSED";
-        overlaySub.innerHTML = "NHẤN NÚT TRÁI<br />HOẶC P ĐỂ TIẾP TỤC";
-        overlay.classList.remove("hidden");
-      } else if (state === "PAUSED") {
-        state = "PLAYING";
-        overlay.classList.add("hidden");
-        loopTimer = setInterval(tick, 130);
-      }
-    }
+  if (currentPose === 1) {
+    const y = frame ? 88 : 94;
+    rect(60, y, 10, 7, [65535, 2016, 64800][meal]);
+    rect(62, y + 7, 6, 2, 8452);
+  }
 
-    function setDirection(newDir) {
-      if (state !== "PLAYING") return;
-      if (newDir.x === -dir.x && newDir.y === -dir.y) return;
-      nextDir = newDir;
-    }
+  if (currentPose === 2) {
+    rect(104, 68, 3, 3, 63887);
+    rect(110, 68, 3, 3, 63887);
+    rect(104, 71, 9, 3, 63887);
+    rect(107, 74, 3, 3, 63887);
+  }
 
-    function tick() {
-      dir = nextDir;
-      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+  if (currentPose === 4) {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("ZZZ", 102, frame ? 51 : 55);
+  }
 
-      if (
-        head.x < 0 || head.x >= COLS ||
-        head.y < 0 || head.y >= ROWS ||
-        snake.some(seg => seg.x === head.x && seg.y === head.y)
-      ) {
-        state = "GAMEOVER";
-        clearInterval(loopTimer);
-        overlayTitle.innerHTML = "GAME<br />OVER";
-        overlaySub.innerHTML = `ĐIỂM: ${score}<br />NHẤN NÚT ĐỎ ĐỂ CHƠI LẠI`;
-        overlay.classList.remove("hidden");
-        return;
-      }
+  if (currentPose === 7) {
+    ctx.fillStyle = "#ff7888";
+    ctx.fillText("OM...", 3, 118);
+  }
 
-      snake.unshift(head);
+  if (currentPose === 8) {
+    rect(90, 99, 3, 13, 64800);
+    rect(86, 110, 12, 4, 65535);
+    rect(frame ? 32 : 35, 105, 3, 3, 26111);
+  }
 
-      if (head.x === food.x && head.y === food.y) {
-        score += 1;
-        scoreText.textContent = `SCORE: ${String(score).padStart(2, "0")}`;
-        if (score > best) {
-          best = score;
-          localStorage.setItem("pixel_best_score", String(best));
-          bestText.textContent = `BEST: ${String(best).padStart(2, "0")}`;
-        }
-        food = randomFood();
-      } else {
-        snake.pop();
-      }
+  if (currentPose === 9) {
+    rect(103, 94, 14, 15, 65535);
+    rect(109, 96, 2, 11, 63488);
+    rect(105, 101, 10, 2, 63488);
+  }
 
-      draw();
-    }
+  if (currentPose === 10) {
+    ctx.fillStyle = "#ffd166";
+    ctx.fillText("!", 109, 80);
+  }
+}
 
-    function draw() {
-      ctx.fillStyle = "#3b405c";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+/* Chỉ vẽ lại khi trạng thái hoặc khung animation đổi. */
+function loop(now) {
+  if (actionEnds && now > actionEnds) {
+    pose = 0;
+    actionEnds = 0;
+  }
 
-      ctx.fillStyle = "#454b6b";
-      for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-          ctx.fillRect(x * GRID + 3, y * GRID + 3, 2, 2);
-        }
-      }
+  const visiblePose =
+    pose === 0 && Math.floor(now / 350) % 12 === 0 ? 3 : pose;
 
-      ctx.fillStyle = "#141720";
-      ctx.fillRect(food.x * GRID + 1, food.y * GRID + 1, GRID - 2, GRID - 2);
-      ctx.fillStyle = "#ffd166";
-      ctx.fillRect(food.x * GRID + 2, food.y * GRID + 2, GRID - 4, GRID - 4);
+  const frame = [1, 2, 4, 8].includes(visiblePose)
+    ? Math.floor(now / 350) % 2
+    : 0;
 
-      snake.forEach((seg, idx) => {
-        ctx.fillStyle = "#141720";
-        ctx.fillRect(seg.x * GRID, seg.y * GRID, GRID, GRID);
-        ctx.fillStyle = idx === 0 ? "#b6eef3" : "#76cfd8";
-        ctx.fillRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2);
-      });
-    }
+  const key = visiblePose + ":" + frame;
 
-    const dirMap = {
-      UP: { x: 0, y: -1 },
-      DOWN: { x: 0, y: 1 },
-      LEFT: { x: -1, y: 0 },
-      RIGHT: { x: 1, y: 0 }
-    };
+  if (key !== lastFrame) {
+    draw(visiblePose, frame);
+    lastFrame = key;
+  }
 
-    document.querySelectorAll(".dpad-btn").forEach(btn => {
-      btn.addEventListener("pointerdown", () => {
-        btn.classList.add("pressed");
-        setDirection(dirMap[btn.dataset.dir]);
-      });
-      btn.addEventListener("pointerup", () => btn.classList.remove("pressed"));
-      btn.addEventListener("pointerleave", () => btn.classList.remove("pressed"));
-    });
+  requestAnimationFrame(loop);
+}
 
-    document.querySelectorAll(".round-btn").forEach(btn => {
-      btn.addEventListener("pointerdown", () => {
-        btn.classList.add("pressed");
-        if (btn.dataset.action === "pause") {
-          togglePause();
-        } else {
-          if (state === "IDLE" || state === "GAMEOVER") {
-            startGame();
-          } else if (state === "PAUSED") {
-            togglePause();
-          }
-        }
-      });
-      btn.addEventListener("pointerup", () => btn.classList.remove("pressed"));
-      btn.addEventListener("pointerleave", () => btn.classList.remove("pressed"));
-    });
-
-    window.addEventListener("keydown", e => {
-      const key = e.key.toLowerCase();
-      if (key === "arrowup" || key === "w") {
-        e.preventDefault();
-        setDirection(dirMap.UP);
-      } else if (key === "arrowdown" || key === "s") {
-        e.preventDefault();
-        setDirection(dirMap.DOWN);
-      } else if (key === "arrowleft" || key === "a") {
-        e.preventDefault();
-        setDirection(dirMap.LEFT);
-      } else if (key === "arrowright" || key === "d") {
-        e.preventDefault();
-        setDirection(dirMap.RIGHT);
-      } else if (key === "enter" || key === " ") {
-        e.preventDefault();
-        if (state === "IDLE" || state === "GAMEOVER") startGame();
-      } else if (key === "p") {
-        e.preventDefault();
-        togglePause();
-      }
-    });
-
-    resetGame();
-    draw();
-  </script>
+requestAnimationFrame(loop);
+</script>
 </body>
 </html>
-
