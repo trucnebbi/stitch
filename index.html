@@ -589,11 +589,28 @@ function head(cx,top,expression,blink=false,yawn=0){
  if(expression===13){
   // Relaxed eyelids; the mouth opens and closes during each yawn.
   for(const ex of [cx-25,cx+13]){rect(ex,top+40,13,5,0x8e3b);rect(ex,top+44,13,2,0x2104);}
-  const opening=Math.round(yawn*10);
-  if(opening>1){
-   rect(cx-7,top+55,14,opening+2,0x2104);
-   rect(cx-5,top+55,10,2,0xffff);
-   if(opening>5)rect(cx-4,top+55+opening-2,8,3,0xf98f);
+  const opening=2*Math.round(yawn*7);
+  if(opening>2){
+   // Stepped pixel mouth: separate cream teeth, not a white bar.
+   const w=16+2*Math.round(yawn*8), left=cx-w/2, mt=top+54;
+   rect(left,mt,w,opening+4,0x2104);
+   rect(left+2,mt+2,w-4,opening,0x680a);
+   rect(left+4,mt+opening+4,w-8,2,0x2104);
+   if(opening>=8){
+    rect(cx-8,mt+opening-2,16,4,0xf98f);
+    rect(cx-6,mt+opening-4,12,2,0xf98f);
+   }
+   const cream=0xff59;
+   for(const tx of [left+4,cx-6,cx+4,left+w-8]){
+    rect(tx,mt+2,4,2,cream);
+    rect(tx+1,mt+4,2,2,cream);
+   }
+   if(opening>=10){
+    for(const tx of [left+6,left+w-10]){
+     rect(tx+1,mt+opening-2,2,2,cream);
+     rect(tx,mt+opening,4,2,cream);
+    }
+   }
   }else rect(cx-5,top+57,10,2,0x2104);
  }
 }
@@ -608,8 +625,10 @@ function runHead(cx,top){
  rect(cx+20,top+40,12,8,0x020f);rect(cx+10,top+50,13,2,0x2104);
 }
 function seated(cx,top,pose){
+ // The face and seated body share EXACTLY the same 2x pixel grid.
  for(let ay=30;ay<51;ay++)for(let ax=0;ax<45;ax++){
-  const c=ink(ax,ay,pose,1);if(c)rect(cx-39+Math.floor(ax*78/45),top+Math.floor(ay*88/51),2,2,palette[c]);
+  const c=ink(ax,ay,pose,1);
+  if(c)rect(cx-45+ax*2,top+ay*2,2,2,palette[c]);
  }
 }
 function render(pose,frame){
@@ -620,33 +639,40 @@ function render(pose,frame){
  const phase=t*(running?11:3), wave=Math.sin(phase);
  rect(0,0,128,160,pose===4?0x0001:0x0843);rect(0,137,128,1,0x2152);
  if(pose===4){
-  // A separately drawn horizontal sleeping pose, not a rotated seated sprite.
-  rect(8,118,32,18,0xffff);
-  poly([[13,111],[7,104],[10,96],[22,100],[33,108],[38,118],[30,130],[17,129],[11,123]],0x2104);
-  poly([[15,112],[10,104],[12,100],[22,104],[33,112],[35,120],[29,127],[18,125]],0x3b72);
-  poly([[19,107],[22,98],[36,101],[43,110],[42,121],[32,128],[22,123]],0x3b72);
-  rect(23,108,18,7,0x5295);rect(25,110,14,2,0x2104);rect(34,117,9,5,0x020f);
   const breath=Math.round(Math.sin(t*1.6));
-  // Tucked blanket wraps the shoulder, torso and feet, leaving the face free.
-  poly([[39,121],[43,112+breath],[51,109+breath],[91,110+breath],[106,116],[114,125],[114,136],[36,136],[36,128]],0x2104);
-  poly([[39,128],[45,115+breath],[52,112+breath],[90,113+breath],[104,119],[111,126],[111,133],[39,133]],0x3b72);
-  poly([[41,126],[46,114+breath],[53,111+breath],[90,112+breath],[103,117],[102,120],[89,115+breath],[54,115+breath],[48,118+breath],[44,129]],0x65ff);
-  limb([54,120+breath],[50,130],0x5295,3);
-  limb([98,123],[103,131],0x5295,3);
-  for(let i=0;i<5;i++)rect(57+i*9,125+breath,3,3,0x65ff);
-  // Pixel bubble remains attached to the nose and gently inflates with breathing.
+  // Pillow and long purple ears spread sideways in a dedicated lying pose.
+  rect(5,111,67,24,0xffff);rect(7,132,63,3,0xafff);
+  poly([[28,100],[9,90],[2,91],[3,106],[13,116],[29,119]],palette[1]);
+  poly([[26,104],[8,95],[6,96],[7,104],[16,112],[28,115]],palette[4]);
+  poly([[60,100],[78,87],[88,88],[86,104],[75,117],[60,120]],palette[1]);
+  poly([[64,104],[80,93],[84,93],[82,103],[73,112],[63,115]],palette[4]);
+  // Retain Stitch's actual blue cheeks and broad dark nose, not a generic oval.
+  for(let ay=10;ay<30;ay++)for(let ax=10;ax<36;ax++){
+   const c=ink(ax,ay,4,1);
+   if(c)rect(18+(ax-10)*2,88+(ay-10)*2+breath,2,2,palette[c]);
+  }
+  // Two sleep-mask pads, with the nose and muzzle left clearly visible.
+  rect(22,106+breath,18,8,0x5295);rect(54,106+breath,16,8,0x5295);
+  rect(39,107+breath,15,2,0x5295);
+  rect(25,109+breath,12,2,0x2104);rect(56,109+breath,11,2,0x2104);
+  // Blanket begins below the muzzle, wraps the body and covers both feet.
+  poly([[66,120],[76,111+breath],[99,113+breath],[115,123],[118,137],[59,137],[58,130]],0x2104);
+  poly([[68,123],[77,115+breath],[98,116+breath],[112,125],[114,134],[62,134],[62,130]],0x3b72);
+  poly([[66,124],[77,113+breath],[98,114+breath],[111,121],[110,125],[97,118+breath],[78,117+breath],[69,127]],0x65ff);
+  for(let i=0;i<4;i++)rect(77+i*9,127+breath,3,3,0x65ff);
+  // Bubble touches the nose and expands with the same breath cycle.
   const radius=3+Math.round((1+Math.sin(t*1.6))*2);
-  const bx=43+radius,by=117-radius;
-  rect(41,117,3,2,0xafff);
+  const bx=51,by=119+breath-radius;
+  rect(49,119+breath,3,2,0xafff);
   for(let py=-radius;py<=radius;py++)for(let px=-radius;px<=radius;px++){
    const d=Math.hypot(px,py);
    if(d<=radius&&d>radius-1.3)rect(bx+px,by+py,1,1,0xafff);
   }
   rect(bx-2,by-radius+2,2,2,0xffff);
-  if(pet.sick)rect(25,102,12,3,0xafff);
+  if(pet.sick)rect(34,98+breath,20,3,0xafff);
   text(88,87-Math.floor(t%3)*3,'Zz',0xffff);
  }else{
- let cx=64,top=46;
+ let cx=64,top=34;
  const standAmount=play?Math.max(0,Math.min(1,(t-.5)/.7,(7.8-t)/.7)):dance?1:0;
  const standing=standAmount>0;
  if(play){
@@ -663,7 +689,7 @@ function render(pose,frame){
  const shoulderY=top+61,hipY=standing?119:125;
  const lift=dance?danceBeat*2:0;
  // Legs are articulated at the hip, knee and ankle, with counter-phase steps.
- for(const side of [-1,1]){
+ if(standing)for(const side of [-1,1]){
  const hip=[cx+side*8,hipY-4],knee=[cx+side*(standing?10:20)+lift*side,standing?126:130];
  const foot=[cx+side*(standing?12:26)-lift*side,134-Math.max(0,lift*side)];
  if(running){
@@ -674,9 +700,11 @@ function render(pose,frame){
  limb(hip,knee,0x3b72,11);limb(knee,foot,0x3b72,10);
  rect(foot[0]-7,foot[1]-2,15,5,0x2104);rect(foot[0]-5,foot[1]-2,11,3,0x3b72);
  }
+ if(standing){
  poly([[cx-15,shoulderY-3],[cx+14,shoulderY-3],[cx+18,hipY-2],[cx+9,hipY+3],[cx-12,hipY+3],[cx-18,hipY-3]],0x2104);
  poly([[cx-12,shoulderY],[cx+11,shoulderY],[cx+14,hipY-3],[cx+7,hipY],[cx-10,hipY],[cx-14,hipY-4]],0x3b72);
  poly([[cx-7,shoulderY],[cx+7,shoulderY],[cx+9,hipY-5],[cx+5,hipY-1],[cx-6,hipY-1]],0x8e3b);
+ }
  let right=[cx+19,hipY-3],left=[cx-19,hipY-3];
  if(running){right=[cx+wave*13,shoulderY+14];left=[cx-wave*13,shoulderY+17];}
  if(dance){
@@ -689,7 +717,7 @@ function render(pose,frame){
   const a=(1-Math.cos(Math.min(t,4)*Math.PI/2))/2;
   if(pose===9)right=[cx+15-a*10,shoulderY+16-a*21];else left=[cx-17+a*12,shoulderY+16-a*20];
  }
- for(const [side,hand]of [[-1,left],[1,right]]){
+ if(standing || [1,8,9,12].includes(pose))for(const [side,hand]of [[-1,left],[1,right]]){
  const shoulder=[cx+side*13,shoulderY+1],elbow=[(shoulder[0]+hand[0])/2+side*3,(shoulder[1]+hand[1])/2+4];
  if(dance){elbow[0]=cx+side*23;elbow[1]=shoulderY+8;}
  limb(shoulder,elbow,0x3b72,8);limb(elbow,hand,0x3b72,8);rect(hand[0]-4,hand[1]-3,8,7,0x3b72);
