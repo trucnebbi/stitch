@@ -16,6 +16,209 @@
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
+<!-- Đồng hồ và hai thanh trạng thái -->
+<style>
+  .stitch-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 31px;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 5px;
+    padding: 5px;
+    background: #084358;
+    pointer-events: none;
+  }
+
+  .stitch-clock {
+    padding-top: 3px;
+    color: #ffd166;
+    font: bold 10px monospace;
+    line-height: 12px;
+    white-space: nowrap;
+  }
+
+  .stitch-bars {
+    display: grid;
+    gap: 3px;
+    width: 58%;
+  }
+
+  .stitch-status-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 10px;
+  }
+
+  .stitch-status-row svg {
+    display: block;
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    shape-rendering: crispEdges;
+  }
+
+  .stitch-track {
+    flex: 1;
+    height: 7px;
+    overflow: hidden;
+    border: 1px solid #bddce8;
+    background: #102437;
+  }
+
+  .stitch-fill {
+    display: block;
+    width: 0;
+    height: 100%;
+  }
+
+  #stitchSpiritFill {
+    background: #ff789e;
+  }
+
+  #stitchHungerFill {
+    background: #ffc56b;
+  }
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  // Hỗ trợ cả hai bản HTML đã gửi trước đó.
+  const screen =
+    document.querySelector(".screen") ||
+    document.querySelector(".screen-wrapper");
+
+  if (!screen) return;
+
+  // Nếu đã có thanh cũ thì ẩn, tránh hiển thị trùng.
+  const oldHud = screen.querySelector(".hud-bar");
+  if (oldHud) oldHud.style.display = "none";
+
+  const oldStatus = screen.querySelector(".stitch-status");
+  if (oldStatus) oldStatus.remove();
+
+  const hud = document.createElement("div");
+  hud.className = "stitch-status";
+
+  hud.innerHTML = `
+    <time class="stitch-clock" id="stitchClock">00:00</time>
+
+    <div class="stitch-bars">
+      <div class="stitch-status-row">
+        <svg viewBox="0 0 12 12" aria-hidden="true">
+          <path
+            fill="#ff789e"
+            d="M1 2h4v1h2V2h4v5H9v2H7v2H5V9H3V7H1z"
+          />
+          <path fill="#ffd1e0" d="M2 3h2v1H2z"/>
+        </svg>
+
+        <div
+          class="stitch-track"
+          id="stitchSpiritTrack"
+          role="progressbar"
+          aria-label="Tinh thần"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <i class="stitch-fill" id="stitchSpiritFill"></i>
+        </div>
+      </div>
+
+      <div class="stitch-status-row">
+        <svg viewBox="0 0 12 12" aria-hidden="true">
+          <path
+            fill="#ffc56b"
+            d="M3 1h6v1h2v7H9v2H3V9H1V2h2z"
+          />
+          <path
+            fill="#995c2d"
+            d="M4 3h2v2H4zM8 5h1v2H8zM3 7h2v2H3z"
+          />
+        </svg>
+
+        <div
+          class="stitch-track"
+          id="stitchHungerTrack"
+          role="progressbar"
+          aria-label="Độ đói"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <i class="stitch-fill" id="stitchHungerFill"></i>
+        </div>
+      </div>
+    </div>
+  `;
+
+  screen.appendChild(hud);
+
+  const clock = hud.querySelector("#stitchClock");
+  const spiritFill = hud.querySelector("#stitchSpiritFill");
+  const hungerFill = hud.querySelector("#stitchHungerFill");
+  const spiritTrack = hud.querySelector("#stitchSpiritTrack");
+  const hungerTrack = hud.querySelector("#stitchHungerTrack");
+
+  let previousTime = "";
+  let previousSpirit = -1;
+  let previousHunger = -1;
+
+  function clamp(value) {
+    return Math.round(Math.max(0, Math.min(100, value)));
+  }
+
+  function refreshStatus() {
+    const now = new Date();
+    const time =
+      String(now.getHours()).padStart(2, "0") +
+      ":" +
+      String(now.getMinutes()).padStart(2, "0");
+
+    if (time !== previousTime) {
+      clock.textContent = time;
+      clock.dateTime = now.toISOString();
+      previousTime = time;
+    }
+
+    // Đọc trực tiếp chỉ số thật của thú nuôi trong HTML,
+    // không tạo thêm bộ chỉ số giả.
+    if (typeof pet === "undefined" || !pet) return;
+
+    const spirit = clamp(pet.happy);
+    const hungry = clamp(
+      typeof hunger === "function"
+        ? hunger()
+        : (Date.now() - pet.fed) / (9 * 3600000) * 100
+    );
+
+    if (spirit !== previousSpirit) {
+      spiritFill.style.width = spirit + "%";
+      spiritTrack.setAttribute("aria-valuenow", spirit);
+      previousSpirit = spirit;
+    }
+
+    if (hungry !== previousHunger) {
+      hungerFill.style.width = hungry + "%";
+      hungerFill.style.background =
+        hungry >= 80 ? "#ff6565" : "#ffc56b";
+
+      hungerTrack.setAttribute("aria-valuenow", hungry);
+      previousHunger = hungry;
+    }
+  }
+
+  refreshStatus();
+  setInterval(refreshStatus, 1000);
+})();
+</script>
+
 body {
   margin:0;
   min-height:100vh;
