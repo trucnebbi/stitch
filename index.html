@@ -585,10 +585,10 @@ function head(cx,top,expression,blink=false,yawn=0){
   // Replace the original smile itself during yawning, including its teeth.
   if(expression===13 && ay>=26){
    // Preserve the tapered silhouette instead of painting a rectangular muzzle.
-   const edges={26:[9,35],27:[12,32],28:[16,29]};
+   const edges={26:[9,35],27:[12,32],28:[15,29],29:[16,29]};
    const edge=edges[ay];
    c=edge && ax>=edge[0] && ax<=edge[1]
-     ? (ax===edge[0] || ax===edge[1] || ay===28 ? 1 : 2) : 0;
+     ? (ax===edge[0] || ax===edge[1] ? 1 : 2) : 0;
   }
   if(c)rect(cx-45+ax*2,top+ay*2,2,2,palette[c]);
  }
@@ -697,14 +697,24 @@ function render(pose,frame){
   poly([[55,111+breath],[64,103+breath],[74,100+breath],[90,101+breath],[104,109],[102,113],[89,105+breath],[74,104+breath],[65,107+breath],[58,115+breath]],0x65ff);
   for(let i=0;i<5;i++)rect(64+i*9,119+breath,3,4,0x65ff);
   rect(100,119+breath,2,8,0x3b72);
-  // Ears rest on the pillow; retain the blue face and broad Stitch nose.
+  // Dedicated resting ears; move with the head, never import seated ears.
+  ctx.save();ctx.translate(0,breath);
   poly([[25,94],[9,83],[2,85],[4,104],[14,114],[27,115]],0x0000);
   poly([[23,97],[9,88],[6,89],[8,102],[16,110],[25,111]],palette[4]);
   poly([[53,93],[69,80],[80,82],[77,101],[66,113],[54,114]],0x0000);
   poly([[57,96],[70,86],[75,86],[72,99],[64,108],[56,110]],palette[4]);
-  for(let ay=10;ay<30;ay++)for(let ax=10;ax<36;ax++){
-   const c=ink(ax,ay,4,1);
-   if(c)rect(12+(ax-10)*2,82+(ay-10)*2+breath,2,2,palette[c]);
+  ctx.restore();
+  for(let ay=10;ay<30;ay++){
+   // Clip at the inner edges of the original purple ears on each row.
+   // This removes their purple fill AND the outer black seated-ear outline.
+   const row=pixels[ay];
+   let left=10,right=35;
+   for(let ax=0;ax<22;ax++)if(row[ax]===4)left=Math.max(left,ax+1);
+   for(let ax=44;ax>22;ax--)if(row[ax]===4)right=Math.min(right,ax-1);
+   for(let ax=left;ax<=right;ax++){
+    const c=ink(ax,ay,4,1);
+    if(c && c!==4)rect(12+(ax-10)*2,82+(ay-10)*2+breath,2,2,palette[c]);
+   }
   }
   rect(16,100+breath,18,8,0x5295);rect(48,100+breath,16,8,0x5295);
   rect(33,101+breath,15,2,0x5295);
