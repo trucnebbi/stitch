@@ -5,51 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stitch — Ohana Pocket</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 <style>
 :root {
-  --shell-main: #269eea;
-  --shell-light: #a5e4ff;
-  --shell-dark: #135aa6;
+  --shell: #269eea;
+  --light: #a5e4ff;
+  --dark: #135aa6;
   --border: #141720;
 }
-
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
-
 body {
   margin: 0;
   min-height: 100vh;
+  padding: 24px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 24px;
-  padding: 24px 12px;
-  color: #eef5ff;
   background:
     radial-gradient(circle at 20% 20%, #23283d, transparent 45%),
     radial-gradient(circle at 80% 80%, #1c323a, transparent 45%),
     #121520;
+  color: #eef5ff;
   font-family: monospace;
 }
-
 .console {
   width: 340px;
   max-width: 94vw;
   padding: 24px;
-  background: var(--shell-main);
+  background: var(--shell);
   border: 6px solid var(--border);
   border-radius: 36px 36px 22px 22px;
   box-shadow:
-    inset 8px 8px 0 var(--shell-light),
-    inset -8px -10px 0 var(--shell-dark),
+    inset 8px 8px 0 var(--light),
+    inset -8px -10px 0 var(--dark),
     0 18px 0 #0b0d14,
     0 26px 40px #0008;
 }
-
 .brand {
   margin-bottom: 18px;
   text-align: center;
@@ -57,7 +52,6 @@ body {
   font: 10px "Press Start 2P", monospace;
   line-height: 1.7;
 }
-
 .bezel {
   padding: 12px;
   background: #7d83a8;
@@ -66,7 +60,6 @@ body {
     inset 4px 4px 0 #a5adc9,
     inset -4px -4px 0 #585d7e;
 }
-
 .screen {
   position: relative;
   aspect-ratio: 128 / 160;
@@ -74,39 +67,21 @@ body {
   background: #084358;
   border: 5px solid var(--border);
 }
-
 canvas {
   display: block;
   width: 100%;
   height: 100%;
   image-rendering: pixelated;
 }
-
 .screen::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: repeating-linear-gradient(
-    to bottom,
-    #ffffff06 0 2px,
-    transparent 2px 4px
+    to bottom, #ffffff06 0 2px, transparent 2px 4px
   );
 }
-
-.message {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 7px 5px;
-  background: #141720e8;
-  color: #ffd166;
-  text-align: center;
-  font-size: 12px;
-  line-height: 1.4;
-}
-
 .menu {
   position: absolute;
   inset: 0;
@@ -116,43 +91,30 @@ canvas {
   padding: 10px;
   background: #18243bf5;
 }
-
-.menu[hidden] {
-  display: none;
-}
-
+.menu[hidden] { display: none; }
 .menu h2 {
   margin: 0 0 8px;
   color: #ffd166;
   font-size: 15px;
-  line-height: 1.3;
 }
-
-.items {
-  flex: 1;
-  overflow-y: auto;
-}
-
+.items { flex: 1; overflow-y: auto; }
 .item {
   padding: 7px 4px;
   border: 2px solid transparent;
   font-size: 14px;
   line-height: 1.3;
 }
-
 .item.active {
-  border-color: #269eea;
-  background: #a5e4ff;
-  color: #141720;
+  border-color: var(--shell);
+  background: var(--light);
+  color: var(--border);
 }
-
 .menu-hint {
   padding-top: 7px;
   color: #bdcbe3;
   font-size: 10px;
   line-height: 1.5;
 }
-
 .controls {
   display: flex;
   justify-content: space-between;
@@ -160,51 +122,28 @@ canvas {
   gap: 8px;
   margin-top: 28px;
 }
-
 .dpad {
   position: relative;
   width: 108px;
   height: 108px;
   flex-shrink: 0;
 }
-
 .dpad button {
   position: absolute;
   width: 36px;
   height: 36px;
   padding: 0;
-  color: #141720;
+  color: var(--border);
   background: #868eb2;
   border: 5px solid var(--border);
   box-shadow:
     inset 3px 3px 0 #a5adc9,
     inset -3px -3px 0 #616887;
 }
-
-.up {
-  top: 0;
-  left: 36px;
-  border-bottom: none !important;
-}
-
-.down {
-  bottom: 0;
-  left: 36px;
-  border-top: none !important;
-}
-
-.left {
-  top: 36px;
-  left: 0;
-  border-right: none !important;
-}
-
-.right {
-  top: 36px;
-  right: 0;
-  border-left: none !important;
-}
-
+.up { top: 0; left: 36px; border-bottom: none !important; }
+.down { bottom: 0; left: 36px; border-top: none !important; }
+.left { top: 36px; left: 0; border-right: none !important; }
+.right { top: 36px; right: 0; border-left: none !important; }
 .center {
   position: absolute;
   top: 36px;
@@ -213,14 +152,12 @@ canvas {
   height: 36px;
   background: #868eb2;
 }
-
 .actions {
   display: grid;
   grid-template-columns: repeat(2, 58px);
   gap: 20px 2px;
   text-align: center;
 }
-
 .actions button {
   display: block;
   width: 30px;
@@ -234,36 +171,30 @@ canvas {
     inset 3px 3px 0 #ec7888,
     inset -3px -3px 0 #9c3445;
 }
-
 .actions span {
   display: block;
   margin-top: 8px;
-  color: #141720;
+  color: var(--border);
   font: 7px "Press Start 2P", monospace;
 }
-
 button {
   cursor: pointer;
   touch-action: manipulation;
 }
-
 button:active {
   filter: brightness(.8);
   transform: translateY(2px);
 }
-
 button:focus-visible {
   outline: 3px solid #ffd166;
   outline-offset: 2px;
 }
-
 .speaker {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 22px;
 }
-
 .speaker i {
   width: 14px;
   height: 44px;
@@ -271,7 +202,6 @@ button:focus-visible {
   border-radius: 6px;
   background: #2a2f45;
 }
-
 footer {
   max-width: 340px;
   text-align: center;
@@ -279,22 +209,17 @@ footer {
   font-size: 12px;
   line-height: 1.8;
 }
+#message { color: #ffd166; }
 </style>
 </head>
 
 <body>
 <main class="console">
   <div class="brand">OHANA POCKET PET</div>
-
   <div class="bezel">
     <div class="screen">
       <canvas id="pet" width="128" height="160"
         aria-label="Stitch pixel"></canvas>
-
-      <div class="message" id="message" aria-live="polite">
-        Ohana! Nhấn HOME để mở menu.
-      </div>
-
       <section class="menu" id="menu" hidden>
         <h2 id="menuTitle">MENU OHANA</h2>
         <div class="items" id="items"></div>
@@ -314,7 +239,6 @@ footer {
       <button class="right" data-step="1" aria-label="Phải">▶</button>
       <button class="down" data-step="1" aria-label="Xuống">▼</button>
     </div>
-
     <div class="actions" role="group" aria-label="Điều khiển menu">
       <div>
         <button id="home" aria-label="Home"></button>
@@ -341,16 +265,16 @@ footer {
 </main>
 
 <footer>
+  <div id="message" aria-live="polite">
+    Ohana! Nhấn HOME để mở menu.
+  </div>
   DEMO • Chưa kết nối ESP32 / Adafruit<br>
-  HOME: menu chính · BACK: lùi một cấp<br>
-  SELECT: xác nhận · EXIT: đóng menu<br>
   Máy tính: phím hướng, Enter, Esc, H, X
 </footer>
 
 <script>
 "use strict";
 
-/* Sprite pixel hiện có của dự án. */
 const palette = [0, 8452, 15218, 36411, 38037, 2152, 65535, 63887];
 
 const pixels = `
@@ -416,7 +340,7 @@ const title = document.getElementById("menuTitle");
 const list = document.getElementById("items");
 const message = document.getElementById("message");
 
-/* Mục trỏ tới menu con hoặc hành động có dấu @. */
+/* Menu nhiều cấp. */
 const menus = {
   root: {
     title: "MENU OHANA",
@@ -427,10 +351,10 @@ const menus = {
       ["Ngủ / Năng lượng", "sleep"],
       ["Nựng / Vui chơi", "play"],
       ["Kỷ luật", "discipline"],
+      ["AI (xem thử)", "ai"],
       ["Thông tin", "info"]
     ]
   },
-
   food: {
     title: "CHO ĂN",
     items: [
@@ -439,31 +363,18 @@ const menus = {
       ["Snack", "snack"]
     ]
   },
-
   mainFood: {
     title: "BỮA CHÍNH",
-    items: [
-      ["Cơm", "@rice"],
-      ["Cá", "@fish"]
-    ]
+    items: [["Cơm", "@rice"], ["Cá", "@fish"]]
   },
-
   fruit: {
     title: "TRÁI CÂY",
-    items: [
-      ["Táo", "@apple"],
-      ["Chuối", "@banana"]
-    ]
+    items: [["Táo", "@apple"], ["Chuối", "@banana"]]
   },
-
   snack: {
     title: "SNACK",
-    items: [
-      ["Bánh quy", "@cookie"],
-      ["Bánh ngọt", "@cake"]
-    ]
+    items: [["Bánh quy", "@cookie"], ["Bánh ngọt", "@cake"]]
   },
-
   health: {
     title: "SỨC KHỎE",
     items: [
@@ -473,38 +384,29 @@ const menus = {
       ["Dáng ốm (demo)", "@sick"]
     ]
   },
-
   clean: {
     title: "VỆ SINH",
-    items: [
-      ["Dọn chất thải", "@clean"]
-    ]
+    items: [["Dọn chất thải", "@clean"]]
   },
-
   sleep: {
     title: "NĂNG LƯỢNG",
-    items: [
-      ["Đi ngủ", "@sleep"],
-      ["Thức dậy", "@wake"]
-    ]
+    items: [["Đi ngủ", "@sleep"], ["Thức dậy", "@wake"]]
   },
-
   play: {
     title: "VUI CHƠI",
-    items: [
-      ["Nựng Stitch", "@pet"],
-      ["Chơi cùng Stitch", "@play"]
-    ]
+    items: [["Nựng Stitch", "@pet"], ["Chơi cùng Stitch", "@play"]]
   },
-
   discipline: {
     title: "KỶ LUẬT",
+    items: [["Nhắc nhở nhẹ", "@train"], ["Khen Stitch", "@praise"]]
+  },
+  ai: {
+    title: "ANIMATION AI",
     items: [
-      ["Nhắc nhở nhẹ", "@train"],
-      ["Khen Stitch", "@praise"]
+      ["Đang nghe (demo)", "@listen"],
+      ["Suy nghĩ (demo)", "@think"]
     ]
   },
-
   info: {
     title: "THÔNG TIN",
     items: [
@@ -515,7 +417,7 @@ const menus = {
   }
 };
 
-/* Các hành động dưới đây chỉ xem thử tại trình duyệt. */
+/* Chỉ xem thử: không gửi lệnh chăm sóc hoặc thay đổi chỉ số. */
 const actions = {
   rice:     [1, "Măm cơm nào!", 0],
   fish:     [1, "Măm cá nào!", 0],
@@ -526,13 +428,15 @@ const actions = {
   rest:     [4, "Stitch đang nghỉ ngơi."],
   medicine: [9, "Demo: Stitch uống thuốc."],
   sick:     [7, "Demo: Stitch đang ốm."],
-  clean:    [8, "Demo: dọn vệ sinh."],
+  clean:    [8, "Demo: Stitch quét dọn."],
   sleep:    [4, "Chúc Stitch ngủ ngon!"],
   wake:     [0, "Stitch thức dậy rồi!"],
   pet:      [2, "Ohana! Thích được nựng!"],
   play:     [2, "Chơi cùng Ohana nào!"],
   train:    [10, "Stitch sẽ ngoan mà!"],
-  praise:   [2, "Ohana khen Stitch nè!"]
+  praise:   [2, "Ohana khen Stitch nè!"],
+  listen:   [5, "Demo đang nghe — không thu âm."],
+  think:    [6, "Demo: Stitch đang suy nghĩ."]
 };
 
 let current = "root";
@@ -577,7 +481,6 @@ function exit() {
 
 function back() {
   if (!opened) return;
-
   if (stack.length) {
     const previous = stack.pop();
     current = previous.current;
@@ -593,7 +496,6 @@ function move(step) {
     home();
     return;
   }
-
   const count = menus[current].items.length;
   selected = (selected + step + count) % count;
   refreshMenu();
@@ -618,7 +520,8 @@ function select() {
   const id = target.slice(1);
 
   if (id === "clock") {
-    message.textContent = new Date().toLocaleString("vi-VN");
+    message.textContent =
+      "Giờ trên trình duyệt: " + new Date().toLocaleString("vi-VN");
     exit();
     return;
   }
@@ -644,7 +547,7 @@ function select() {
 
   actionEnds = ["rest", "sleep"].includes(id)
     ? Infinity
-    : performance.now() + 3500;
+    : performance.now() + 6000;
 
   lastFrame = "";
   exit();
@@ -665,7 +568,6 @@ document.addEventListener("keydown", event => {
     "arrowup", "arrowdown", "arrowleft", "arrowright",
     "enter", "escape", "h", "x"
   ];
-
   if (!supported.includes(key)) return;
   event.preventDefault();
 
@@ -676,7 +578,7 @@ document.addEventListener("keydown", event => {
   else move(["arrowup", "arrowleft"].includes(key) ? -1 : 1);
 });
 
-/* Vẽ sprite và đạo cụ bằng pixel. */
+/* Các màu sprite gốc dùng định dạng RGB565. */
 function color(value) {
   const r = Math.round(((value >> 11) & 31) * 255 / 31);
   const g = Math.round(((value >> 5) & 63) * 255 / 63);
@@ -686,123 +588,236 @@ function color(value) {
 
 function rect(x, y, width, height, value) {
   ctx.fillStyle = color(value);
-  ctx.fillRect(x, y, width, height);
+  ctx.fillRect(Math.round(x), Math.round(y), width, height);
 }
 
-function ink(x, y, currentPose, frame) {
+function text(x, y, value, fill = "#ffffff") {
+  ctx.fillStyle = fill;
+  ctx.font = "8px monospace";
+  ctx.fillText(value, Math.round(x), Math.round(y));
+}
+
+/* Thay biểu cảm mắt, miệng và má theo trạng thái. */
+function ink(x, y, p, frame) {
   let value = pixels[y][x];
 
-  const eye =
+  const eyes =
     (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
     (x >= 29 && x <= 34 && y >= 18 && y <= 25);
 
-  if (eye && [2, 3, 4, 7].includes(currentPose)) {
+  if (eyes && [2, 3, 4, 7].includes(p)) {
     const center = x < 20 ? 13 : 31;
-
-    value = currentPose === 2
+    value = p === 2
       ? (y === 21 + (Math.abs(x - center) > 1 ? 1 : 0) ? 1 : 3)
       : (y === 23 ? 1 : 3);
   }
 
   if (x >= 19 && x <= 27 && y >= 28 && y <= 29) {
-    if (currentPose === 1) value = frame ? 7 : 1;
-    if (currentPose === 2) {
-      value = y === 28 && x > 20 && x < 26 ? 7 : 1;
-    }
-    if (currentPose === 7) {
-      value = y === 28 && x > 20 && x < 26 ? 1 : 2;
-    }
+    if (p === 1) value = frame ? 7 : 1;
+    if (p === 2) value = y === 28 && x > 20 && x < 26 ? 7 : 1;
+    if (p === 7) value = y === 28 && x > 20 && x < 26 ? 1 : 2;
   }
 
   if (
-    currentPose === 2 && y === 26 &&
+    p === 2 && y === 26 &&
     ((x >= 12 && x <= 14) || (x >= 31 && x <= 33))
   ) value = 7;
+
+  if (
+    p === 5 && y === 19 &&
+    ((x >= 13 && x <= 14) || (x >= 30 && x <= 31))
+  ) value = 6;
 
   return value;
 }
 
-function draw(currentPose, frame) {
-  rect(0, 0, 128, 160, currentPose === 4 ? 0 : 0x0843);
+function heart(x, y) {
+  rect(x, y, 3, 3, 0xf98f);
+  rect(x + 5, y, 3, 3, 0xf98f);
+  rect(x, y + 3, 8, 3, 0xf98f);
+  rect(x + 2, y + 6, 4, 2, 0xf98f);
+}
 
-  ctx.fillStyle = "#a5e4ff";
-  ctx.font = "8px monospace";
-  ctx.fillText("STITCH / OHANA", 5, 12);
+function render(p, frame) {
+  const t = frame / 12 * Math.PI * 2;
 
-  const dy = [1, 2, 8].includes(currentPose) && frame ? -2 : 0;
+  rect(0, 0, 128, 160, p === 4 ? 0 : 0x0843);
+  text(5, 12, "STITCH / OHANA", "#a5e4ff");
+  rect(0, 137, 128, 1, 0x2152);
+  text(5, 151, "OFFLINE DEMO", "#ffd166");
 
-  for (let y = 0; y < 88; y++) {
-    for (let x = 0; x < 78; x++) {
-      const value = ink(
-        Math.floor(x * 45 / 78),
-        Math.floor(y * 51 / 88),
-        currentPose,
-        frame
-      );
+  let x = 25;
+  let y = 46;
+  let width = 78;
+  let height = 88;
+  let flip = false;
 
-      if (value) rect(25 + x, 36 + y + dy, 1, 1, palette[value]);
+  // Bình thường: đi qua lại, đổi hướng và nhún nhẹ.
+  if (p === 0) {
+    x += Math.round(17 * Math.sin(t));
+    y += Math.round(2 * Math.abs(Math.sin(t * 2)));
+    flip = Math.cos(t) < 0;
+  }
+
+  // Ăn: nhún người.
+  if (p === 1) y -= Math.round(3 * Math.abs(Math.sin(t)));
+
+  // Nựng / chơi: nhảy.
+  if (p === 2) {
+    y -= Math.round(12 * Math.abs(Math.sin(t)));
+    x += Math.round(3 * Math.sin(t));
+  }
+
+  // Ngủ: dáng thấp, nằm và thở nhẹ.
+  if (p === 4) {
+    x = 20;
+    y = 99;
+    width = 88;
+    height = 36 + Math.round(Math.sin(t));
+  }
+
+  // Nghe và suy nghĩ: nghiêng qua lại.
+  if (p === 5) x += Math.round(3 * Math.sin(t));
+  if (p === 6) x += Math.round(4 * Math.sin(t));
+
+  // Ốm: run nhẹ, hạ người.
+  if (p === 7) {
+    x += frame % 2;
+    y += 4;
+    height = 84;
+  }
+
+  // Dọn: di chuyển qua lại.
+  if (p === 8) {
+    x += Math.round(14 * Math.sin(t));
+    flip = Math.cos(t) < 0;
+  }
+
+  if (p === 9) y -= Math.round(2 * Math.abs(Math.sin(t)));
+  if (p === 10) y -= Math.round(4 * Math.abs(Math.sin(t)));
+
+  // Bóng dưới chân.
+  rect(x + 14, 135, width - 28, 2, 0x2104);
+
+  // Vẽ sprite, giữ cạnh pixel sắc nét.
+  for (let sy = 0; sy < height; sy++) {
+    for (let sx = 0; sx < width; sx++) {
+      let ax = Math.floor(sx * 45 / width);
+      let ay = Math.floor(sy * 51 / height);
+
+      if (flip) ax = 44 - ax;
+
+      // Rung tai.
+      if (ay < 18 && p !== 4) {
+        ay = Math.max(0, Math.min(
+          50,
+          ay + Math.round(Math.sin(t) * (ax < 10 ? 1 : -1))
+        ));
+      }
+
+      const expression = p === 0 && frame === 0 ? 3 : p;
+      const value = ink(ax, ay, expression, frame < 6 ? 0 : 1);
+
+      if (value) rect(x + sx, y + sy, 1, 1, palette[value]);
     }
   }
 
-  if (currentPose === 1) {
-    const y = frame ? 88 : 94;
-    rect(60, y, 10, 7, [65535, 2016, 64800][meal]);
-    rect(62, y + 7, 6, 2, 8452);
+  const wave = Math.round(3 * Math.sin(t));
+
+  // Thức ăn đi lên miệng và vụn thức ăn.
+  if (p === 1) {
+    const foodY = 100 - Math.round(13 * (1 + Math.sin(t)) / 2);
+    rect(x + 32, foodY, 12, 7, [0xffff, 0x07e0, 0xfd20][meal]);
+    rect(x + 34, foodY + 7, 8, 2, 0x2104);
+    if (frame > 7) {
+      rect(x + 30, foodY + 4, 2, 2, 0xffe0);
+      rect(x + 47, foodY + 6, 2, 2, 0xffe0);
+    }
   }
 
-  if (currentPose === 2) {
-    rect(104, 68, 3, 3, 63887);
-    rect(110, 68, 3, 3, 63887);
-    rect(104, 71, 9, 3, 63887);
-    rect(107, 74, 3, 3, 63887);
+  // Tim bay lên.
+  if (p === 2) {
+    for (let i = 0; i < 2; i++) {
+      heart(10 + i * 97, 75 - ((frame + i * 5) % 12) * 3);
+    }
   }
 
-  if (currentPose === 4) {
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText("ZZZ", 102, frame ? 51 : 55);
+  // Chữ Z bay lên khi ngủ.
+  if (p === 4) text(85, 82 - frame * 2, "ZZZ");
+
+  // Vạch âm thanh minh họa, không thu mic.
+  if (p === 5) {
+    for (let i = 0; i < 3; i++) {
+      rect(
+        109 + i * 4,
+        78 - wave * (i + 1),
+        2,
+        6 + Math.abs(wave) * (i + 1),
+        0x65ff
+      );
+    }
   }
 
-  if (currentPose === 7) {
-    ctx.fillStyle = "#ff7888";
-    ctx.fillText("OM...", 3, 118);
+  // Dấu hỏi và chấm chờ.
+  if (p === 6) {
+    text(99, 48, "?", "#ffd166");
+    for (let i = 0; i < 3; i++) {
+      rect(
+        102 + i * 7, 66, 3, 3,
+        i === Math.floor(frame / 4) ? 0xffff : 0x2152
+      );
+    }
   }
 
-  if (currentPose === 8) {
-    rect(90, 99, 3, 13, 64800);
-    rect(86, 110, 12, 4, 65535);
-    rect(frame ? 32 : 35, 105, 3, 3, 26111);
+  // Mồ hôi khi ốm.
+  if (p === 7) {
+    text(3, 118, "OM...", "#ff7888");
+    rect(x + 58, 83 + frame % 4, 2, 4, 0x65ff);
   }
 
-  if (currentPose === 9) {
-    rect(103, 94, 14, 15, 65535);
-    rect(109, 96, 2, 11, 63488);
-    rect(105, 101, 10, 2, 63488);
+  // Chổi quét và bụi.
+  if (p === 8) {
+    rect(x + 62 + wave, 104, 2, 23, 0xfd20);
+    rect(x + 57 + wave, 125, 12, 4, 0xffff);
+    rect(108, 130, 10, 4, 0x8200);
+    rect(110, 127, 6, 3, 0x8200);
+    if (frame > 7) {
+      rect(106, 120, 2, 2, 0xffff);
+      rect(119, 124, 2, 2, 0xffff);
+    }
   }
 
-  if (currentPose === 10) {
-    ctx.fillStyle = "#ffd166";
-    ctx.fillText("!", 109, 80);
+  // Lọ thuốc và viên thuốc đưa lên miệng.
+  if (p === 9) {
+    rect(105, 96, 13, 17, 0xffff);
+    rect(110, 98, 3, 13, 0xf800);
+    rect(107, 103, 9, 3, 0xf800);
+    rect(
+      x + 34,
+      105 - Math.round(17 * (1 + Math.sin(t)) / 2),
+      5, 3, 0xffff
+    );
+  }
+
+  // Kỷ luật: nhún, cử động tay và dấu chấm than.
+  if (p === 10) {
+    text(106, 70 - wave, "!", "#ffd166");
+    rect(x + 9, 104 - wave, 6, 3, 0x3b72);
   }
 }
 
-/* Chỉ vẽ lại khi trạng thái hoặc khung animation đổi. */
+/* Chỉ vẽ khi khung animation hoặc trạng thái thay đổi. */
 function loop(now) {
   if (actionEnds && now > actionEnds) {
     pose = 0;
     actionEnds = 0;
   }
 
-  const visiblePose =
-    pose === 0 && Math.floor(now / 350) % 12 === 0 ? 3 : pose;
-
-  const frame = [1, 2, 4, 8].includes(visiblePose)
-    ? Math.floor(now / 350) % 2
-    : 0;
-
-  const key = visiblePose + ":" + frame;
+  const frame = Math.floor(now / 100) % 12;
+  const key = pose + ":" + meal + ":" + frame;
 
   if (key !== lastFrame) {
-    draw(visiblePose, frame);
+    render(pose, frame);
     lastFrame = key;
   }
 
