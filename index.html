@@ -4,409 +4,384 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stitch — Ohana Pocket</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 <style>
 :root {
-  --shell:#269eea;
-  --light:#a5e4ff;
-  --dark:#135aa6;
-  --border:#141720;
+  --shell: #269eea;
+  --light: #a5e4ff;
+  --dark: #135aa6;
+  --border: #141720;
 }
+
 * {
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
-<!-- Đồng hồ và hai thanh trạng thái -->
-<style>
-  .stitch-status {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 31px;
-    z-index: 2;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 5px;
-    padding: 5px;
-    background: #084358;
-    pointer-events: none;
-  }
-
-  .stitch-clock {
-    padding-top: 3px;
-    color: #ffd166;
-    font: bold 10px monospace;
-    line-height: 12px;
-    white-space: nowrap;
-  }
-
-  .stitch-bars {
-    display: grid;
-    gap: 3px;
-    width: 58%;
-  }
-
-  .stitch-status-row {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    height: 10px;
-  }
-
-  .stitch-status-row svg {
-    display: block;
-    width: 10px;
-    height: 10px;
-    flex-shrink: 0;
-    shape-rendering: crispEdges;
-  }
-
-  .stitch-track {
-    flex: 1;
-    height: 7px;
-    overflow: hidden;
-    border: 1px solid #bddce8;
-    background: #102437;
-  }
-
-  .stitch-fill {
-    display: block;
-    width: 0;
-    height: 100%;
-  }
-
-  #stitchSpiritFill {
-    background: #ff789e;
-  }
-
-  #stitchHungerFill {
-    background: #ffc56b;
-  }
-</style>
-
-<script>
-(() => {
-  "use strict";
-
-  // Hỗ trợ cả hai bản HTML đã gửi trước đó.
-  const screen =
-    document.querySelector(".screen") ||
-    document.querySelector(".screen-wrapper");
-
-  if (!screen) return;
-
-  // Nếu đã có thanh cũ thì ẩn, tránh hiển thị trùng.
-  const oldHud = screen.querySelector(".hud-bar");
-  if (oldHud) oldHud.style.display = "none";
-
-  const oldStatus = screen.querySelector(".stitch-status");
-  if (oldStatus) oldStatus.remove();
-
-  const hud = document.createElement("div");
-  hud.className = "stitch-status";
-
-  hud.innerHTML = `
-    <time class="stitch-clock" id="stitchClock">00:00</time>
-
-    <div class="stitch-bars">
-      <div class="stitch-status-row">
-        <svg viewBox="0 0 12 12" aria-hidden="true">
-          <path
-            fill="#ff789e"
-            d="M1 2h4v1h2V2h4v5H9v2H7v2H5V9H3V7H1z"
-          />
-          <path fill="#ffd1e0" d="M2 3h2v1H2z"/>
-        </svg>
-
-        <div
-          class="stitch-track"
-          id="stitchSpiritTrack"
-          role="progressbar"
-          aria-label="Tinh thần"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <i class="stitch-fill" id="stitchSpiritFill"></i>
-        </div>
-      </div>
-
-      <div class="stitch-status-row">
-        <svg viewBox="0 0 12 12" aria-hidden="true">
-          <path
-            fill="#ffc56b"
-            d="M3 1h6v1h2v7H9v2H3V9H1V2h2z"
-          />
-          <path
-            fill="#995c2d"
-            d="M4 3h2v2H4zM8 5h1v2H8zM3 7h2v2H3z"
-          />
-        </svg>
-
-        <div
-          class="stitch-track"
-          id="stitchHungerTrack"
-          role="progressbar"
-          aria-label="Độ đói"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <i class="stitch-fill" id="stitchHungerFill"></i>
-        </div>
-      </div>
-    </div>
-  `;
-
-  screen.appendChild(hud);
-
-  const clock = hud.querySelector("#stitchClock");
-  const spiritFill = hud.querySelector("#stitchSpiritFill");
-  const hungerFill = hud.querySelector("#stitchHungerFill");
-  const spiritTrack = hud.querySelector("#stitchSpiritTrack");
-  const hungerTrack = hud.querySelector("#stitchHungerTrack");
-
-  let previousTime = "";
-  let previousSpirit = -1;
-  let previousHunger = -1;
-
-  function clamp(value) {
-    return Math.round(Math.max(0, Math.min(100, value)));
-  }
-
-  function refreshStatus() {
-    const now = new Date();
-    const time =
-      String(now.getHours()).padStart(2, "0") +
-      ":" +
-      String(now.getMinutes()).padStart(2, "0");
-
-    if (time !== previousTime) {
-      clock.textContent = time;
-      clock.dateTime = now.toISOString();
-      previousTime = time;
-    }
-
-    // Đọc trực tiếp chỉ số thật của thú nuôi trong HTML,
-    // không tạo thêm bộ chỉ số giả.
-    if (typeof pet === "undefined" || !pet) return;
-
-    const spirit = clamp(pet.happy);
-    const hungry = clamp(
-      typeof hunger === "function"
-        ? hunger()
-        : (Date.now() - pet.fed) / (9 * 3600000) * 100
-    );
-
-    if (spirit !== previousSpirit) {
-      spiritFill.style.width = spirit + "%";
-      spiritTrack.setAttribute("aria-valuenow", spirit);
-      previousSpirit = spirit;
-    }
-
-    if (hungry !== previousHunger) {
-      hungerFill.style.width = hungry + "%";
-      hungerFill.style.background =
-        hungry >= 80 ? "#ff6565" : "#ffc56b";
-
-      hungerTrack.setAttribute("aria-valuenow", hungry);
-      previousHunger = hungry;
-    }
-  }
-
-  refreshStatus();
-  setInterval(refreshStatus, 1000);
-})();
-</script>
 
 body {
-  margin:0;
-  min-height:100vh;
-  padding:24px 12px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:24px;
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
   background:
-    radial-gradient(circle at 20% 20%,#23283d,transparent 45%),
-    radial-gradient(circle at 80% 80%,#1c323a,transparent 45%),
+    radial-gradient(circle at 20% 20%, #23283d, transparent 45%),
+    radial-gradient(circle at 80% 80%, #1c323a, transparent 45%),
     #121520;
-  color:#eef5ff;
-  font-family:monospace;
+  color: #eef5ff;
+  font-family: monospace;
 }
+
 .console {
-  width:340px;
-  max-width:94vw;
-  padding:24px;
-  background:var(--shell);
-  border:6px solid var(--border);
-  border-radius:36px 36px 22px 22px;
+  width: 340px;
+  max-width: 94vw;
+  padding: 24px;
+  background: var(--shell);
+  border: 6px solid var(--border);
+  border-radius: 36px 36px 22px 22px;
   box-shadow:
     inset 8px 8px 0 var(--light),
     inset -8px -10px 0 var(--dark),
     0 18px 0 #0b0d14,
     0 26px 40px #0008;
 }
+
 .brand {
-  margin-bottom:18px;
-  text-align:center;
-  color:var(--border);
-  font:10px "Press Start 2P",monospace;
-  line-height:1.7;
+  margin-bottom: 18px;
+  text-align: center;
+  color: var(--border);
+  font: bold 12px monospace;
+  letter-spacing: 2px;
 }
+
 .bezel {
-  padding:12px;
-  background:#7d83a8;
-  border:6px solid var(--border);
-  box-shadow:inset 4px 4px 0 #a5adc9,inset -4px -4px 0 #585d7e;
+  padding: 12px;
+  background: #7d83a8;
+  border: 6px solid var(--border);
+  box-shadow:
+    inset 4px 4px 0 #a5adc9,
+    inset -4px -4px 0 #585d7e;
 }
+
 .screen {
-  position:relative;
-  aspect-ratio:128 / 160;
-  overflow:hidden;
-  background:#084358;
-  border:5px solid var(--border);
+  position: relative;
+  aspect-ratio: 128 / 160;
+  overflow: hidden;
+  background: #084358;
+  border: 5px solid var(--border);
 }
+
 canvas {
-  display:block;
-  width:100%;
-  height:100%;
-  image-rendering:pixelated;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
 }
+
 .screen::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:repeating-linear-gradient(
-    to bottom,#ffffff06 0 2px,transparent 2px 4px
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ffffff06 0 2px,
+    transparent 2px 4px
   );
 }
+
+/* Giờ và hai thanh chỉ dùng biểu tượng. */
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 6px 5px;
+  background: #084358;
+  pointer-events: none;
+}
+
+.clock {
+  padding-top: 3px;
+  color: #ffd166;
+  font: bold 12px monospace;
+  white-space: nowrap;
+}
+
+.status-bars {
+  display: grid;
+  gap: 4px;
+  width: 58%;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 12px;
+}
+
+.status-row svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  shape-rendering: crispEdges;
+}
+
+.track {
+  flex: 1;
+  height: 8px;
+  border: 1px solid #bddce8;
+  background: #102437;
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  width: 0;
+}
+
+#spiritFill { background: #ff789e; }
+#hungerFill { background: #ffc56b; }
+
 .menu {
-  position:absolute;
-  inset:0;
-  z-index:3;
-  padding:10px;
-  overflow:auto;
-  background:#18243bf5;
-  font:14px monospace;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 10px;
+  overflow: auto;
+  background: #18243bf5;
+  font: 14px monospace;
 }
-.menu[hidden] {display:none}
+
+.menu[hidden] {
+  display: none;
+}
+
 .menu h3 {
-  margin:0 0 10px;
-  color:#ffd166;
-  font-size:15px;
+  margin: 0 0 10px;
+  color: #ffd166;
+  font-size: 15px;
 }
+
 .menu-row {
-  padding:7px 3px;
-  line-height:1.3;
+  padding: 7px 3px;
+  line-height: 1.3;
 }
+
 .menu-row.active {
-  background:var(--light);
-  color:var(--border);
+  background: var(--light);
+  color: var(--border);
 }
+
 .controls {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin-top:28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
 }
+
 .dpad {
-  position:relative;
-  width:108px;
-  height:108px;
-  flex-shrink:0;
+  position: relative;
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
 }
+
 .dpad button {
-  position:absolute;
-  width:36px;
-  height:36px;
-  padding:0;
-  color:var(--border);
-  background:#868eb2;
-  border:5px solid var(--border);
-  box-shadow:inset 3px 3px 0 #a5adc9,inset -3px -3px 0 #616887;
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--border);
+  background: #868eb2;
+  border: 5px solid var(--border);
+  box-shadow:
+    inset 3px 3px 0 #a5adc9,
+    inset -3px -3px 0 #616887;
 }
-.up {top:0;left:36px;border-bottom:none!important}
-.down {bottom:0;left:36px;border-top:none!important}
-.left {top:36px;left:0;border-right:none!important}
-.right {top:36px;right:0;border-left:none!important}
+
+.up {
+  top: 0;
+  left: 36px;
+  border-bottom: none !important;
+}
+
+.down {
+  bottom: 0;
+  left: 36px;
+  border-top: none !important;
+}
+
+.left {
+  top: 36px;
+  left: 0;
+  border-right: none !important;
+}
+
+.right {
+  top: 36px;
+  right: 0;
+  border-left: none !important;
+}
+
 .center {
-  position:absolute;
-  top:36px;
-  left:36px;
-  width:36px;
-  height:36px;
-  background:#868eb2;
+  position: absolute;
+  top: 36px;
+  left: 36px;
+  width: 36px;
+  height: 36px;
+  background: #868eb2;
 }
+
 .actions {
-  display:grid;
-  grid-template-columns:repeat(2,58px);
-  gap:20px 2px;
-  text-align:center;
+  display: grid;
+  grid-template-columns: repeat(2, 58px);
+  gap: 20px 2px;
+  text-align: center;
 }
+
 .actions button {
-  display:block;
-  width:30px;
-  height:30px;
-  margin:auto;
-  padding:0;
-  border-radius:50%;
-  background:#d45567;
-  border:5px solid var(--border);
-  box-shadow:inset 3px 3px 0 #ec7888,inset -3px -3px 0 #9c3445;
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  padding: 0;
+  border-radius: 50%;
+  background: #d45567;
+  border: 5px solid var(--border);
+  box-shadow:
+    inset 3px 3px 0 #ec7888,
+    inset -3px -3px 0 #9c3445;
 }
+
 .actions span {
-  display:block;
-  margin-top:8px;
-  color:var(--border);
-  font:7px "Press Start 2P",monospace;
+  display: block;
+  margin-top: 8px;
+  color: var(--border);
+  font: bold 9px monospace;
 }
+
 button {
-  cursor:pointer;
-  touch-action:manipulation;
+  cursor: pointer;
+  touch-action: manipulation;
 }
+
 button:active {
-  filter:brightness(.8);
-  transform:translateY(2px);
+  filter: brightness(.8);
+  transform: translateY(2px);
 }
+
 button:focus-visible {
-  outline:3px solid #ffd166;
-  outline-offset:2px;
+  outline: 3px solid #ffd166;
+  outline-offset: 2px;
 }
+
 .speaker {
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
 }
+
 .speaker i {
-  width:14px;
-  height:44px;
-  border:4px solid var(--border);
-  border-radius:6px;
-  background:#2a2f45;
+  width: 14px;
+  height: 44px;
+  border: 4px solid var(--border);
+  border-radius: 6px;
+  background: #2a2f45;
 }
+
 footer {
-  max-width:360px;
-  text-align:center;
-  color:#adbbd4;
-  font-size:12px;
-  line-height:1.8;
+  max-width: 360px;
+  text-align: center;
+  color: #adbbd4;
+  font-size: 12px;
+  line-height: 1.8;
 }
-#message {color:#ffd166}
+
+#message {
+  margin-bottom: 8px;
+  color: #ffd166;
+}
 </style>
 </head>
+
 <body>
 <main class="console">
   <div class="brand">OHANA POCKET PET</div>
 
   <div class="bezel">
     <div class="screen">
-      <canvas id="pet" width="128" height="160"
-        aria-label="Stitch pixel"></canvas>
+      <canvas
+        id="petCanvas"
+        width="128"
+        height="160"
+        aria-label="Stitch pixel"
+      ></canvas>
+
+      <div class="hud">
+        <time class="clock" id="petClock">00:00</time>
+
+        <div class="status-bars">
+          <div class="status-row">
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path
+                fill="#ff789e"
+                d="M1 2h4v1h2V2h4v5H9v2H7v2H5V9H3V7H1z"
+              />
+              <path fill="#ffd1e0" d="M2 3h2v1H2z"/>
+            </svg>
+
+            <div
+              class="track"
+              id="spiritTrack"
+              role="progressbar"
+              aria-label="Tinh thần"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <i class="fill" id="spiritFill"></i>
+            </div>
+          </div>
+
+          <div class="status-row">
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path
+                fill="#ffc56b"
+                d="M3 1h6v1h2v7H9v2H3V9H1V2h2z"
+              />
+              <path
+                fill="#995c2d"
+                d="M4 3h2v2H4zM8 5h1v2H8zM3 7h2v2H3z"
+              />
+            </svg>
+
+            <div
+              class="track"
+              id="hungerTrack"
+              role="progressbar"
+              aria-label="Độ đói"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <i class="fill" id="hungerFill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <section id="menu" class="menu" hidden></section>
     </div>
   </div>
@@ -455,8 +430,11 @@ footer {
 <script>
 "use strict";
 
-/* Sprite đã duyệt. Màu RGB565. */
-const palette = [0,8452,15218,36411,38037,2152,65535,63887];
+/* Sprite Stitch pixel, bảng màu RGB565. */
+const palette = [
+  0, 8452, 15218, 36411,
+  38037, 2152, 65535, 63887
+];
 
 const pixels = `
 000000000000000000000000000000000000000000000
@@ -500,7 +478,7 @@ const pixels = `
 000000000000002212233333333322121000000000000
 000000000000012221223333333322221100000000000
 000000111111112221223333333222221100000000000
-000000222211112221223333333221211111111111000
+000000222211112221223333333221211111111000000
 000001222221112222123333333221211122211110000
 000012222222112222123333333221211122222111000
 000012555522112222123333333212211122222211000
@@ -510,338 +488,361 @@ const pixels = `
 000011111111111111000000011111111111222211000
 000000000000000000000000000000000011111110000
 000000000000000000000000000000000000000000000
-`.trim().split(/\s+/).map(row => Array.from(row,Number));
+`.trim().split(/\s+/).map(row => Array.from(row, Number));
 
-const canvas = document.getElementById("pet");
+const canvas = document.getElementById("petCanvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
 const panel = document.getElementById("menu");
 const message = document.getElementById("message");
 
-const state = {pose:0,meal:0,waste:0};
+const clockElement = document.getElementById("petClock");
+const spiritFill = document.getElementById("spiritFill");
+const hungerFill = document.getElementById("hungerFill");
+const spiritTrack = document.getElementById("spiritTrack");
+const hungerTrack = document.getElementById("hungerTrack");
+
+const state = {
+  pose: 0,
+  meal: 0,
+  waste: 0
+};
 
 function color(value) {
-  return `rgb(${
-    Math.round(((value >> 11) & 31) * 255 / 31)
-  },${
-    Math.round(((value >> 5) & 63) * 255 / 63)
-  },${
-    Math.round((value & 31) * 255 / 31)
-  })`;
+  const r = Math.round(((value >> 11) & 31) * 255 / 31);
+  const g = Math.round(((value >> 5) & 63) * 255 / 63);
+  const b = Math.round((value & 31) * 255 / 31);
+  return `rgb(${r},${g},${b})`;
 }
 
-function rect(x,y,w,h,c) {
+function rect(x, y, w, h, c) {
   ctx.fillStyle = color(c);
-  ctx.fillRect(Math.round(x),Math.round(y),w,h);
+  ctx.fillRect(Math.round(x), Math.round(y), w, h);
 }
 
-function text(x,y,s,c=0xffff,size=8) {
+function text(x, y, value, c = 0xffff, size = 8) {
   ctx.fillStyle = color(c);
   ctx.font = size + "px monospace";
-  ctx.fillText(s,x,y);
+  ctx.fillText(value, x, y);
 }
 
-function ink(x,y,p,f) {
+function ink(x, y, pose, frame) {
   let c = pixels[y][x];
 
   const eyes =
-    (x>=10 && x<=16 && y>=18 && y<=25) ||
-    (x>=29 && x<=34 && y>=18 && y<=25);
+    (x >= 10 && x <= 16 && y >= 18 && y <= 25) ||
+    (x >= 29 && x <= 34 && y >= 18 && y <= 25);
 
-  if (eyes && [2,3,4,7].includes(p)) {
-    const center = x<20 ? 13 : 31;
-    c = p===2
-      ? (y===21+(Math.abs(x-center)>1?1:0) ? 1 : 3)
-      : (y===23 ? 1 : 3);
+  if (eyes && [2, 3, 4, 7].includes(pose)) {
+    const center = x < 20 ? 13 : 31;
+
+    c = pose === 2
+      ? (y === 21 + (Math.abs(x - center) > 1 ? 1 : 0) ? 1 : 3)
+      : (y === 23 ? 1 : 3);
   }
 
-  if (x>=19 && x<=27 && y>=28 && y<=29) {
-    if (p===1) c=f ? 7 : 1;
-    if (p===2) c=y===28 && x>20 && x<26 ? 7 : 1;
-    if (p===7) c=y===28 && x>20 && x<26 ? 1 : 2;
+  if (x >= 19 && x <= 27 && y >= 28 && y <= 29) {
+    if (pose === 1) c = frame ? 7 : 1;
+    if (pose === 2) c = y === 28 && x > 20 && x < 26 ? 7 : 1;
+    if (pose === 7) c = y === 28 && x > 20 && x < 26 ? 1 : 2;
   }
 
-  if (p===2 && y===26 &&
-      ((x>=12 && x<=14)||(x>=31 && x<=33))) c=7;
-
-  if (p===5 && y===19 &&
-      ((x>=13 && x<=14)||(x>=30 && x<=31))) c=6;
+  if (
+    pose === 2 && y === 26 &&
+    ((x >= 12 && x <= 14) || (x >= 31 && x <= 33))
+  ) {
+    c = 7;
+  }
 
   return c;
 }
 
-function heart(x,y) {
-  rect(x,y,3,3,0xf98f);
-  rect(x+5,y,3,3,0xf98f);
-  rect(x,y+3,8,3,0xf98f);
-  rect(x+2,y+6,4,2,0xf98f);
+function heart(x, y) {
+  rect(x, y, 3, 3, 0xf98f);
+  rect(x + 5, y, 3, 3, 0xf98f);
+  rect(x, y + 3, 8, 3, 0xf98f);
+  rect(x + 2, y + 6, 4, 2, 0xf98f);
 }
 
 /*
   0 bình thường; 1 ăn; 2 vui; 3 chớp mắt; 4 ngủ;
-  5 nghe; 6 nghĩ; 7 ốm; 8 dọn; 9 thuốc; 10 kỷ luật;
+  7 ốm; 8 dọn; 9 thuốc; 10 kỷ luật;
   11 Hawaii; 12 dừa; 13 buồn ngủ.
 */
-function render(p,f) {
-  const t=f/12*Math.PI*2;
-  rect(0,0,128,160,p===4?0:0x0843);
-  text(5,13,"STITCH / OHANA",0x65ff);
-  rect(0,137,128,1,0x2152);
-  text(5,151,"BROWSER PET",0xffe0);
+function render(pose, frame) {
+  const t = frame / 12 * Math.PI * 2;
 
-  let x=25,y=46,w=78,h=88,flip=false;
+  rect(0, 0, 128, 160, pose === 4 ? 0 : 0x0843);
+  rect(0, 137, 128, 1, 0x2152);
 
-  // Không trượt ngang liên tục khi bình thường.
-  if (p===0) y+=Math.round(Math.sin(t));
-  if (p===1) y-=Math.round(3*Math.abs(Math.sin(t)));
-  if (p===2) {
-    y-=Math.round(12*Math.abs(Math.sin(t)));
-    x+=Math.round(3*Math.sin(t));
+  let x = 25;
+  let y = 46;
+  const w = 78;
+  let h = 88;
+  let flip = false;
+
+  if (pose === 0) y += Math.round(Math.sin(t));
+
+  if (pose === 1) {
+    y -= Math.round(3 * Math.abs(Math.sin(t)));
   }
 
-  // Ngủ giữ nguyên tỷ lệ, không ép chiều cao.
-  if (p===4) y=46+Math.round(Math.sin(t));
-
-  if (p===5) x+=Math.round(3*Math.sin(t));
-  if (p===6) x+=Math.round(4*Math.sin(t));
-  if (p===7) {
-    x+=f%2;
-    y+=4;
-    h=84;
+  if (pose === 2) {
+    y -= Math.round(12 * Math.abs(Math.sin(t)));
+    x += Math.round(3 * Math.sin(t));
   }
-  if (p===8) {
-    x+=Math.round(14*Math.sin(t));
-    flip=Math.cos(t)<0;
+
+  // Giữ nguyên tỷ lệ khi ngủ.
+  if (pose === 4) y = 46 + Math.round(Math.sin(t));
+
+  if (pose === 7) {
+    x += frame % 2;
+    y += 4;
+    h = 84;
   }
-  if (p===9) y-=Math.round(2*Math.abs(Math.sin(t)));
-  if (p===10) y-=Math.round(4*Math.abs(Math.sin(t)));
 
-  rect(x+14,135,w-28,2,0x2104);
+  if (pose === 8) {
+    x += Math.round(14 * Math.sin(t));
+    flip = Math.cos(t) < 0;
+  }
 
-  for (let sy=0;sy<h;sy++) {
-    for (let sx=0;sx<w;sx++) {
-      let ax=Math.floor(sx*45/w);
-      let ay=Math.floor(sy*51/h);
+  if (pose === 9) {
+    y -= Math.round(2 * Math.abs(Math.sin(t)));
+  }
 
-      if (flip) ax=44-ax;
+  if (pose === 10) {
+    y -= Math.round(4 * Math.abs(Math.sin(t)));
+  }
 
-      if (ay<18 && p!==4) {
-        ay=Math.max(0,Math.min(
+  rect(x + 14, 135, w - 28, 2, 0x2104);
+
+  for (let sy = 0; sy < h; sy++) {
+    for (let sx = 0; sx < w; sx++) {
+      let ax = Math.floor(sx * 45 / w);
+      let ay = Math.floor(sy * 51 / h);
+
+      if (flip) ax = 44 - ax;
+
+      if (ay < 18 && pose !== 4) {
+        ay = Math.max(0, Math.min(
           50,
-          ay+Math.round(Math.sin(t)*(ax<10?1:-1))
+          ay + Math.round(Math.sin(t) * (ax < 10 ? 1 : -1))
         ));
       }
 
       const expression =
-        (p===0||p===11||p===12)&&f===0 ? 3 : p;
-      const c=ink(ax,ay,expression,f<6?0:1);
+        [0, 11, 12].includes(pose) && frame === 0 ? 3 : pose;
 
-      // Hawaii thay phần thân ngồi bằng phần thân đứng.
-      if (c && !(p===11 && ay>=30)) {
-        rect(x+sx,y+sy,1,1,palette[c]);
+      const c = ink(ax, ay, expression, frame < 6 ? 0 : 1);
+
+      if (c && !(pose === 11 && ay >= 30)) {
+        rect(x + sx, y + sy, 1, 1, palette[c]);
       }
     }
   }
 
-  const wave=Math.round(3*Math.sin(t));
+  const wave = Math.round(3 * Math.sin(t));
 
-  if (p===1) {
-    const fy=100-Math.round(13*(1+Math.sin(t))/2);
-    rect(x+32,fy,12,7,[0xffff,0x07e0,0xfd20][state.meal]);
-    rect(x+34,fy+7,8,2,0x2104);
-    if (f>7) {
-      rect(x+30,fy+4,2,2,0xffe0);
-      rect(x+47,fy+6,2,2,0xffe0);
+  if (pose === 1) {
+    const foodY = 100 - Math.round(13 * (1 + Math.sin(t)) / 2);
+    rect(x + 32, foodY, 12, 7, [0xffff, 0x07e0, 0xfd20][state.meal]);
+    rect(x + 34, foodY + 7, 8, 2, 0x2104);
+
+    if (frame > 7) {
+      rect(x + 30, foodY + 4, 2, 2, 0xffe0);
+      rect(x + 47, foodY + 6, 2, 2, 0xffe0);
     }
   }
 
-  if (p===2) {
-    for (let i=0;i<2;i++) {
-      heart(10+i*97,75-((f+i*5)%12)*3);
+  if (pose === 2) {
+    for (let i = 0; i < 2; i++) {
+      heart(10 + i * 97, 75 - ((frame + i * 5) % 12) * 3);
     }
   }
 
-  if (p===4) {
-    // Chăn và chữ Z.
-    rect(38,107,56,24,0x3b72);
-    rect(38,107,56,3,0x65ff);
-    text(85,82-f*2,"ZZZ");
+  if (pose === 4) {
+    rect(38, 107, 56, 24, 0x3b72);
+    rect(38, 107, 56, 3, 0x65ff);
+    text(85, 82 - frame * 2, "ZZZ");
   }
 
-  if (p===11) {
-    const sway=Math.round(Math.sin(t)*3);
+  if (pose === 11) {
+    const sway = Math.round(Math.sin(t) * 3);
 
-    // Thân đứng.
-    rect(49+sway,98,30,23,0x3b72);
-    rect(56+sway,98,16,17,0x8e3b);
+    // Thân đứng, chân nhấc luân phiên.
+    rect(49 + sway, 98, 30, 23, 0x3b72);
+    rect(56 + sway, 98, 16, 17, 0x8e3b);
+    rect(47 + sway, 119, 12, 13, 0x3b72);
+    rect(68 + sway, 119, 12, 13, 0x3b72);
 
-    // Chân nhấc luân phiên.
-    rect(47+sway,119,12,13,0x3b72);
-    rect(68+sway,119,12,13,0x3b72);
-    rect(43+sway,130-(f<6?2:0),17,4,0x2104);
-    rect(67+sway,130-(f>=6?2:0),17,4,0x2104);
+    rect(43 + sway, 130 - (frame < 6 ? 2 : 0), 17, 4, 0x2104);
+    rect(67 + sway, 130 - (frame >= 6 ? 2 : 0), 17, 4, 0x2104);
 
     // Váy lá.
-    for (let i=0;i<7;i++) {
-      rect(46+sway+i*5,113,4,10+i%3,0x5ca6);
+    for (let i = 0; i < 7; i++) {
+      rect(46 + sway + i * 5, 113, 4, 10 + i % 3, 0x5ca6);
     }
 
-    // Tay múa và vòng lá.
-    rect(35,102+wave,18,5,0x3b72);
-    rect(77,98-wave,18,5,0x3b72);
-    for (let i=0;i<5;i++) {
-      rect(47+i*7,60-i%2*3,5,5,0x5ca6);
+    // Tay múa, vòng lá trên đầu và cổ tay.
+    rect(35, 102 + wave, 18, 5, 0x3b72);
+    rect(77, 98 - wave, 18, 5, 0x3b72);
+
+    for (let i = 0; i < 5; i++) {
+      rect(47 + i * 7, 60 - i % 2 * 3, 5, 5, 0x5ca6);
     }
-    rect(34,100+wave,5,7,0x5ca6);
-    rect(92,96-wave,5,7,0x5ca6);
+
+    rect(34, 100 + wave, 5, 7, 0x5ca6);
+    rect(92, 96 - wave, 5, 7, 0x5ca6);
   }
 
-  if (p===12) {
-    // Dừa khô đưa lên miệng.
-    rect(55,91-wave,20,17,0x8200);
-    rect(58,89-wave,14,3,0xc618);
-    rect(60,94-wave,2,2,0x2104);
-    if (f>6) rect(72,91-wave,3,4,0x0843);
+  if (pose === 12) {
+    rect(55, 91 - wave, 20, 17, 0x8200);
+    rect(58, 89 - wave, 14, 3, 0xc618);
+    rect(60, 94 - wave, 2, 2, 0x2104);
+
+    if (frame > 6) rect(72, 91 - wave, 3, 4, 0x0843);
   }
 
-  if (p===13) text(81,52,"ZZ?",0xffe0);
+  if (pose === 13) text(81, 52, "ZZ?", 0xffe0);
 
-  if (p===5) {
-    for (let i=0;i<3;i++) {
-      rect(
-        109+i*4,78-wave*(i+1),2,
-        6+Math.abs(wave)*(i+1),0x65ff
-      );
-    }
+  if (pose === 7) {
+    rect(x + 58, 83 + frame % 4, 2, 4, 0x65ff);
   }
 
-  if (p===6) {
-    text(98,42,"?",0xffe0,12);
-    for (let i=0;i<3;i++) {
-      rect(102+i*7,66,3,3,
-        i===Math.floor(f/4)?0xffff:0x2152);
-    }
+  if (pose === 8) {
+    rect(x + 62 + wave, 104, 2, 23, 0xfd20);
+    rect(x + 57 + wave, 125, 12, 4, 0xffff);
+    rect(108, 130, 10, 4, 0x8200);
+    rect(110, 127, 6, 3, 0x8200);
   }
 
-  if (p===7) {
-    text(3,113,"OM",0xf800);
-    rect(x+58,83+f%4,2,4,0x65ff);
-  }
-
-  if (p===8) {
-    rect(x+62+wave,104,2,23,0xfd20);
-    rect(x+57+wave,125,12,4,0xffff);
-    rect(108,130,10,4,0x8200);
-    rect(110,127,6,3,0x8200);
-    if (f>7) {
-      rect(106,120,2,2,0xffff);
-      rect(119,124,2,2,0xffff);
-    }
-  }
-
-  if (p===9) {
-    rect(105,96,13,17,0xffff);
-    rect(110,98,3,13,0xf800);
-    rect(107,103,9,3,0xf800);
+  if (pose === 9) {
+    rect(105, 96, 13, 17, 0xffff);
+    rect(110, 98, 3, 13, 0xf800);
+    rect(107, 103, 9, 3, 0xf800);
     rect(
-      x+34,
-      105-Math.round(17*(1+Math.sin(t))/2),
-      5,3,0xffff
+      x + 34,
+      105 - Math.round(17 * (1 + Math.sin(t)) / 2),
+      5, 3, 0xffff
     );
   }
 
-  if (p===10) {
-    text(106,65-wave,"!",0xffe0,12);
-    rect(x+9,104-wave,6,3,0x3b72);
+  if (pose === 10) {
+    text(106, 65 - wave, "!", 0xffe0, 12);
   }
 
-  if (state.waste && p!==8) {
-    rect(107,130,10,4,0x8200);
-    rect(109,127,6,3,0x8200);
+  if (state.waste && pose !== 8) {
+    rect(107, 130, 10, 4, 0x8200);
+    rect(109, 127, 6, 3, 0x8200);
   }
 }
 
-/* Luật nuôi độc lập trên trình duyệt. */
-const KEY="ohana-pet-v2";
-const HOUR=3600000;
+/* Luật nuôi và lưu trạng thái. */
+const KEY = "ohana-pet-v2";
+const HOUR = 3600000;
 
 let pet;
-try {
-  pet=JSON.parse(localStorage.getItem(KEY));
-} catch(e) {}
 
-if (!pet || pet.version!==2) {
-  pet={
-    version:2,
-    last:Date.now(),
-    fed:Date.now(),
-    happy:80,
-    energy:85,
-    clean:100,
-    health:100,
-    discipline:70,
-    waste:0,
-    digestion:[],
-    sick:false,
-    sleep:false,
-    nextIll:Date.now()+12*HOUR+Math.random()*12*HOUR
+try {
+  pet = JSON.parse(localStorage.getItem(KEY));
+} catch (error) {}
+
+if (!pet || pet.version !== 2) {
+  pet = {
+    version: 2,
+    last: Date.now(),
+    fed: Date.now(),
+    happy: 80,
+    energy: 85,
+    clean: 100,
+    health: 100,
+    discipline: 70,
+    waste: 0,
+    digestion: [],
+    sick: false,
+    sleep: false,
+    nextIll: Date.now() + 12 * HOUR + Math.random() * 12 * HOUR
   };
 }
 
-let lastInput=Date.now();
-let idleDance=false;
-let idleCoconut=false;
-let temporary=0;
-let end=0;
+let lastInput = Date.now();
+let idleDance = false;
+let idleCoconut = false;
+let temporary = 0;
+let end = 0;
 
 function save() {
   try {
-    localStorage.setItem(KEY,JSON.stringify(pet));
-  } catch(e) {}
+    localStorage.setItem(KEY, JSON.stringify(pet));
+  } catch (error) {}
 }
 
-function say(s) {
-  message.textContent=s;
+function say(value) {
+  message.textContent = value;
 }
 
 function touch() {
-  lastInput=Date.now();
-  idleDance=false;
-  idleCoconut=false;
+  lastInput = Date.now();
+  idleDance = false;
+  idleCoconut = false;
 }
 
-function animate(p,seconds=5) {
-  temporary=p;
-  end=Date.now()+seconds*1000;
+function animate(pose, seconds = 5) {
+  temporary = pose;
+  end = Date.now() + seconds * 1000;
 }
 
 function hunger() {
   return Math.min(
     100,
-    Math.max(0,(Date.now()-pet.fed)/(9*HOUR)*100)
+    Math.max(0, (Date.now() - pet.fed) / (9 * HOUR) * 100)
   );
 }
 
+let previousHud = "";
+
+function updateHud() {
+  const now = new Date();
+  const clock =
+    String(now.getHours()).padStart(2, "0") + ":" +
+    String(now.getMinutes()).padStart(2, "0");
+
+  const spirit = Math.round(Math.max(0, Math.min(100, pet.happy)));
+  const hungry = Math.round(hunger());
+  const key = clock + ":" + spirit + ":" + hungry;
+
+  if (key === previousHud) return;
+  previousHud = key;
+
+  clockElement.textContent = clock;
+  spiritFill.style.width = spirit + "%";
+  hungerFill.style.width = hungry + "%";
+  hungerFill.style.background = hungry >= 80 ? "#ff6565" : "#ffc56b";
+
+  spiritTrack.setAttribute("aria-valuenow", spirit);
+  hungerTrack.setAttribute("aria-valuenow", hungry);
+}
+
 function update() {
-  const now=Date.now();
-  const hours=Math.max(0,(now-pet.last)/HOUR);
-  pet.last=now;
+  const now = Date.now();
+  const hours = Math.max(0, (now - pet.last) / HOUR);
 
-  pet.happy=Math.max(0,pet.happy-hours*3);
+  pet.last = now;
+  pet.happy = Math.max(0, pet.happy - hours * 3);
 
-  pet.energy=Math.max(0,Math.min(
+  pet.energy = Math.max(0, Math.min(
     100,
-    pet.energy+hours*(pet.sleep?15:-4)
+    pet.energy + hours * (pet.sleep ? 15 : -4)
   ));
 
-  pet.clean=Math.max(
+  pet.clean = Math.max(
     0,
-    pet.clean-hours*(pet.waste?6:1)
+    pet.clean - hours * (pet.waste ? 6 : 1)
   );
 
-  pet.digestion=pet.digestion.filter(d=>{
-    if (d<=now) {
+  pet.digestion = pet.digestion.filter(deadline => {
+    if (deadline <= now) {
       pet.waste++;
       return false;
     }
@@ -849,77 +850,79 @@ function update() {
   });
 
   const neglected =
-    pet.clean<40 || hunger()>85 || pet.energy<20;
+    pet.clean < 40 || hunger() > 85 || pet.energy < 20;
 
-  if (now>=pet.nextIll) {
-    if (neglected && Math.random()<0.45) {
-      pet.sick=true;
+  if (now >= pet.nextIll) {
+    if (neglected && Math.random() < 0.45) {
+      pet.sick = true;
       say("Stitch thấy không khỏe, cần chăm sóc.");
     }
-    pet.nextIll=now+6*HOUR+Math.random()*6*HOUR;
+
+    pet.nextIll = now + 6 * HOUR + Math.random() * 6 * HOUR;
   }
 
-  pet.health=Math.max(0,Math.min(
+  pet.health = Math.max(0, Math.min(
     100,
-    pet.health+hours*(pet.sick?-3:pet.sleep?2:0)
+    pet.health + hours * (pet.sick ? -3 : pet.sleep ? 2 : 0)
   ));
 
-  state.waste=pet.waste;
+  state.waste = pet.waste;
+  updateHud();
   save();
 }
 
-/* Menu: cần gạt chỉ chọn mục, SELECT mới thực hiện. */
-const tree={
-  home:[
-    "Cho ăn","Sức khỏe","Vệ sinh","Ngủ",
-    "Nựng / Chơi","Kỷ luật","Thông tin"
+/* Cần gạt chỉ chọn mục. SELECT xác nhận. */
+const tree = {
+  home: [
+    "Cho ăn", "Sức khỏe", "Vệ sinh", "Ngủ",
+    "Nựng / Chơi", "Kỷ luật", "Thông tin"
   ],
-  "Cho ăn":["Cơm","Trái cây","Snack"],
-  "Sức khỏe":["Nghỉ ngơi","Uống thuốc","Tình trạng"],
-  "Vệ sinh":["Dọn chất thải"],
-  "Ngủ":["Đi ngủ","Thức dậy"],
-  "Nựng / Chơi":["Nựng","Chơi cùng"],
-  "Kỷ luật":["Nhắc nhở","Khen"],
-  "Thông tin":["Chỉ số","Bộ đếm","Đồng hồ","Kết nối"]
+  "Cho ăn": ["Cơm", "Trái cây", "Snack"],
+  "Sức khỏe": ["Nghỉ ngơi", "Uống thuốc", "Tình trạng"],
+  "Vệ sinh": ["Dọn chất thải"],
+  "Ngủ": ["Đi ngủ", "Thức dậy"],
+  "Nựng / Chơi": ["Nựng", "Chơi cùng"],
+  "Kỷ luật": ["Nhắc nhở", "Khen"],
+  "Thông tin": ["Chỉ số", "Bộ đếm", "Đồng hồ", "Kết nối"]
 };
 
-let page="home";
-let index=0;
-let stack=[];
-let opened=false;
+let page = "home";
+let index = 0;
+let stack = [];
+let opened = false;
 
 function refresh() {
-  panel.hidden=!opened;
+  panel.hidden = !opened;
   if (!opened) return;
 
   panel.replaceChildren();
 
-  const heading=document.createElement("h3");
-  heading.textContent=page==="home"?"MENU OHANA":page;
+  const heading = document.createElement("h3");
+  heading.textContent = page === "home" ? "MENU OHANA" : page;
   panel.append(heading);
 
-  tree[page].forEach((name,i)=>{
-    const row=document.createElement("div");
-    row.className="menu-row"+(i===index?" active":"");
-    row.textContent=(i===index?"▶ ":"  ")+name;
+  tree[page].forEach((name, i) => {
+    const row = document.createElement("div");
+    row.className = "menu-row" + (i === index ? " active" : "");
+    row.textContent = (i === index ? "▶ " : "  ") + name;
     panel.append(row);
   });
 
-  panel.children[index+1].scrollIntoView({block:"nearest"});
+  panel.children[index + 1].scrollIntoView({ block: "nearest" });
 }
 
 function home() {
   touch();
-  page="home";
-  index=0;
-  stack=[];
-  opened=true;
+  page = "home";
+  index = 0;
+  stack = [];
+  opened = true;
   refresh();
 }
 
 function exit() {
   touch();
-  opened=false;
+  opened = false;
   refresh();
 }
 
@@ -928,7 +931,7 @@ function back() {
   if (!opened) return;
 
   if (stack.length) {
-    [page,index]=stack.pop();
+    [page, index] = stack.pop();
     refresh();
   } else {
     exit();
@@ -941,14 +944,14 @@ function move(step) {
   if (!opened) {
     home();
   } else {
-    index=(index+step+tree[page].length)%tree[page].length;
+    index = (index + step + tree[page].length) % tree[page].length;
     refresh();
   }
 }
 
-function duration(ms) {
-  const minutes=Math.ceil(Math.max(0,ms)/60000);
-  return Math.floor(minutes/60)+"h "+minutes%60+"p";
+function duration(milliseconds) {
+  const minutes = Math.ceil(Math.max(0, milliseconds) / 60000);
+  return Math.floor(minutes / 60) + "h " + minutes % 60 + "p";
 }
 
 function select() {
@@ -960,179 +963,186 @@ function select() {
     return;
   }
 
-  const name=tree[page][index];
+  const name = tree[page][index];
 
   if (tree[name]) {
-    stack.push([page,index]);
-    page=name;
-    index=0;
+    stack.push([page, index]);
+    page = name;
+    index = 0;
     refresh();
     return;
   }
 
-  if (["Cơm","Trái cây","Snack"].includes(name)) {
+  if (["Cơm", "Trái cây", "Snack"].includes(name)) {
     if (pet.sleep) {
       say("Để Stitch ngủ nhé.");
-    } else if (hunger()<15) {
+    } else if (hunger() < 15) {
       say("Stitch còn no, đừng cho ăn thêm nhé.");
     } else {
-      pet.fed=Date.now();
+      pet.fed = Date.now();
       pet.digestion.push(
-        Date.now()+(45+Math.random()*45)*60000
+        Date.now() + (45 + Math.random() * 45) * 60000
       );
-      state.meal=["Cơm","Trái cây","Snack"].indexOf(name);
+      state.meal = ["Cơm", "Trái cây", "Snack"].indexOf(name);
       animate(1);
       say("Măm măm! Độ đói sẽ tăng dần trong 9 giờ.");
     }
 
-  } else if (name==="Dọn chất thải") {
+  } else if (name === "Dọn chất thải") {
     if (!pet.waste) {
       say("Chưa có chất thải để dọn.");
     } else {
-      pet.waste=0;
-      pet.clean=Math.min(100,pet.clean+25);
+      pet.waste = 0;
+      state.waste = 0;
+      pet.clean = Math.min(100, pet.clean + 25);
       animate(8);
       say("Đã dọn sạch chất thải.");
     }
 
-  } else if (name==="Uống thuốc") {
+  } else if (name === "Uống thuốc") {
     if (!pet.sick) {
       say("Stitch khỏe, không cần uống thuốc.");
     } else {
-      pet.sick=false;
-      pet.health=Math.min(100,pet.health+25);
+      pet.sick = false;
+      pet.health = Math.min(100, pet.health + 25);
       animate(9);
       say("Đỡ rồi, vẫn cần nghỉ ngơi nhé.");
     }
 
-  } else if (name==="Đi ngủ" || name==="Nghỉ ngơi") {
-    pet.sleep=true;
+  } else if (name === "Đi ngủ" || name === "Nghỉ ngơi") {
+    pet.sleep = true;
     say("Ngủ hồi năng lượng. Chọn Thức dậy khi muốn.");
 
-  } else if (name==="Thức dậy") {
-    pet.sleep=false;
+  } else if (name === "Thức dậy") {
+    pet.sleep = false;
     say("Chào Ohana!");
 
-  } else if (["Nựng","Chơi cùng","Khen"].includes(name)) {
+  } else if (["Nựng", "Chơi cùng", "Khen"].includes(name)) {
     if (pet.sleep) {
       say("Stitch đang ngủ.");
     } else {
-      pet.happy=Math.min(100,pet.happy+15);
+      pet.happy = Math.min(100, pet.happy + 15);
       animate(2);
       say("Ohana! Vui quá!");
     }
 
-  } else if (name==="Nhắc nhở") {
-    pet.discipline=Math.min(100,pet.discipline+5);
+  } else if (name === "Nhắc nhở") {
+    pet.discipline = Math.min(100, pet.discipline + 5);
     animate(10);
     say("Nhắc nhẹ thôi nhé!");
 
-  } else if (name==="Bộ đếm") {
+  } else if (name === "Bộ đếm") {
     say(
-      "Đói hoàn toàn sau "+
-      duration(pet.fed+9*HOUR-Date.now())+
-      " • Tiêu hóa: "+
+      "Đói hoàn toàn sau " +
+      duration(pet.fed + 9 * HOUR - Date.now()) +
+      " • Tiêu hóa: " +
       (pet.digestion.length
-        ? duration(Math.min(...pet.digestion)-Date.now())
+        ? duration(Math.min(...pet.digestion) - Date.now())
         : "chưa có")
     );
 
-  } else if (name==="Chỉ số" || name==="Tình trạng") {
+  } else if (name === "Chỉ số" || name === "Tình trạng") {
     say(
-      "Đói "+Math.round(hunger())+
-      " • Vui "+Math.round(pet.happy)+
-      " • Sức khỏe "+Math.round(pet.health)+
-      " • Năng lượng "+Math.round(pet.energy)+
-      " • Sạch "+Math.round(pet.clean)+
-      " • Kỷ luật "+pet.discipline+
-      " • Chất thải "+pet.waste+
-      (pet.sick?" • Đang ốm":"")
+      "Đói " + Math.round(hunger()) +
+      " • Vui " + Math.round(pet.happy) +
+      " • Sức khỏe " + Math.round(pet.health) +
+      " • Năng lượng " + Math.round(pet.energy) +
+      " • Sạch " + Math.round(pet.clean) +
+      " • Kỷ luật " + pet.discipline +
+      " • Chất thải " + pet.waste +
+      (pet.sick ? " • Đang ốm" : "")
     );
 
-  } else if (name==="Đồng hồ") {
+  } else if (name === "Đồng hồ") {
     say(new Date().toLocaleString("vi-VN"));
 
   } else {
     say("Chưa kết nối Adafruit / ESP32.");
   }
 
+  updateHud();
   save();
-  opened=false;
+  opened = false;
   refresh();
 }
 
-document.querySelectorAll("[data-step]").forEach(button=>{
-  button.onclick=()=>move(Number(button.dataset.step));
+document.querySelectorAll("[data-step]").forEach(button => {
+  button.onclick = () => move(Number(button.dataset.step));
 });
 
-document.getElementById("home").onclick=home;
-document.getElementById("back").onclick=back;
-document.getElementById("select").onclick=select;
-document.getElementById("exit").onclick=exit;
+document.getElementById("home").onclick = home;
+document.getElementById("back").onclick = back;
+document.getElementById("select").onclick = select;
+document.getElementById("exit").onclick = exit;
 
-document.addEventListener("keydown",event=>{
-  const key=event.key.toLowerCase();
-  const supported=[
-    "arrowup","arrowleft","arrowdown","arrowright",
-    "enter","escape","h","x"
+document.addEventListener("keydown", event => {
+  const key = event.key.toLowerCase();
+  const supported = [
+    "arrowup", "arrowleft", "arrowdown", "arrowright",
+    "enter", "escape", "h", "x"
   ];
 
   if (!supported.includes(key)) return;
   event.preventDefault();
 
-  if (key==="enter") select();
-  else if (key==="escape") back();
-  else if (key==="h") home();
-  else if (key==="x") exit();
-  else move(["arrowup","arrowleft"].includes(key)?-1:1);
-});
-
-/* Bộ đếm chạy bằng thời gian thật, không bằng số frame. */
-let lastFrame="";
-let lastUpdate=0;
-
-function loop(now) {
-  if (now-lastUpdate>1000) {
-    update();
-    lastUpdate=now;
+  // Giữ SELECT không được xác nhận liên tiếp nhiều mục.
+  if (event.repeat && ["enter", "h", "x", "escape"].includes(key)) {
+    return;
   }
 
-  const time=Date.now();
-  const idle=time-lastInput;
-  const hour=new Date().getHours();
+  if (key === "enter") select();
+  else if (key === "escape") back();
+  else if (key === "h") home();
+  else if (key === "x") exit();
+  else move(["arrowup", "arrowleft"].includes(key) ? -1 : 1);
+});
 
-  if (!opened && !pet.sleep && !pet.sick && pet.energy>25) {
-    if (idle>=90000 && !idleDance) {
-      idleDance=true;
-      animate(11,12);
+/* Thời lượng hoạt động dùng đồng hồ thật. */
+let lastFrame = "";
+let lastUpdate = 0;
+
+function loop(now) {
+  if (now - lastUpdate > 1000) {
+    update();
+    lastUpdate = now;
+  }
+
+  const time = Date.now();
+  const idle = time - lastInput;
+  const hour = new Date().getHours();
+
+  if (!opened && !pet.sleep && !pet.sick && pet.energy > 25) {
+    if (idle >= 90000 && !idleDance) {
+      idleDance = true;
+      animate(11, 12);
       say("Stitch mặc váy lá nhảy Hawaii!");
     }
 
-    if (idle>=120000 && !idleCoconut) {
-      idleCoconut=true;
-      animate(12,10);
+    if (idle >= 120000 && !idleCoconut) {
+      idleCoconut = true;
+      animate(12, 10);
       say("Gặm vỏ dừa cho vui — không tính là bữa ăn.");
     }
   }
 
-  if (end && time>end) {
-    temporary=0;
-    end=0;
+  if (end && time > end) {
+    temporary = 0;
+    end = 0;
   }
 
   state.pose =
     pet.sleep ? 4 :
     pet.sick ? 7 :
     end ? temporary :
-    (hour>=22 || hour<6 || pet.energy<25) ? 13 :
+    (hour >= 22 || hour < 6 || pet.energy < 25) ? 13 :
     0;
 
-  const frame=Math.floor(now/120)%12;
-  const key=state.pose+":"+frame+":"+state.waste;
+  const frame = Math.floor(now / 120) % 12;
+  const key = state.pose + ":" + frame + ":" + state.waste;
 
-  if (key!==lastFrame) {
-    render(state.pose,frame);
-    lastFrame=key;
+  if (key !== lastFrame) {
+    render(state.pose, frame);
+    lastFrame = key;
   }
 
   requestAnimationFrame(loop);
