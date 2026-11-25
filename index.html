@@ -1,77 +1,551 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stitch — Ohana Pocket</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixel Handheld Console - GitHub Pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --shell-main: #8fdce3;
+      --shell-light: #b6eef3;
+      --shell-dark: #63bcc6;
+      --border-dark: #141720;
+      --screen-bezel: #7d83a8;
+      --screen-bezel-dark: #585d7e;
+      --screen-bg: #3b405c;
+      --screen-glow: #4c5275;
+      --dpad-main: #868eb2;
+      --dpad-light: #a5adc9;
+      --dpad-dark: #616887;
+      --btn-red: #d45567;
+      --btn-red-light: #ec7888;
+      --btn-red-dark: #9c3445;
+      --speaker: #2a2f45;
+      --gold-light: #ffd166;
+      --gold-dark: #e08e26;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 20% 20%, #23283d 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, #1c323a 0%, transparent 45%),
+        #121520;
+      font-family: 'Press Start 2P', monospace;
+      color: #f4f7ff;
+      padding: 24px 12px;
+      gap: 18px;
+    }
+
+    /* Thân máy pixel */
+    .console {
+      position: relative;
+      width: 340px;
+      max-width: 94vw;
+      background: var(--shell-main);
+      border: 6px solid var(--border-dark);
+      border-radius: 36px 36px 22px 22px;
+      padding: 24px 24px 28px;
+      box-shadow:
+        inset 0 8px 0 var(--shell-light),
+        inset 0 -10px 0 var(--shell-dark),
+        inset 8px 0 0 var(--shell-light),
+        inset -8px 0 0 var(--shell-dark),
+        0 18px 0 #0b0d14,
+        0 26px 40px rgba(0, 0, 0, 0.55);
+      image-rendering: pixelated;
+    }
+
+    /* Viền màn hình */
+    .bezel {
+      background: var(--screen-bezel);
+      border: 6px solid var(--border-dark);
+      padding: 12px;
+      box-shadow:
+        inset 4px 4px 0 #9aa0c4,
+        inset -4px -4px 0 var(--screen-bezel-dark);
+      margin-bottom: 34px;
+    }
+
+    .screen-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: var(--screen-bg);
+      border: 5px solid var(--border-dark);
+      box-shadow: inset 0 0 24px rgba(10, 12, 22, 0.55);
+      overflow: hidden;
+    }
+
+    /* Hiệu ứng scanline nhẹ cho màn hình pixel */
+    .screen-wrapper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.03) 0px,
+        rgba(255, 255, 255, 0.03) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+    }
+
+    canvas#gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .hud-bar {
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #ffd166;
+      text-shadow: 2px 2px 0 var(--border-dark);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .overlay-msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      background: rgba(34, 38, 58, 0.78);
+      z-index: 3;
+      gap: 10px;
+    }
+
+    .overlay-msg.hidden {
+      display: none;
+    }
+
+    .pixel-title {
+      font-size: 20px;
+      line-height: 1.35;
+      background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(3px 3px 0 var(--border-dark));
+    }
+
+    .pixel-sub {
+      font-size: 8px;
+      line-height: 1.6;
+      color: #dce3ff;
+      text-shadow: 2px 2px 0 var(--border-dark);
+    }
+
+    /* Khu vực nút điều khiển */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* Cụm D-Pad dấu cộng */
+    .dpad {
+      position: relative;
+      width: 108px;
+      height: 108px;
+      flex-shrink: 0;
+    }
+
+    .dpad-btn {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      background: var(--dpad-main);
+      border: 5px solid var(--border-dark);
+      cursor: pointer;
+      padding: 0;
+      box-shadow:
+        inset 3px 3px 0 var(--dpad-light),
+        inset -3px -3px 0 var(--dpad-dark);
+    }
+
+    .dpad-btn:active,
+    .dpad-btn.pressed {
+      transform: translateY(2px);
+      background: var(--dpad-dark);
+      box-shadow: inset 2px 2px 0 var(--border-dark);
+    }
+
+    .dpad-up {
+      top: 0;
+      left: 36px;
+      border-bottom: none;
+    }
+
+    .dpad-down {
+      bottom: 0;
+      left: 36px;
+      border-top: none;
+    }
+
+    .dpad-left {
+      top: 36px;
+      left: 0;
+      border-right: none;
+    }
+
+    .dpad-right {
+      top: 36px;
+      right: 0;
+      border-left: none;
+    }
+
+    .dpad-center {
+      position: absolute;
+      top: 36px;
+      left: 36px;
+      width: 36px;
+      height: 36px;
+      background: var(--dpad-main);
+      pointer-events: none;
+    }
+
+    /* Cụm 4 nút tròn đỏ xếp vòng tròn */
+    .action-pad {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      flex-shrink: 0;
+    }
+
+    .round-btn {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--btn-red);
+      border: 5px solid var(--border-dark);
+      cursor: pointer;
+      padding: 0;
+      box-shadow:
+        inset 3px 3px 0 var(--btn-red-light),
+        inset -3px -3px 0 var(--btn-red-dark);
+    }
+
+    .round-btn:active,
+    .round-btn.pressed {
+      transform: scale(0.94);
+      background: var(--btn-red-dark);
+    }
+
+    .btn-top {
+      top: 2px;
+      left: 41px;
+    }
+
+    .btn-bottom {
+      bottom: 2px;
+      left: 41px;
+    }
+
+    .btn-left {
+      top: 41px;
+      left: 2px;
+    }
+
+    .btn-right {
+      top: 41px;
+      right: 2px;
+    }
+
+    /* 3 khe loa góc dưới phải */
+    .speaker {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-right: 14px;
+      margin-top: 6px;
+    }
+
+    .speaker-slot {
+      width: 14px;
+      height: 44px;
+      background: var(--speaker);
+      border: 4px solid var(--border-dark);
+      border-radius: 6px;
+      box-shadow: inset 3px 0 0 #1b1e2e;
+    }
+
+    .footer-note {
+      font-size: 9px;
+      line-height: 1.6;
+      text-align: center;
+      color: #9ba5c9;
+    }
+  </style>
 </head>
 <body>
-  <main>
-    <div class="console" aria-label="Máy chăm Stitch màu xanh biển">
-      <header>
-        <span>OHANA</span>
-        <span>POCKET PET</span>
-      </header>
-
-      <section class="bezel">
-        <div class="screen">
-          <canvas
-            width="128"
-            height="160"
-            aria-label="Màn hình Stitch pixel"
-          ></canvas>
-        </div>
-        <div class="screen-label">STITCH · PIXEL COMPANION</div>
-      </section>
-
-      <div class="connection">
-        <i></i> DEMO • CHƯA KẾT NỐI
-      </div>
-
-      <div class="inputs">
-        <div class="dpad" aria-label="Phím điều hướng">
-          <button class="up" data-dir="up" aria-label="Lên">▲</button>
-          <button class="left" data-dir="left" aria-label="Trái">◀</button>
-          <button class="center" data-dir="center" aria-label="Xác nhận">●</button>
-          <button class="right" data-dir="right" aria-label="Phải">▶</button>
-          <button class="down" data-dir="down" aria-label="Xuống">▼</button>
+  <main class="console" aria-label="Máy chơi game pixel">
+    <div class="bezel">
+      <div class="screen-wrapper">
+        <div class="hud-bar">
+          <span id="scoreText">SCORE: 00</span>
+          <span id="bestText">BEST: 00</span>
         </div>
 
-        <div class="action-pad">
-          <button id="confirm" aria-label="Xem animation đã chọn">A</button>
-          <button id="pet" aria-label="Xem animation nựng">B</button>
+        <canvas id="gameCanvas" width="160" height="120"></canvas>
+
+        <div id="overlay" class="overlay-msg">
+          <div class="pixel-title" id="overlayTitle">PIXEL<br />GAME</div>
+          <div class="pixel-sub" id="overlaySub">NHẤN NÚT ĐỎ<br />HOẶC ENTER ĐỂ CHƠI</div>
         </div>
       </div>
-
-      <div class="selection" id="selected" aria-live="polite">
-        Bình thường
-      </div>
-
-      <footer>
-        <button id="reset">HOME</button>
-        <span class="speaker" aria-hidden="true">▌▌▌</span>
-      </footer>
     </div>
 
-    <section class="preview">
-      <h1>Stitch ở nhà, Ohana ở mọi nơi</h1>
-      <p>
-        Chọn animation bằng phím hướng, nhấn A để xem.
-        B xem nựng. Đây là bản xem thử, chưa điều khiển ESP32.
-      </p>
+    <div class="controls">
+      <div class="dpad" role="group" aria-label="Phím điều hướng">
+        <button class="dpad-btn dpad-up" data-dir="UP" aria-label="Lên"></button>
+        <button class="dpad-btn dpad-down" data-dir="DOWN" aria-label="Xuống"></button>
+        <button class="dpad-btn dpad-left" data-dir="LEFT" aria-label="Trái"></button>
+        <button class="dpad-btn dpad-right" data-dir="RIGHT" aria-label="Phải"></button>
+        <div class="dpad-center"></div>
+      </div>
 
-      <details>
-        <summary>Tất cả animation</summary>
-        <div id="controls"></div>
-      </details>
+      <div class="action-pad" role="group" aria-label="Nút hành động">
+        <button class="round-btn btn-top" data-action="start" aria-label="Nút trên"></button>
+        <button class="round-btn btn-bottom" data-action="start" aria-label="Nút dưới"></button>
+        <button class="round-btn btn-left" data-action="pause" aria-label="Nút trái"></button>
+        <button class="round-btn btn-right" data-action="start" aria-label="Nút phải"></button>
+      </div>
+    </div>
 
-      <p class="hint">
-        Máy tính: phím mũi tên để chọn · Enter để xem
-      </p>
-    </section>
+    <div class="speaker" aria-hidden="true">
+      <div class="speaker-slot"></div>
+      <div class="speaker-slot"></div>
+      <div class="speaker-slot"></div>
+    </div>
   </main>
 
-  <script type="module" src="animation.js"></script>
+  <p class="footer-note">
+    Dùng phím mũi tên / WASD để di chuyển · Enter để bắt đầu · P để tạm dừng
+  </p>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlaySub = document.getElementById("overlaySub");
+    const scoreText = document.getElementById("scoreText");
+    const bestText = document.getElementById("bestText");
+
+    const GRID = 8;
+    const COLS = canvas.width / GRID;
+    const ROWS = canvas.height / GRID;
+
+    let snake = [];
+    let dir = { x: 1, y: 0 };
+    let nextDir = { x: 1, y: 0 };
+    let food = { x: 12, y: 7 };
+    let score = 0;
+    let best = Number(localStorage.getItem("pixel_best_score") || 0);
+    let state = "IDLE";
+    let loopTimer = null;
+
+    bestText.textContent = `BEST: ${String(best).padStart(2, "0")}`;
+
+    function randomFood() {
+      let pos;
+      do {
+        pos = {
+          x: Math.floor(Math.random() * COLS),
+          y: Math.floor(Math.random() * ROWS)
+        };
+      } while (snake.some(seg => seg.x === pos.x && seg.y === pos.y));
+      return pos;
+    }
+
+    function resetGame() {
+      snake = [
+        { x: 6, y: 7 },
+        { x: 5, y: 7 },
+        { x: 4, y: 7 }
+      ];
+      dir = { x: 1, y: 0 };
+      nextDir = { x: 1, y: 0 };
+      score = 0;
+      food = randomFood();
+      scoreText.textContent = "SCORE: 00";
+    }
+
+    function startGame() {
+      resetGame();
+      state = "PLAYING";
+      overlay.classList.add("hidden");
+      clearInterval(loopTimer);
+      loopTimer = setInterval(tick, 130);
+    }
+
+    function togglePause() {
+      if (state === "PLAYING") {
+        state = "PAUSED";
+        clearInterval(loopTimer);
+        overlayTitle.innerHTML = "PAUSED";
+        overlaySub.innerHTML = "NHẤN NÚT TRÁI<br />HOẶC P ĐỂ TIẾP TỤC";
+        overlay.classList.remove("hidden");
+      } else if (state === "PAUSED") {
+        state = "PLAYING";
+        overlay.classList.add("hidden");
+        loopTimer = setInterval(tick, 130);
+      }
+    }
+
+    function setDirection(newDir) {
+      if (state !== "PLAYING") return;
+      if (newDir.x === -dir.x && newDir.y === -dir.y) return;
+      nextDir = newDir;
+    }
+
+    function tick() {
+      dir = nextDir;
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+      if (
+        head.x < 0 || head.x >= COLS ||
+        head.y < 0 || head.y >= ROWS ||
+        snake.some(seg => seg.x === head.x && seg.y === head.y)
+      ) {
+        state = "GAMEOVER";
+        clearInterval(loopTimer);
+        overlayTitle.innerHTML = "GAME<br />OVER";
+        overlaySub.innerHTML = `ĐIỂM: ${score}<br />NHẤN NÚT ĐỎ ĐỂ CHƠI LẠI`;
+        overlay.classList.remove("hidden");
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score += 1;
+        scoreText.textContent = `SCORE: ${String(score).padStart(2, "0")}`;
+        if (score > best) {
+          best = score;
+          localStorage.setItem("pixel_best_score", String(best));
+          bestText.textContent = `BEST: ${String(best).padStart(2, "0")}`;
+        }
+        food = randomFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function draw() {
+      ctx.fillStyle = "#3b405c";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#454b6b";
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          ctx.fillRect(x * GRID + 3, y * GRID + 3, 2, 2);
+        }
+      }
+
+      ctx.fillStyle = "#141720";
+      ctx.fillRect(food.x * GRID + 1, food.y * GRID + 1, GRID - 2, GRID - 2);
+      ctx.fillStyle = "#ffd166";
+      ctx.fillRect(food.x * GRID + 2, food.y * GRID + 2, GRID - 4, GRID - 4);
+
+      snake.forEach((seg, idx) => {
+        ctx.fillStyle = "#141720";
+        ctx.fillRect(seg.x * GRID, seg.y * GRID, GRID, GRID);
+        ctx.fillStyle = idx === 0 ? "#b6eef3" : "#76cfd8";
+        ctx.fillRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2);
+      });
+    }
+
+    const dirMap = {
+      UP: { x: 0, y: -1 },
+      DOWN: { x: 0, y: 1 },
+      LEFT: { x: -1, y: 0 },
+      RIGHT: { x: 1, y: 0 }
+    };
+
+    document.querySelectorAll(".dpad-btn").forEach(btn => {
+      btn.addEventListener("pointerdown", () => {
+        btn.classList.add("pressed");
+        setDirection(dirMap[btn.dataset.dir]);
+      });
+      btn.addEventListener("pointerup", () => btn.classList.remove("pressed"));
+      btn.addEventListener("pointerleave", () => btn.classList.remove("pressed"));
+    });
+
+    document.querySelectorAll(".round-btn").forEach(btn => {
+      btn.addEventListener("pointerdown", () => {
+        btn.classList.add("pressed");
+        if (btn.dataset.action === "pause") {
+          togglePause();
+        } else {
+          if (state === "IDLE" || state === "GAMEOVER") {
+            startGame();
+          } else if (state === "PAUSED") {
+            togglePause();
+          }
+        }
+      });
+      btn.addEventListener("pointerup", () => btn.classList.remove("pressed"));
+      btn.addEventListener("pointerleave", () => btn.classList.remove("pressed"));
+    });
+
+    window.addEventListener("keydown", e => {
+      const key = e.key.toLowerCase();
+      if (key === "arrowup" || key === "w") {
+        e.preventDefault();
+        setDirection(dirMap.UP);
+      } else if (key === "arrowdown" || key === "s") {
+        e.preventDefault();
+        setDirection(dirMap.DOWN);
+      } else if (key === "arrowleft" || key === "a") {
+        e.preventDefault();
+        setDirection(dirMap.LEFT);
+      } else if (key === "arrowright" || key === "d") {
+        e.preventDefault();
+        setDirection(dirMap.RIGHT);
+      } else if (key === "enter" || key === " ") {
+        e.preventDefault();
+        if (state === "IDLE" || state === "GAMEOVER") startGame();
+      } else if (key === "p") {
+        e.preventDefault();
+        togglePause();
+      }
+    });
+
+    resetGame();
+    draw();
+  </script>
 </body>
 </html>
+
