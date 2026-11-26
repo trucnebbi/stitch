@@ -803,9 +803,41 @@ function render(pose,frame){
     if(c && c!==4)rect(12+(ax-10)*2,82+(ay-10)*2+breath,2,2,palette[c]);
    }
   }
-  rect(16,100+breath,18,8,0x5295);rect(48,100+breath,16,8,0x5295);
-  rect(33,101+breath,15,2,0x5295);
-  rect(19,103+breath,12,2,0x0000);rect(50,103+breath,11,2,0x0000);
+  // Sleep accessories share the head's translation and integer pixel grid.
+  ctx.save();ctx.translate(0,breath);
+  // Long drooping striped nightcap, with a stepped silhouette (no rotation).
+  const capRows=[
+   [34,48],[30,54],[28,58],[26,62],[24,64],[22,66],
+   [20,68],[18,68],[16,68],[16,66],[14,66],[14,64]
+  ];
+  capRows.forEach(([l,r],i)=>{
+   rect(l,58+i*2,r-l,2,0x216e);
+   rect(l+2,58+i*2,r-l-4,2,Math.floor(i/3)%2?0xe7ff:0x65ff);
+  });
+  // Tail hangs beside, not across, the eye mask or nose.
+  for(let i=0;i<13;i++){
+   const x=62+Math.min(8,Math.floor(i/2)*2);
+   rect(x,72+i*2,10,2,0x216e);
+   rect(x+2,72+i*2,6,2,Math.floor(i/3)%2?0xe7ff:0x65ff);
+  }
+  rect(68,96,12,2,0x216e);rect(66,98,16,8,0x216e);rect(68,106,12,2,0x216e);
+  rect(70,98,8,2,0xffff);rect(68,100,12,4,0xe7ff);rect(70,104,8,2,0xafff);
+  // Thick folded brim follows the crown, leaving both resting ears visible.
+  rect(12,80,54,4,0x216e);rect(10,84,58,4,0x216e);
+  rect(12,84,54,2,0x65ff);rect(14,88,50,2,0x216e);
+  // One continuous plush mask, hiding the old eyes completely.
+  rect(12,100,56,4,0x216e); // side straps
+  rect(20,96,6,4,0x082b);rect(52,96,6,4,0x082b); // little ears
+  rect(16,100,46,10,0x082b);rect(18,98,42,2,0x082b);
+  rect(18,110,18,2,0x082b);rect(44,110,16,2,0x082b);
+  rect(18,100,42,8,0x1931);
+  rect(22,102,6,2,0xe7ff);rect(50,102,6,2,0xe7ff);
+  rect(24,104,6,2,0xe7ff);rect(48,104,6,2,0xe7ff);
+  // Cream animal muzzle and tiny dark nose, inspired by the reference.
+  rect(34,102,10,2,0xe7ff);rect(32,104,14,4,0xe7ff);
+  rect(34,108,10,2,0xe7ff);rect(38,104,4,2,0x082b);
+  rect(40,106,2,2,0x082b);
+  ctx.restore();
   // Bubble touches the nose and expands with the same breath cycle.
   const radius=3+Math.round((1+Math.sin(t*1.6))*2);
   const bx=45,by=113+breath-radius;
