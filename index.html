@@ -703,7 +703,13 @@ function locateWeather(){
  },()=>{weatherStatus.textContent='Không lấy được vị trí. Hãy cho phép vị trí rồi bấm lại; nền vẫn theo giờ máy.';},
  {enableHighAccuracy:false,timeout:15000,maximumAge:300000});
 }
-setInterval(refreshWeather,600000);
+// Request location once on entry; the browser controls the permission prompt.
+window.addEventListener('load',locateWeather,{once:true});
+setInterval(refreshWeather,15*60*1000);
+// Browsers may pause timers in background tabs: catch up when returning.
+document.addEventListener('visibilitychange',()=>{
+ if(!document.hidden && weather.coords && Date.now()-weather.updated>=15*60*1000)refreshWeather();
+});
 function weatherScenery(date,day){
  const c=weather.code;if(c===null || Date.now()-weather.updated>3600000)return;
  const wet=(c>=51 && c<=67)||(c>=80 && c<=82)||c>=95;
@@ -805,38 +811,44 @@ function render(pose,frame){
   }
   // Sleep accessories share the head's translation and integer pixel grid.
   ctx.save();ctx.translate(0,breath);
-  // Long drooping striped nightcap, with a stepped silhouette (no rotation).
+  // Single connected cap silhouette: crown joins the brim and bent tail.
+  // Each two-pixel row overlaps its neighbours, including the pompom.
   const capRows=[
-   [34,48],[30,54],[28,58],[26,62],[24,64],[22,66],
-   [20,68],[18,68],[16,68],[16,66],[14,66],[14,64]
+   [34,48],[30,54],[28,58],[26,62],[24,66],[22,70],
+   [20,74],[18,76],[16,78],[14,80],[12,80],[12,80],
+   [12,80],[12,80],[66,80],[68,80],[68,82],[68,82],
+   [68,82],[68,82],[68,80],[68,80]
   ];
   capRows.forEach(([l,r],i)=>{
    rect(l,58+i*2,r-l,2,0x216e);
    rect(l+2,58+i*2,r-l-4,2,Math.floor(i/3)%2?0xe7ff:0x65ff);
   });
-  // Tail hangs beside, not across, the eye mask or nose.
-  for(let i=0;i<13;i++){
-   const x=62+Math.min(8,Math.floor(i/2)*2);
-   rect(x,72+i*2,10,2,0x216e);
-   rect(x+2,72+i*2,6,2,Math.floor(i/3)%2?0xe7ff:0x65ff);
-  }
-  rect(68,96,12,2,0x216e);rect(66,98,16,8,0x216e);rect(68,106,12,2,0x216e);
+  // Folded brim overlaps the crown; the tail stays attached at the right.
+  rect(10,80,58,10,0x216e);
+  rect(12,82,54,4,0xe7ff);rect(12,86,54,2,0x65ff);
+  // Pompom overlaps the tail rather than floating beside it.
+  rect(66,98,16,8,0x216e);rect(68,106,12,2,0x216e);
   rect(70,98,8,2,0xffff);rect(68,100,12,4,0xe7ff);rect(70,104,8,2,0xafff);
-  // Thick folded brim follows the crown, leaving both resting ears visible.
-  rect(12,80,54,4,0x216e);rect(10,84,58,4,0x216e);
-  rect(12,84,54,2,0x65ff);rect(14,88,50,2,0x216e);
-  // One continuous plush mask, hiding the old eyes completely.
-  rect(12,100,56,4,0x216e); // side straps
-  rect(20,96,6,4,0x082b);rect(52,96,6,4,0x082b); // little ears
-  rect(16,100,46,10,0x082b);rect(18,98,42,2,0x082b);
-  rect(18,110,18,2,0x082b);rect(44,110,16,2,0x082b);
-  rect(18,100,42,8,0x1931);
-  rect(22,102,6,2,0xe7ff);rect(50,102,6,2,0xe7ff);
-  rect(24,104,6,2,0xe7ff);rect(48,104,6,2,0xe7ff);
-  // Cream animal muzzle and tiny dark nose, inspired by the reference.
-  rect(34,102,10,2,0xe7ff);rect(32,104,14,4,0xe7ff);
-  rect(34,108,10,2,0xe7ff);rect(38,104,4,2,0x082b);
-  rect(40,106,2,2,0x082b);
+  // Smooth stepped dark sleep mask, without the former animal ears/muzzle.
+  rect(12,100,56,4,0x216e);
+  rect(18,96,42,2,0x082b);rect(16,98,46,12,0x082b);
+  rect(18,110,42,2,0x082b);
+  rect(18,98,42,10,0x1931);
+  // White Batman-inspired bat silhouette on the same two-pixel grid.
+  // Pointed ears, broad wings, scalloped lower edge and central tail.
+  const batMark=[
+   '0010000010100000100',
+   '0111000011100001110',
+   '1111100111110011111',
+   '1111111111111111111',
+   '0111111111111111110',
+   '0011011111111101100',
+   '0000001100011000000',
+   '0000000001000000000'
+  ];
+  batMark.forEach((row,y)=>{for(let x=0;x<row.length;x++)
+   if(row[x]==='1')rect(20+x*2,98+y,2,1,0xffff);
+  });
   ctx.restore();
   // Bubble touches the nose and expands with the same breath cycle.
   const radius=3+Math.round((1+Math.sin(t*1.6))*2);
