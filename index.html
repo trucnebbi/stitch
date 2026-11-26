@@ -415,8 +415,7 @@ footer {
     </div>
   </div>
 
-  <button id="locateWeather" type="button">📍 Thời tiết tại vị trí của tôi</button>
-<p id="weatherStatus" role="status" style="max-width:340px;text-align:center">Chưa có vị trí — nền chỉ theo giờ máy.</p>
+<p id="weatherStatus" role="status" hidden>Chưa có vị trí — nền chỉ theo giờ máy.</p>
 <p style="font-size:11px">Dữ liệu: <a href="https://open-meteo.com/" style="color:#a5e4ff">Open-Meteo</a> (CC BY 4.0)</p>
 <div class="speaker" aria-hidden="true">
     <i></i><i></i><i></i>
@@ -582,9 +581,16 @@ function limb(a,b,c,width=7){
  poly([[a[0]+nx*.65,a[1]+ny*.65],[b[0]+nx*.65,b[1]+ny*.65],[b[0]-nx*.65,b[1]-ny*.65],[a[0]-nx*.65,a[1]-ny*.65]],c);
 }
 function head(cx,top,expression,blink=false,yawn=0){
+ const beat=Math.floor((Date.now()-poseStart)/160)%4;
+ const expressive=[1,8,9,10,11,12,15].includes(expression);
  // Keep the approved face, but never stretch or rotate its seated body.
  for(let ay=0;ay<30;ay++)for(let ax=0;ax<45;ax++){
   let c=ink(ax,ay,blink && expression===0?3:expression,1);
+  if(expressive && ay>=26){
+   const edges={26:[9,35],27:[12,32],28:[15,29],29:[16,29]};
+   const edge=edges[ay];
+   c=edge && ax>=edge[0] && ax<=edge[1] ? (ax===edge[0]||ax===edge[1]?1:2):0;
+  }
   // Replace the original smile itself during yawning, including its teeth.
   if(expression===13 && ay>=26){
    // Preserve the tapered silhouette instead of painting a rectangular muzzle.
@@ -594,6 +600,26 @@ function head(cx,top,expression,blink=false,yawn=0){
      ? (ax===edge[0] || ax===edge[1] ? 1 : 2) : 0;
   }
   if(c)rect(cx-45+ax*2,top+ay*2,2,2,palette[c]);
+ }
+ if(expressive){
+  const my=top+54;
+  if(expression===1 || expression===12){
+   // Bite, closed chew, open chew, closed chew; no old smile underneath.
+   const opening=[4,2,6,2][beat];
+   rect(cx-8,my-2,16,opening+2,0x0000);
+   if(opening>2){rect(cx-6,my,12,opening-2,0x680a);rect(cx-4,my+opening-2,8,2,0xf98f);}
+   else {rect(cx-12,my,4,2,0x216e);rect(cx+8,my,4,2,0x216e);}
+  }else if(expression===9){
+   rect(cx-4,my-2,8,6,0x0000);rect(cx-2,my,4,2,0x680a);
+  }else if(expression===10 || expression===15){
+   rect(cx-8,my+2,16,2,0x0000);rect(cx-10,my+4,2,2,0x0000);rect(cx+8,my+4,2,2,0x0000);
+  }else{
+   rect(cx-10,my,20,2,0x0000);rect(cx-12,my-2,2,2,0x0000);rect(cx+10,my-2,2,2,0x0000);
+  }
+  if(expression===15 || expression===10){
+   rect(cx-22,top+32,10,2,0x216e);rect(cx+12,top+32,10,2,0x216e);
+   if(expression===15){rect(cx-20,top+50,6,2,0xf98f);rect(cx+16,top+50,6,2,0xf98f);}
+  }
  }
  if(expression===13){
   // Relaxed eyelids; the mouth opens and closes during each yawn.
@@ -634,9 +660,11 @@ function runHead(cx,top){
  rect(cx+20,top+40,12,8,0x216e);rect(cx+10,top+50,13,2,0x0000);
 }
 function neck(cx,top){
- // Shared grid: overlap the chin and shoulders, including the empty sprite row 30.
- rect(cx-14,top+56,30,10,0x0000);
- rect(cx-10,top+58,22,6,0x53f4);
+ // A short tapered bridge behind the chin, not a rectangular collar.
+ for(const [y,l,r] of [[58,-9,11],[60,-11,13],[62,-13,15]]){
+  rect(cx+l,top+y,r-l,2,0x0000);
+  rect(cx+l+2,top+y,r-l-4,2,0x53f4);
+ }
 }
 function seated(cx,top,pose){
  // The face and seated body share EXACTLY the same 2x pixel grid.
@@ -665,16 +693,16 @@ async function refreshWeather(){
   weather.code=current.weather_code;weather.temperature=current.temperature_2m;weather.updated=Date.now();
   weatherStatus.textContent=`${weatherLabel(weather.code)} · ${weather.temperature} °C · cập nhật ${new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}`;
  }catch(e){weatherStatus.textContent=weather.updated?'Mất kết nối thời tiết — đang hiển thị dữ liệu cũ.':'Không lấy được thời tiết — nền chỉ theo giờ máy.';}
- finally{clearTimeout(timeout);weather.busy=false;}
+ finally{clearTimeout(timeout);weather.busy=false;if(opened && page === "Thời tiết")refresh();}
 }
-document.getElementById('locateWeather').addEventListener('click',()=>{
+function locateWeather(){
  if(!window.isSecureContext || !navigator.geolocation){weatherStatus.textContent='Cần mở trang bằng HTTPS để lấy vị trí.';return;}
  weatherStatus.textContent='Đang xin vị trí… Tọa độ gần đúng sẽ gửi tới Open-Meteo.';
  navigator.geolocation.getCurrentPosition(position=>{
   weather.coords=[position.coords.latitude,position.coords.longitude];refreshWeather();
  },()=>{weatherStatus.textContent='Không lấy được vị trí. Hãy cho phép vị trí rồi bấm lại; nền vẫn theo giờ máy.';},
  {enableHighAccuracy:false,timeout:15000,maximumAge:300000});
-});
+}
 setInterval(refreshWeather,600000);
 function weatherScenery(date,day){
  const c=weather.code;if(c===null || Date.now()-weather.updated>3600000)return;
@@ -833,7 +861,7 @@ function render(pose,frame){
  }
  if(pose===8)right=[cx+26+wave*5,112];
  if([1,9,12].includes(pose)){
-  const a=(1-Math.cos(Math.min(t,4)*Math.PI/2))/2;
+  const a=(1-Math.cos((pose===9?Math.min(t,4):t)*Math.PI*2))/2;
   if(pose===9)right=[cx+15-a*10,shoulderY+16-a*21];else left=[cx-17+a*12,shoulderY+16-a*20];
  }
  if(standing || [1,8,9,12].includes(pose))for(const [side,hand]of [[-1,left],[1,right]]){
@@ -1016,8 +1044,9 @@ function update() {
 const tree = {
   home: [
     "Cho ăn", "Sức khỏe", "Vệ sinh", "Ngủ",
-    "Nựng / Chơi", "Kỷ luật", "Thông tin"
+    "Nựng / Chơi", "Kỷ luật", "Thời tiết", "Thông tin"
   ],
+  "Thời tiết": ["📍 Dùng vị trí của tôi", "Xem thời tiết", "Cập nhật thời tiết"],
   "Cho ăn": ["Cơm", "Trái cây", "Snack"],
   "Sức khỏe": ["Nghỉ ngơi", "Uống thuốc", "Tình trạng"],
   "Vệ sinh": ["Dọn chất thải"],
@@ -1049,6 +1078,12 @@ function refresh() {
     panel.append(row);
   });
 
+  if(page === "Thời tiết"){
+    const info=document.createElement("p");
+    info.textContent=weatherStatus.textContent;
+    info.style.cssText="font-size:11px;color:#bcecff;line-height:1.5;padding:6px";
+    panel.append(info);
+  }
   panel.children[index + 1].scrollIntoView({ block: "nearest" });
 }
 
@@ -1115,6 +1150,13 @@ function select() {
     return;
   }
 
+  if(page === "Thời tiết"){
+    if(name === "📍 Dùng vị trí của tôi")locateWeather();
+    else if(name === "Cập nhật thời tiết"){
+      if(weather.coords)refreshWeather();else locateWeather();
+    }
+    refresh();return;
+  }
   if (["Cơm", "Trái cây", "Snack"].includes(name)) {
     if (pet.sleep) {
       say("Để Stitch ngủ nhé.");
@@ -1279,6 +1321,7 @@ function loop(now) {
     pet.sick ? 7 :
     end ? temporary :
     (hour >= 22 || hour < 6 || pet.energy < 25) ? 13 :
+    hunger()>=80 ? 15 :
     0;
 
   const frame = Math.floor(now / 40) % 100000;
